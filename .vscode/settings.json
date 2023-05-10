@@ -1,6 +1,9 @@
 {
     "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
-        "qry.h": "c"
+        "qry.h": "c",
+        "stdlib.h": "c",
+        "radialtree.h": "c",
+        "math.h": "c"
     }
 }

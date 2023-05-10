@@ -1,5 +1,5 @@
 # Nome do projeto
-PROJETO = mochila
+PROJETO = ted
 
 # Arquivos fonte
 FONTES =

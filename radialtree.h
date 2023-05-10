@@ -36,7 +36,7 @@
  * Nos removidos nao sao desalocados imediatamente, mas apenas
  * marcados como delidos.
  * Eventualmente, uma sub-arvore e' reorganizada sem os nos marcados como removidos.
- * Isto ocorre, imediatamente apos o no ser marcado como removido,  quando o fator de 
+ * Isto ocorre, imediatamente apos o no ser marcado como removido,  quando o fator de
  * degradacao fd da sub-arvore exceder a um dado limiar definido na criacao da arvore.
  *
  *     fd = #removidos/#total_nos > limiar.
@@ -70,7 +70,7 @@ typedef bool (*FpontoInternoAInfo)(Info i, double x, double y);
 typedef void (*FvisitaNo)(Info i, double x, double y, void *aux);
 
 /*
- * Retorna uma arvore Radial vazia de numSetores setores e com fator 
+ * Retorna uma arvore Radial vazia de numSetores setores e com fator
  * de degradacao fd.
  *    0 <= fd < 1.0
  */
@@ -111,7 +111,7 @@ bool getNodesDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, 
    Retorna falso caso nao existam informacoes internas; verdadeiro, caso contrario.
  */
 bool getInfosDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, double y2,
-				 FdentroDeRegiao f, Lista L);
+                                 FdentroDeRegiao f, Lista L);
 
 /* Insere na lista L  os nos para os quais o ponto (x,y) possa ser considerado
   interno 'as  informacoes associadas ao no'. A funcao f e' invocada para determinar
