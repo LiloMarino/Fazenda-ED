@@ -73,6 +73,10 @@ Node insertRadialT(RadialTree t, double x, double y, Info i)
             double y2 = y;
             double Theta = atan2(y2 - y1, x2 - x1); // Ângulo do nó em relação ao ponto de referência (x1,y1)
             Theta = RadianosParaGraus(Theta);
+            if (Theta < 0)
+            {
+                Theta += 360;
+            }
             for (int i = 0; i < Tree->numSetores; i++)
             {
                 double InclinacaoRetaInf = i * 360 / Tree->numSetores;
@@ -108,6 +112,10 @@ Node getNodeRadialT(RadialTree t, double x, double y, double epsilon)
     {
         double Theta = atan2(y - P->y, x - P->x); // Ângulo do nó em relação ao ponto de referência (x1,y1)
         Theta = RadianosParaGraus(Theta);
+        if (Theta < 0)
+        {
+            Theta += 360;
+        }
         for (int i = 0; i < Tree->numSetores; i++)
         {
             double InclinacaoRetaInf = i * 360 / Tree->numSetores;
@@ -176,7 +184,7 @@ void freeNode(Node n)
 void freeRadialTree(RadialTree t)
 {
     Raiz *Tree = t;
-    NodeTree *Node = Tree->node;
+    NodeTree *No = Tree->node;
     NodeTree *Clear = NULL;
     int i;
     while (Tree->numNos != 0)
@@ -184,7 +192,7 @@ void freeRadialTree(RadialTree t)
         bool Vazio = true;
         for (i = 0; i < Tree->numSetores; i++)
         {
-            if (Node->filhos[i] != NULL)
+            if (No->filhos[i] != NULL)
             {
                 Vazio = false;
                 break;
@@ -193,22 +201,22 @@ void freeRadialTree(RadialTree t)
         if (Vazio)
         {
             /*Nó não tem filhos*/
-            Clear = Node;
+            Clear = No;
+            No = No->pai;
             freeNode(Clear);
-            Node = Node->pai;
-            if (Node == NULL)
+            if (No == NULL)
             {
                 /*Nó raiz*/
                 Tree->node = NULL;
                 free(Tree);
                 return;
             }
-            Node->filhos[i] = NULL;
+            No->filhos[i] = NULL;
         }
         else
         {
             /*Primeiro filho encontrado do nó*/
-            Node = Node->filhos[i];
+            No = No->filhos[i];
         }
     }
 }
