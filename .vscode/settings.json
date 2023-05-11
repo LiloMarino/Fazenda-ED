@@ -5,5 +5,12 @@
         "stdlib.h": "c",
         "radialtree.h": "c",
         "math.h": "c"
-    }
+    },
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/output",
+            "binaryPath": "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/output/ted",
+            "binaryArgs": []
+        }
+    ]
 }

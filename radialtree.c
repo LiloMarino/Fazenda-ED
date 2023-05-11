@@ -9,7 +9,8 @@ struct StNodeTree
     double x;
     double y;
     Info info;
-    struct StNodeTree **nodes;
+    struct StNodeTree *pai;
+    struct StNodeTree **filhos;
     bool removido;
 };
 
@@ -17,7 +18,9 @@ struct StRaiz
 {
     int numSetores;
     double fd;
-    struct StNodeTree *nodes;
+    int numNos;
+    int numNosRemovidos;
+    struct StNodeTree *node;
 };
 
 typedef struct StNodeTree NodeTree;
@@ -25,19 +28,13 @@ typedef struct StRaiz Raiz;
 
 RadialTree newRadialTree(int numSetores, double fd)
 {
-    if (0 <= fd && fd < 1.0)
-    {
-        Raiz *Tree = malloc(sizeof(Raiz));
-        Tree->numSetores = numSetores;
-        Tree->fd = fd;
-        Tree->nodes = NULL;
-        return Tree;
-    }
-    else
-    {
-        printf("Fator de degradação fora dos limites!");
-        exit(1);
-    }
+    Raiz *Tree = malloc(sizeof(Raiz));
+    Tree->numSetores = numSetores;
+    Tree->numNos = 0;
+    Tree->numNosRemovidos = 0;
+    Tree->fd = fd;
+    Tree->node = NULL;
+    return Tree;
 }
 
 Node insertRadialT(RadialTree t, double x, double y, Info i)
@@ -45,26 +42,29 @@ Node insertRadialT(RadialTree t, double x, double y, Info i)
     Raiz *Tree = t;
 
     /*Inicializa o nó*/
+    Tree->numNos += 1;
     NodeTree *No = malloc(sizeof(NodeTree));
     No->x = x;
     No->y = y;
     No->info = i;
     No->removido = false;
-    No->nodes = malloc(Tree->numSetores * sizeof(NodeTree *));
+    No->pai = NULL;
+    No->filhos = malloc(Tree->numSetores * sizeof(NodeTree *));
     for (int i = 0; i < Tree->numSetores; i++)
     {
-        No->nodes[i] = NULL;
+        No->filhos[i] = NULL;
     }
 
-    if (Tree->nodes == NULL)
+    /*Atribui o nó a árvore*/
+    if (Tree->node == NULL)
     {
         /*Primeiro nó da árvore*/
-        Tree->nodes = No;
+        Tree->node = No;
     }
     else
     {
         /*Procura o setor do qual o nó pertence e o insere*/
-        NodeTree *P = Tree->nodes;
+        NodeTree *P = Tree->node;
         do
         {
             double x1 = P->x;
@@ -72,22 +72,25 @@ Node insertRadialT(RadialTree t, double x, double y, Info i)
             double x2 = x;
             double y2 = y;
             double Theta = atan2(y2 - y1, x2 - x1); // Ângulo do nó em relação ao ponto de referência (x1,y1)
+            Theta = RadianosParaGraus(Theta);
             for (int i = 0; i < Tree->numSetores; i++)
             {
                 double InclinacaoRetaInf = i * 360 / Tree->numSetores;
                 double InclinacaoRetaSup = (i + 1) * 360 / Tree->numSetores;
                 if (VerificaIntervalo(InclinacaoRetaInf, Theta, InclinacaoRetaSup))
                 {
-                    if (P->nodes[i] == NULL)
+                    if (P->filhos[i] == NULL)
                     {
                         /*Nó não tem um filho pertencente ao setor*/
-                        P->nodes[i] = No;
+                        P->filhos[i] = No;
+                        No->pai = P;
                         return No;
                     }
                     else
                     {
                         /*Nó já tem um filho pertencente ao setor*/
-                        P = P->nodes[i];
+                        P = P->filhos[i];
+                        break;
                     }
                 }
             }
@@ -96,30 +99,116 @@ Node insertRadialT(RadialTree t, double x, double y, Info i)
     return No;
 }
 
-// Ideias de funções para dar free
-void freeNode(NodeTree *node)
+Node getNodeRadialT(RadialTree t, double x, double y, double epsilon)
 {
-    if (node == NULL)
+    /*Procura o nó com o ponto (x,y) e o epsilon (erro)*/
+    Raiz *Tree = t;
+    NodeTree *P = Tree->node;
+    do
     {
-        return;
-    }
-
-    for (int i = 0; i < node->numNodes; i++)
-    {
-        freeNode(node->nodes[i]);
-    }
-
-    free(node->nodes);
-    free(node);
+        double Theta = atan2(y - P->y, x - P->x); // Ângulo do nó em relação ao ponto de referência (x1,y1)
+        Theta = RadianosParaGraus(Theta);
+        for (int i = 0; i < Tree->numSetores; i++)
+        {
+            double InclinacaoRetaInf = i * 360 / Tree->numSetores;
+            double InclinacaoRetaSup = (i + 1) * 360 / Tree->numSetores;
+            if (VerificaIntervalo(InclinacaoRetaInf, Theta, InclinacaoRetaSup))
+            {
+                if (fabs(P->x - x) < epsilon && fabs(P->y - y) < epsilon)
+                {
+                    return P;
+                }
+                else
+                {
+                    P = P->filhos[i];
+                    break;
+                }
+            }
+        }
+    } while (P != NULL);
+    return NULL;
 }
 
-void freeRadialTree(Raiz *tree)
+void removeNoRadialT(RadialTree t, Node n)
 {
-    for (int i = 0; i < tree->numSetores; i++)
-    {
-        freeNode(tree->nodes[i]);
-    }
+    Raiz *Tree = t;
+    NodeTree *Rmv = n;
+    Rmv->removido = true;
+}
 
-    free(tree->nodes);
-    free(tree);
+Info getInfoRadialT(RadialTree t, Node n)
+{
+    return t;
+}
+
+bool getNodesDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, double y2, Lista L)
+{
+    return false;
+}
+
+bool getInfosDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, double y2, FdentroDeRegiao f, Lista L)
+{
+    return false;
+}
+
+bool getInfosAtingidoPontoRadialT(RadialTree t, double x, double y, FpontoInternoAInfo f, Lista L)
+{
+    return false;
+}
+
+void visitaProfundidadeRadialT(RadialTree t, FvisitaNo f, void *aux)
+{
+}
+
+void visitaLarguraRadialT(RadialTree t, FvisitaNo f, void *aux)
+{
+}
+
+// Ideias de funções para dar free
+void freeNode(Node n)
+{
+    NodeTree *No = n;
+    free(No->info);
+    free(No->filhos);
+    free(No);
+}
+
+void freeRadialTree(RadialTree t)
+{
+    Raiz *Tree = t;
+    NodeTree *Node = Tree->node;
+    NodeTree *Clear = NULL;
+    int i;
+    while (Tree->numNos != 0)
+    {
+        bool Vazio = true;
+        for (i = 0; i < Tree->numSetores; i++)
+        {
+            if (Node->filhos[i] != NULL)
+            {
+                Vazio = false;
+                break;
+            }
+        }
+        if (Vazio)
+        {
+            /*Nó não tem filhos*/
+            Clear = Node;
+            freeNode(Clear);
+            Node = Node->pai;
+            if (Node == NULL)
+            {
+                /*Nó raiz*/
+                Tree->node = NULL;
+                free(Tree);
+                return;
+            }
+            Node->filhos[i] = NULL;
+        }
+        else
+        {
+            /*Primeiro filho encontrado do nó*/
+            Node = Node->filhos[i];
+        }
+    }
 }
