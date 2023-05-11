@@ -2,7 +2,7 @@
 PROJETO = ted
 
 # Arquivos fonte
-FONTES =
+FONTES = main.c radialtree.c Bibliotecas/utilities.c
 
 # Pasta de saída
 OUTPUT = output/
@@ -17,7 +17,7 @@ OBJETOS = $(addprefix $(OUTPUT), $(FONTES:.c=.o))
 
 # Compilador e opções de compilação
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic-errors -std=c99 -fstack-protector-all -Werror=implicit-function-declaration -g
+CFLAGS = -Wall -Wextra -pedantic-errors -fstack-protector-all -Werror=implicit-function-declaration -g
 
 # Regra padrão
 all: $(OUTPUT)$(PROJETO)
