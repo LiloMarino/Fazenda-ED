@@ -176,7 +176,7 @@ void visitaLarguraRadialT(RadialTree t, FvisitaNo f, void *aux)
 void freeNode(Node n)
 {
     NodeTree *No = n;
-    free(No->info);
+    free(No->info); // Tem que analisar esta parte dependendo da info
     free(No->filhos);
     free(No);
 }
@@ -204,18 +204,29 @@ void freeRadialTree(RadialTree t)
             Clear = No;
             No = No->pai;
             freeNode(Clear);
-            if (No == NULL)
+            if (No != NULL)
+            {
+                /*Atribui NULL ao filho desalocado*/
+                for (i = 0; i < Tree->numSetores; i++)
+                {
+                    if (No->filhos[i] != NULL)
+                    {
+                        No->filhos[i] = NULL;
+                        break;
+                    }
+                }
+            }
+            else
             {
                 /*Nó raiz*/
                 Tree->node = NULL;
                 free(Tree);
                 return;
             }
-            No->filhos[i] = NULL;
         }
         else
         {
-            /*Primeiro filho encontrado do nó*/
+            /*Primeiro filho diferente de NULL encontrado do nó*/
             No = No->filhos[i];
         }
     }
