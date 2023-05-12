@@ -4,7 +4,9 @@
         "qry.h": "c",
         "stdlib.h": "c",
         "radialtree.h": "c",
-        "math.h": "c"
+        "math.h": "c",
+        "fila.h": "c",
+        "stdbool.h": "c"
     },
     "makefile.launchConfigurations": [
         {

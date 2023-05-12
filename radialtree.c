@@ -17,8 +17,8 @@ struct StNodeTree
 struct StRaiz
 {
     int numSetores;
-    double fd;
-    int numNos;
+    double limiar;
+    int numTotalNos;
     int numNosRemovidos;
     struct StNodeTree *node;
 };
@@ -30,9 +30,9 @@ RadialTree newRadialTree(int numSetores, double fd)
 {
     Raiz *Tree = malloc(sizeof(Raiz));
     Tree->numSetores = numSetores;
-    Tree->numNos = 0;
+    Tree->numTotalNos = 0;
     Tree->numNosRemovidos = 0;
-    Tree->fd = fd;
+    Tree->limiar = fd;
     Tree->node = NULL;
     return Tree;
 }
@@ -42,7 +42,7 @@ Node insertRadialT(RadialTree t, double x, double y, Info i)
     Raiz *Tree = t;
 
     /*Inicializa o nó*/
-    Tree->numNos += 1;
+    Tree->numTotalNos += 1;
     NodeTree *No = malloc(sizeof(NodeTree));
     No->x = x;
     No->y = y;
@@ -137,42 +137,10 @@ Node getNodeRadialT(RadialTree t, double x, double y, double epsilon)
     return NULL;
 }
 
-void removeNoRadialT(RadialTree t, Node n)
-{
-    Raiz *Tree = t;
-    NodeTree *Rmv = n;
-    Rmv->removido = true;
-}
-
-Info getInfoRadialT(RadialTree t, Node n)
-{
-    return t;
-}
-
-bool getNodesDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, double y2, Lista L)
-{
-    return false;
-}
-
-bool getInfosDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, double y2, FdentroDeRegiao f, Lista L)
-{
-    return false;
-}
-
-bool getInfosAtingidoPontoRadialT(RadialTree t, double x, double y, FpontoInternoAInfo f, Lista L)
-{
-    return false;
-}
-
-void visitaProfundidadeRadialT(RadialTree t, FvisitaNo f, void *aux)
-{
-}
-
-void visitaLarguraRadialT(RadialTree t, FvisitaNo f, void *aux)
-{
-}
-
-// Ideias de funções para dar free
+/**
+ * @brief Desaloca a memória alocada pelo nó da árvore
+ * @param n Nó da árvore radial
+ */
 void freeNode(Node n)
 {
     NodeTree *No = n;
@@ -181,13 +149,18 @@ void freeNode(Node n)
     free(No);
 }
 
+/**
+ * @brief Desaloca toda a memória da árvore
+ * @param t Árvore radial
+ */
 void freeRadialTree(RadialTree t)
 {
-    Raiz *Tree = t;
+    /** @warning É necessário passar o endereço do ponteiro da árvore para esta função*/
+    Raiz *Tree = *((Raiz **)t);
     NodeTree *No = Tree->node;
     NodeTree *Clear = NULL;
     int i;
-    while (Tree->numNos != 0)
+    while (Tree->numTotalNos != 0)
     {
         bool Vazio = true;
         for (i = 0; i < Tree->numSetores; i++)
@@ -221,6 +194,7 @@ void freeRadialTree(RadialTree t)
                 /*Nó raiz*/
                 Tree->node = NULL;
                 free(Tree);
+                *(void **)t = NULL;
                 return;
             }
         }
@@ -229,5 +203,65 @@ void freeRadialTree(RadialTree t)
             /*Primeiro filho diferente de NULL encontrado do nó*/
             No = No->filhos[i];
         }
+    }
+}
+
+/**
+ * @brief Percorre toda a árvore e retorna a lista dos elementos não removidos
+ * @param t Árvore radial
+ * @return Retorna a lista de elementos presentes na árvore
+ */
+Lista VerificaArvore(RadialTree t)
+{
+    Raiz *Tree = t;
+    NodeTree *raiz = Tree->node;
+    Lista Stack = createLst(-1);
+    Lista Existe = createLst(-1);
+
+    insertLst(Stack, raiz);
+
+    while (!isEmptyLst(Stack))
+    {
+        NodeTree *No = popLst(Stack);
+
+        if (!(No->removido))
+        {
+            insertLst(Existe, No);
+        }
+
+        for (int i = 0; i < Tree->numSetores; i++)
+        {
+            if (No->filhos[i] != NULL)
+            {
+                insertLst(Stack, No->filhos[i]);
+            }
+        }
+    }
+    killLst(Stack);
+    return Existe;
+}
+
+void removeNoRadialT(RadialTree t, Node n)
+{
+    /** @warning É necessário passar o endereço do ponteiro da árvore para esta função para a mudança da árvore*/
+    Raiz *Tree = *((Raiz **)t);
+    NodeTree *Rmv = n;
+    Rmv->removido = true;
+    Tree->numNosRemovidos++;
+    double fd = ((double) Tree->numNosRemovidos) / Tree->numTotalNos ;
+
+    /*Verifica se é necessário recriar a árvore*/
+    if (fd > Tree->limiar)
+    {
+        RadialTree NovaArvore = newRadialTree(Tree->numSetores, Tree->limiar);
+        Lista Aux = VerificaArvore(Tree);
+        while (!isEmptyLst(Aux))
+        {
+           NodeTree *No = popLst(Aux);
+           insertRadialT(NovaArvore,No->x,No->y,No->info);
+        }
+        freeRadialTree(t);
+        killLst(Aux);
+        *(void **)t = NovaArvore;
     }
 }

@@ -2,7 +2,7 @@
 PROJETO = ted
 
 # Arquivos fonte
-FONTES = main.c radialtree.c Bibliotecas/utilities.c
+FONTES = main.c radialtree.c Bibliotecas/utilities.c Bibliotecas/listadupla.c 
 
 # Pasta de saída
 OUTPUT = output/
