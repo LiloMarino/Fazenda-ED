@@ -303,6 +303,8 @@ bool getNodesDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, 
     /*Calcula o angulo das coordenadas em relação ao centro*/
     double Theta1;
     double Theta2;
+    /*O Leste é um caso específico pois o ângulo é medido a partir do 0° que fica no Leste,
+    e portanto não é possível obter o intervalo de ângulo a partir de Theta2 - Theta1, mas sim por 360° - Theta2 + Theta1*/
     bool Leste = false;
     if (No->x < x1 && No->x < x2)
     {
@@ -401,3 +403,52 @@ bool getNodesDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, 
 
     return Existe;
 }
+
+bool getInfosDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, double y2, FdentroDeRegiao f, Lista L)
+{
+    bool Existe = false;
+    /*Cria o Stack de verificação baseado na área*/
+    Lista Stack = createLst(-1);
+    if (getNodesDentroRegiaoRadialT(t, x1, y1, x2, y1, Stack))
+    {
+        while (!isEmptyLst(Stack))
+        {
+            /*Aplica a função f para cada nó presente na área*/
+            NodeTree *P = popLst(Stack);
+            if (f(P->info, x1, y1, x2, y2))
+            {
+                insertLst(L, P);
+                Existe = true;
+            }
+        }
+        killLst(Stack);
+    }
+    else
+    {
+        /*Não existe nós presentes na região*/
+        killLst(Stack);
+    }
+    return Existe;
+}
+
+bool getInfosAtingidoPontoRadialT(RadialTree t, double x, double y, FpontoInternoAInfo f, Lista L)
+{
+    bool Existe = false;
+    NodeTree *P = getNodeRadialT(t, x, y, 1.0);
+    if (P == NULL)
+    {
+        return Existe;
+    }
+    else
+    {
+        if (f(P->info, x, y))
+        {
+            insertLst(L, P);
+            Existe = true;
+        }
+    }
+    return Existe;
+}
+
+
+
