@@ -144,7 +144,6 @@ Node getNodeRadialT(RadialTree t, double x, double y, double epsilon)
 void freeNode(Node n, bool ClearTotal)
 {
     NodeTree *No = n;
-    printf("%s\n", (char *)No->info);
     if (ClearTotal)
     {
         free(No->info); // Atenção aqui, tem que analisar esta parte dependendo da info
@@ -304,35 +303,37 @@ bool getNodesDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, 
     /*Calcula o angulo das coordenadas em relação ao centro*/
     double Theta1;
     double Theta2;
+    bool Leste = false;
     if (No->x < x1 && No->x < x2)
     {
         /*Leste*/
+        Leste = true;
         Theta1 = atan2(y1 - No->y, x1 - No->x);             // Ângulo do nó em relação ao ponto de referência (x1,y1)
-        Theta2 = atan2(y2 - No->y, x2 - (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x2-x1,y2)
+        Theta2 = atan2(y2 - No->y, x2 - (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x2-largura,y2)
     }
     else if (No->x < y1 && No->x < y2)
     {
         /*Norte*/
-        Theta1 = atan2(y2 - No->y, x2 - (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x2-x1,y2)
+        Theta1 = atan2(y2 - No->y, x2 - (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x2-largura,y2)
         Theta2 = atan2(y2 - No->y, x2 - No->x);             // Ângulo do nó em relação ao ponto de referência (x2,y2)
     }
     else if (No->x > x1 && No->x > x2)
     {
         /*Oeste*/
-        Theta1 = atan2(y1 - No->y, x1 + (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x1+x2,y1)
+        Theta1 = atan2(y1 - No->y, x1 + (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x1+largura,y1)
         Theta2 = atan2(y2 - No->y, x2 - No->x);             // Ângulo do nó em relação ao ponto de referência (x2,y2)
     }
     else if (No->x > y1 && No->x > y2)
     {
         /*Sul*/
         Theta1 = atan2(y1 - No->y, x1 - No->x);             // Ângulo do nó em relação ao ponto de referência (x1,y1)
-        Theta2 = atan2(y1 - No->y, x1 + (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x1+x2,y1)
+        Theta2 = atan2(y1 - No->y, x1 + (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x1+largura,y1)
     }
     else
     {
         /*Centro*/
         Theta1 = 0;
-        Theta2 = 0;
+        Theta2 = 2 * PI;
     }
 
     Theta1 = RadianosParaGraus(Theta1);
@@ -361,7 +362,7 @@ bool getNodesDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, 
     {
         double InclinacaoRetaInf = i * 360 / Tree->numSetores;
         double InclinacaoRetaSup = (i + 1) * 360 / Tree->numSetores;
-        if (Theta1 >= InclinacaoRetaInf || InclinacaoRetaSup >= Theta2)
+        if (((InclinacaoRetaSup >= Theta2 || Theta1 >= InclinacaoRetaInf) && Leste) || ((VerificaIntervalo(Theta1, InclinacaoRetaInf, Theta2) || VerificaIntervalo(Theta1, InclinacaoRetaSup, Theta2)) && !Leste))
         {
             insertLst(Stack, No->filhos[i]);
         }
