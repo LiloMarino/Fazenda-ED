@@ -181,7 +181,7 @@ void freeRadialTree(RadialTree t, bool ClearTotal)
             /*Nó não tem filhos*/
             Clear = No;
             No = No->pai;
-            freeNode(Clear,ClearTotal);
+            freeNode(Clear, ClearTotal);
             if (No != NULL)
             {
                 /*Atribui NULL ao filho desalocado*/
@@ -269,8 +269,134 @@ void removeNoRadialT(RadialTree t, Node n)
             NodeTree *No = popLst(Aux);
             insertRadialT(NovaArvore, No->x, No->y, No->info);
         }
-        freeRadialTree(t,false);
+        freeRadialTree(t, false);
         killLst(Aux);
         *(void **)t = NovaArvore;
     }
+}
+
+Info getInfoRadialT(RadialTree t, Node n)
+{
+    NodeTree *No = n;
+    return No->info;
+}
+
+bool getNodesDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, double y2, Lista L)
+{
+    Raiz *Tree = t;
+    NodeTree *No = Tree->node;
+    bool Existe = false;
+    /*Regulariza as coordenadas para o processamento*/
+    /*Precisa-se x2 > x1 e y1 > y2*/
+    if (x1 > x2)
+    {
+        double aux = x1;
+        x1 = x2;
+        x2 = aux;
+    }
+    if (y2 > y1)
+    {
+        double aux = y1;
+        y1 = y2;
+        y2 = aux;
+    }
+
+    /*Calcula o angulo das coordenadas em relação ao centro*/
+    double Theta1;
+    double Theta2;
+    if (No->x < x1 && No->x < x2)
+    {
+        /*Leste*/
+        Theta1 = atan2(y1 - No->y, x1 - No->x);             // Ângulo do nó em relação ao ponto de referência (x1,y1)
+        Theta2 = atan2(y2 - No->y, x2 - (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x2-x1,y2)
+    }
+    else if (No->x < y1 && No->x < y2)
+    {
+        /*Norte*/
+        Theta1 = atan2(y2 - No->y, x2 - (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x2-x1,y2)
+        Theta2 = atan2(y2 - No->y, x2 - No->x);             // Ângulo do nó em relação ao ponto de referência (x2,y2)
+    }
+    else if (No->x > x1 && No->x > x2)
+    {
+        /*Oeste*/
+        Theta1 = atan2(y1 - No->y, x1 + (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x1+x2,y1)
+        Theta2 = atan2(y2 - No->y, x2 - No->x);             // Ângulo do nó em relação ao ponto de referência (x2,y2)
+    }
+    else if (No->x > y1 && No->x > y2)
+    {
+        /*Sul*/
+        Theta1 = atan2(y1 - No->y, x1 - No->x);             // Ângulo do nó em relação ao ponto de referência (x1,y1)
+        Theta2 = atan2(y1 - No->y, x1 + (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x1+x2,y1)
+    }
+    else
+    {
+        /*Centro*/
+        Theta1 = 0;
+        Theta2 = 0;
+    }
+
+    Theta1 = RadianosParaGraus(Theta1);
+    Theta2 = RadianosParaGraus(Theta2);
+    if (Theta1 < 0)
+    {
+        Theta1 += 360;
+    }
+    if (Theta2 < 0)
+    {
+        Theta2 += 360;
+    }
+    /*Theta 2 deve ser maior que Theta 1*/
+    if (Theta1 > Theta2)
+    {
+        double aux = Theta1;
+        Theta1 = Theta2;
+        Theta2 = aux;
+    }
+
+    /*Cria o Stack de verificação baseado na direção da área*/
+    Lista Stack = createLst(-1);
+    Lista Aux = createLst(-1);
+    insertLst(Aux, No);
+    for (int i = 0; i < Tree->numSetores; i++)
+    {
+        double InclinacaoRetaInf = i * 360 / Tree->numSetores;
+        double InclinacaoRetaSup = (i + 1) * 360 / Tree->numSetores;
+        if (Theta1 >= InclinacaoRetaInf || InclinacaoRetaSup >= Theta2)
+        {
+            insertLst(Stack, No->filhos[i]);
+        }
+    }
+
+    /*Percorre o Stack de verificação e verifica se o nó tem algum filho dentro da região*/
+    while (!isEmptyLst(Stack))
+    {
+        No = popLst(Stack);
+        for (int i = 0; i < Tree->numSetores; i++)
+        {
+            if (No->filhos[i] != NULL)
+            {
+                insertLst(Stack, No->filhos[i]);
+            }
+        }
+
+        if (!(No->removido))
+        {
+            insertLst(Aux, No);
+        }
+    }
+
+    /*Insere na lista L quem retornar verdadeiro de Aux*/
+    while (!isEmptyLst(Aux))
+    {
+        NodeTree *P = popLst(Aux);
+        if (VerificaPonto(x1, P->x, x2, y1, P->y, y2))
+        {
+            insertLst(L, P);
+            Existe = true;
+        }
+    }
+    killLst(Stack);
+    killLst(Aux);
+
+    return Existe;
 }
