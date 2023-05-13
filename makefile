@@ -39,6 +39,6 @@ clean:
 
 # Regra para executar o programa com o Valgrind
 run:
-	valgrind --leak-check=full --show-leak-kinds=all $(OUTPUT)$(PROJETO)
+	cd $(OUTPUT) && valgrind --leak-check=full --show-leak-kinds=all ./$(PROJETO)
 
 .PHONY: all run clean

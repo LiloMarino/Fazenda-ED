@@ -131,6 +131,6 @@ void visitaProfundidadeRadialT(RadialTree t, FvisitaNo f, void *aux);
 void visitaLarguraRadialT(RadialTree t, FvisitaNo f, void *aux);
 
 //Teste
-void freeRadialTree(RadialTree t); 
+void freeRadialTree(RadialTree t, bool ClearTotal); 
 
 #endif

@@ -24,5 +24,5 @@ int main()
     getNodeRadialT(t, 1, -0.5, 0.1);
     removeNoRadialT(&t,getNodeRadialT(t, 0.6, 0.2, 0.1));
     removeNoRadialT(&t,getNodeRadialT(t, 1, 0.5, 0.1));
-    freeRadialTree(&t);
+    freeRadialTree(&t,true);
 }

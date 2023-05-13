@@ -141,10 +141,15 @@ Node getNodeRadialT(RadialTree t, double x, double y, double epsilon)
  * @brief Desaloca a memória alocada pelo nó da árvore
  * @param n Nó da árvore radial
  */
-void freeNode(Node n)
+void freeNode(Node n, bool ClearTotal)
 {
     NodeTree *No = n;
-    free(No->info); // Tem que analisar esta parte dependendo da info
+    printf("%s\n", (char *)No->info);
+    if (ClearTotal)
+    {
+        free(No->info); // Atenção aqui, tem que analisar esta parte dependendo da info
+        No->info = NULL;
+    }
     free(No->filhos);
     free(No);
 }
@@ -153,7 +158,7 @@ void freeNode(Node n)
  * @brief Desaloca toda a memória da árvore
  * @param t Árvore radial
  */
-void freeRadialTree(RadialTree t)
+void freeRadialTree(RadialTree t, bool ClearTotal)
 {
     /** @warning É necessário passar o endereço do ponteiro da árvore para esta função*/
     Raiz *Tree = *((Raiz **)t);
@@ -176,7 +181,7 @@ void freeRadialTree(RadialTree t)
             /*Nó não tem filhos*/
             Clear = No;
             No = No->pai;
-            freeNode(Clear);
+            freeNode(Clear,ClearTotal);
             if (No != NULL)
             {
                 /*Atribui NULL ao filho desalocado*/
@@ -224,17 +229,21 @@ Lista VerificaArvore(RadialTree t)
     {
         NodeTree *No = popLst(Stack);
 
-        if (!(No->removido))
-        {
-            insertLst(Existe, No);
-        }
-
         for (int i = 0; i < Tree->numSetores; i++)
         {
             if (No->filhos[i] != NULL)
             {
                 insertLst(Stack, No->filhos[i]);
             }
+        }
+
+        if (!(No->removido))
+        {
+            insertLst(Existe, No);
+        }
+        else
+        {
+            free(No->info); // Atenção aqui, tem que analisar esta parte dependendo da info
         }
     }
     killLst(Stack);
@@ -248,7 +257,7 @@ void removeNoRadialT(RadialTree t, Node n)
     NodeTree *Rmv = n;
     Rmv->removido = true;
     Tree->numNosRemovidos++;
-    double fd = ((double) Tree->numNosRemovidos) / Tree->numTotalNos ;
+    double fd = ((double)Tree->numNosRemovidos) / Tree->numTotalNos;
 
     /*Verifica se é necessário recriar a árvore*/
     if (fd > Tree->limiar)
@@ -257,10 +266,10 @@ void removeNoRadialT(RadialTree t, Node n)
         Lista Aux = VerificaArvore(Tree);
         while (!isEmptyLst(Aux))
         {
-           NodeTree *No = popLst(Aux);
-           insertRadialT(NovaArvore,No->x,No->y,No->info);
+            NodeTree *No = popLst(Aux);
+            insertRadialT(NovaArvore, No->x, No->y, No->info);
         }
-        freeRadialTree(t);
+        freeRadialTree(t,false);
         killLst(Aux);
         *(void **)t = NovaArvore;
     }
