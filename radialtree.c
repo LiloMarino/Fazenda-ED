@@ -366,7 +366,10 @@ bool getNodesDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, 
         double InclinacaoRetaSup = (i + 1) * 360 / Tree->numSetores;
         if (((InclinacaoRetaSup >= Theta2 || Theta1 >= InclinacaoRetaInf) && Leste) || ((VerificaIntervalo(Theta1, InclinacaoRetaInf, Theta2) || VerificaIntervalo(Theta1, InclinacaoRetaSup, Theta2)) && !Leste))
         {
-            insertLst(Stack, No->filhos[i]);
+            if (No->filhos[i] != NULL)
+            {
+                insertLst(Stack, No->filhos[i]);
+            }
         }
     }
 
@@ -409,7 +412,7 @@ bool getInfosDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, 
     bool Existe = false;
     /*Cria o Stack de verificação baseado na área*/
     Lista Stack = createLst(-1);
-    if (getNodesDentroRegiaoRadialT(t, x1, y1, x2, y1, Stack))
+    if (getNodesDentroRegiaoRadialT(t, x1, y1, x2, y2, Stack))
     {
         while (!isEmptyLst(Stack))
         {
