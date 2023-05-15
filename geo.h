@@ -59,4 +59,12 @@ void CriaLinhaSvg(ArqSvg fsvg, Item info);
  */
 void CriaTextoSvg(ArqSvg fsvg, Item info);
 
+bool GetRetangulo(Info Figura, double x1, double y1, double x2, double y2);
+
+bool GetCirculo(Info Figura, double x1, double y1, double x2, double y2);
+
+bool GetLinha(Info Figura, double x1, double y1, double x2, double y2);
+
+bool GetTexto(Info Figura, double x1, double y1, double x2, double y2);
+
 #endif

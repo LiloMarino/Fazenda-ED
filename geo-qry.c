@@ -54,6 +54,7 @@ struct StTexto
     char *rotacao;
 };
 
+typedef struct StFigura Figura;
 typedef struct StCirculo Circulo;
 typedef struct StRetangulo Retangulo;
 typedef struct StLinha Linha;
@@ -84,7 +85,11 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
             sscanf(linha, "%s %d %lf %lf %lf", comando, &c->ID, &c->x, &c->y, &c->raio);
             c->corb = getParametroI(linha, 5);
             c->corp = getParametroI(linha, 6);
-            insertRadialT(All, c->x, c->y, c);
+            Figura *f = malloc(sizeof(Figura));
+            f->ID = c->ID;
+            f->Tipo = 'C';
+            f->Figura = c;
+            insertRadialT(All, c->x, c->y, f);
         }
         else if (strcmp(comando, "r") == 0)
         {
@@ -93,14 +98,22 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
             r->corb = getParametroI(linha, 6);
             r->corp = getParametroI(linha, 7);
             r->pont = -1;
-            insertRadialT(All, r->x, r->y, r);
+            Figura *f = malloc(sizeof(Figura));
+            f->ID = r->ID;
+            f->Tipo = 'R';
+            f->Figura = r;
+            insertRadialT(All, r->x, r->y, f);
         }
         else if (strcmp(comando, "l") == 0)
         {
             Linha *l = malloc(sizeof(Linha));
             sscanf(linha, "%s %d %lf %lf %lf %lf", comando, &l->ID, &l->x1, &l->y1, &l->x2, &l->y2);
             l->cor = getParametroI(linha, 6);
-            insertRadialT(All, l->x1, l->y1, l);
+            Figura *f = malloc(sizeof(Figura));
+            f->ID = l->ID;
+            f->Tipo = 'L';
+            f->Figura = l;
+            insertRadialT(All, l->x1, l->y1, f);
         }
         else if (strcmp(comando, "ts") == 0)
         {
@@ -153,7 +166,11 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
             {
                 t->fSize = NULL;
             }
-            insertRadialT(All, t->x, t->y, t);
+            Figura *f = malloc(sizeof(Figura));
+            f->ID = t->ID;
+            f->Tipo = 'T';
+            f->Figura = t;
+            insertRadialT(All, t->x, t->y, f);
         }
         else
         {
@@ -240,6 +257,10 @@ void CriaTextoSvg(ArqSvg fsvg, Item info)
     free(textAnchor);
 }
 
+bool GetCirculo(Info Figura, double x1, double y1, double x2, double y2)
+{
+}
+
 void fechaGeo(ArqGeo fgeo)
 {
     if (fgeo != NULL)
@@ -251,3 +272,18 @@ void fechaGeo(ArqGeo fgeo)
 /*========================================================================================================== *
  * Funções QRY                                                                                               *
  *========================================================================================================== */
+
+ArqQry abreLeituraQry(char *fn)
+{
+    ArqQry fqry;
+    fqry = fopen(fn, "r");
+    return fqry;
+}
+
+void fechaQry(ArqQry fqry)
+{
+    if (fqry != NULL)
+    {
+        fclose(fqry);
+    }
+}
