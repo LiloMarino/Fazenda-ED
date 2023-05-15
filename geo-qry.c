@@ -1,9 +1,23 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "geo.h"
 #include "qry.h"
+#include "Bibliotecas/arqsvg.h"
+#include "Bibliotecas/learquivo.h"
+#include "radialtree.h"
 
 /*========================================================================================================== *
  * Funções GEO                                                                                               *
  *========================================================================================================== */
+
+struct StFigura
+{
+    int ID;
+    char Tipo;
+    Item Figura;
+};
 
 struct StCirculo
 {
@@ -53,7 +67,7 @@ ArqGeo abreLeituraGeo(char *fn)
     return fgeo;
 }
 
-void InterpretaGeo(ArqGeo fgeo, Lista Circ, Lista Ret, Lista Tex, Lista Lin)
+void InterpretaGeo(ArqGeo fgeo, RadialTree All)
 {
     char comando[2];
     char *linha = NULL;
@@ -70,7 +84,7 @@ void InterpretaGeo(ArqGeo fgeo, Lista Circ, Lista Ret, Lista Tex, Lista Lin)
             sscanf(linha, "%s %d %lf %lf %lf", comando, &c->ID, &c->x, &c->y, &c->raio);
             c->corb = getParametroI(linha, 5);
             c->corp = getParametroI(linha, 6);
-            insertLst(Circ, c);
+            insertRadialT(Circ, c);
         }
         else if (strcmp(comando, "r") == 0)
         {
@@ -79,14 +93,14 @@ void InterpretaGeo(ArqGeo fgeo, Lista Circ, Lista Ret, Lista Tex, Lista Lin)
             r->corb = getParametroI(linha, 6);
             r->corp = getParametroI(linha, 7);
             r->pont = -1;
-            insertLst(Ret, r);
+            insertRadialT(Ret, r);
         }
         else if (strcmp(comando, "l") == 0)
         {
             Linha *l = malloc(sizeof(Linha));
             sscanf(linha, "%s %d %lf %lf %lf %lf", comando, &l->ID, &l->x1, &l->y1, &l->x2, &l->y2);
             l->cor = getParametroI(linha, 6);
-            insertLst(Lin, l);
+            insertRadialT(Lin, l);
         }
         else if (strcmp(comando, "ts") == 0)
         {
@@ -139,7 +153,7 @@ void InterpretaGeo(ArqGeo fgeo, Lista Circ, Lista Ret, Lista Tex, Lista Lin)
             {
                 t->fSize = NULL;
             }
-            insertLst(Tex, t);
+            insertRadialT(All,);
         }
         else
         {
