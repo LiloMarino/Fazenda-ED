@@ -17,10 +17,10 @@ void OperaSVG(char nome[], RadialTree All)
     Lista Circ = createLst(-1);
     Lista Tex = createLst(-1);
     
-    getInfosDentroRegiaoRadialT(All,0,0,9999,9999,GetRetangulo,Ret);
-    getInfosDentroRegiaoRadialT(All,0,0,9999,9999,GetLinha,Lin);
-    getInfosDentroRegiaoRadialT(All,0,0,9999,9999,GetCirculo,Circ);
-    getInfosDentroRegiaoRadialT(All,0,0,9999,9999,GetTexto,Tex);
+    getInfosDentroRegiaoRadialT(All,-99,-99,9999,9999,GetRetangulo,Ret);
+    getInfosDentroRegiaoRadialT(All,-99,-99,9999,9999,GetLinha,Lin);
+    getInfosDentroRegiaoRadialT(All,-99,-99,9999,9999,GetCirculo,Circ);
+    getInfosDentroRegiaoRadialT(All,-99,-99,9999,9999,GetTexto,Tex);
 
     /*Cria as figuras no SVG baseado nas listas*/
     Iterador R = createIterador(Ret, false);

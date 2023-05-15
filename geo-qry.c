@@ -12,6 +12,8 @@
  * Funções GEO                                                                                               *
  *========================================================================================================== */
 
+#define TAM_VETOR 50 // Necessário para tirar os leaks de memória derivados das structs
+
 struct StFigura
 {
     int ID;
@@ -23,21 +25,21 @@ struct StCirculo
 {
     int ID;
     double x, y, raio;
-    char *corb, *corp;
+    char corb[TAM_VETOR], corp[TAM_VETOR];
 };
 
 struct StRetangulo
 {
     int ID;
     double x, y, larg, alt, pont;
-    char *corb, *corp;
+    char corb[TAM_VETOR], corp[TAM_VETOR];
 };
 
 struct StLinha
 {
     int ID;
     double x1, x2, y1, y2;
-    char *cor;
+    char cor[TAM_VETOR];
 };
 
 struct StTxtStyle
@@ -49,9 +51,9 @@ struct StTexto
 {
     int ID;
     double x, y;
-    char *corb, *corp, *txto, *fFamily, *fWeight, *fSize;
-    char *a;
-    char *rotacao;
+    char corb[TAM_VETOR], corp[TAM_VETOR], txto[TAM_VETOR], fFamily[TAM_VETOR], fWeight[TAM_VETOR], fSize[TAM_VETOR];
+    char a[TAM_VETOR];
+    char rotacao[TAM_VETOR];
 };
 
 typedef struct StFigura Figura;
@@ -84,8 +86,12 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
         {
             Circulo *c = malloc(sizeof(Circulo));
             sscanf(linha, "%s %d %lf %lf %lf", comando, &c->ID, &c->x, &c->y, &c->raio);
-            c->corb = getParametroI(linha, 5);
-            c->corp = getParametroI(linha, 6);
+            char *aux = getParametroI(linha, 5);
+            strcpy(c->corb, aux);
+            free(aux);
+            aux = getParametroI(linha, 6);
+            strcpy(c->corp, aux);
+            free(aux);
             Figura *f = malloc(sizeof(Figura));
             f->ID = c->ID;
             f->Tipo = 'C';
@@ -96,8 +102,12 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
         {
             Retangulo *r = malloc(sizeof(Retangulo));
             sscanf(linha, "%s %d %lf %lf %lf %lf", comando, &r->ID, &r->x, &r->y, &r->larg, &r->alt);
-            r->corb = getParametroI(linha, 6);
-            r->corp = getParametroI(linha, 7);
+            char *aux = getParametroI(linha, 6);
+            strcpy(r->corb, aux);
+            free(aux);
+            aux = getParametroI(linha, 7);
+            strcpy(r->corp, aux);
+            free(aux);
             r->pont = -1;
             Figura *f = malloc(sizeof(Figura));
             f->ID = r->ID;
@@ -109,7 +119,9 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
         {
             Linha *l = malloc(sizeof(Linha));
             sscanf(linha, "%s %d %lf %lf %lf %lf", comando, &l->ID, &l->x1, &l->y1, &l->x2, &l->y2);
-            l->cor = getParametroI(linha, 6);
+            char *aux = getParametroI(linha, 6);
+            strcpy(l->cor, aux);
+            free(aux);
             Figura *f = malloc(sizeof(Figura));
             f->ID = l->ID;
             f->Tipo = 'L';
@@ -137,35 +149,31 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
         else if (strcmp(comando, "t") == 0)
         {
             Texto *t = malloc(sizeof(Texto));
-            sscanf(linha, "%s %d %lf %lf", comando, &t->ID, &t->x, &t->y);
-            t->corb = getParametroI(linha, 4);
-            t->corp = getParametroI(linha, 5);
-            t->a = getParametroI(linha, 6);
-            t->txto = getParametroDepoisI(linha, 7);
-            t->rotacao = NULL;
+            sscanf(linha, "%s %d %lf %lf %s %s %s %[^\n]", comando, &t->ID, &t->x, &t->y, t->corb, t->corp, t->a, t->txto);
+            t->rotacao[0] = '\0';
             if (style->fFamily != NULL)
             {
-                t->fFamily = my_strdup(style->fFamily);
+                strcpy(t->fFamily, style->fFamily);
             }
             else
             {
-                t->fFamily = NULL;
+                t->fFamily[0] = '\0';
             }
             if (style->fWeight != NULL)
             {
-                t->fWeight = my_strdup(style->fWeight);
+                strcpy(t->fWeight, style->fWeight);
             }
             else
             {
-                t->fWeight = NULL;
+                t->fWeight[0] = '\0';
             }
             if (style->fSize != NULL)
             {
-                t->fSize = my_strdup(style->fSize);
+                strcpy(t->fSize, style->fSize);
             }
             else
             {
-                t->fSize = NULL;
+                t->fSize[0] = '\0';
             }
             Figura *f = malloc(sizeof(Figura));
             f->ID = t->ID;
@@ -237,24 +245,22 @@ void CriaTextoSvg(ArqSvg fsvg, Item info)
     {
         textAnchor = my_strdup("middle");
     }
-    if (t->fWeight != NULL)
+
+    if (strcmp(t->fWeight, "l") == 0)
     {
-        if (strcmp(t->fWeight, "l") == 0)
-        {
-            fontWeight = my_strdup("lighter");
-        }
-        else if (strcmp(t->fWeight, "b") == 0)
-        {
-            fontWeight = my_strdup("bold");
-        }
-        else if (strcmp(t->fWeight, "b+") == 0)
-        {
-            fontWeight = my_strdup("bolder");
-        }
-        else
-        {
-            fontWeight = my_strdup("normal");
-        }
+        fontWeight = my_strdup("lighter");
+    }
+    else if (strcmp(t->fWeight, "b") == 0)
+    {
+        fontWeight = my_strdup("bold");
+    }
+    else if (strcmp(t->fWeight, "b+") == 0)
+    {
+        fontWeight = my_strdup("bolder");
+    }
+    else
+    {
+        fontWeight = my_strdup("normal");
     }
     preparaDecoracaoTexto(&deco, 0, t->fFamily, NULL, fontWeight, t->fSize, t->corb, t->corp, textAnchor, t->rotacao);
     escreveTextoSvg(fsvg, t->x, t->y, t->txto, deco);
