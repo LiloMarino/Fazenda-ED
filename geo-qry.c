@@ -257,8 +257,28 @@ void CriaTextoSvg(ArqSvg fsvg, Item info)
     free(textAnchor);
 }
 
-bool GetCirculo(Info Figura, double x1, double y1, double x2, double y2)
+bool GetRetangulo(Info figura, double x1, double y1, double x2, double y2)
 {
+    Figura *f = figura;
+    return (f->Tipo == 'R');
+}
+
+bool GetCirculo(Info figura, double x1, double y1, double x2, double y2)
+{
+    Figura *f = figura;
+    return (f->Tipo == 'C');
+}
+
+bool GetLinha(Info figura, double x1, double y1, double x2, double y2)
+{
+    Figura *f = figura;
+    return (f->Tipo == 'L');
+}
+
+bool GetTexto(Info figura, double x1, double y1, double x2, double y2)
+{
+    Figura *f = figura;
+    return (f->Tipo == 'T');
 }
 
 void fechaGeo(ArqGeo fgeo)

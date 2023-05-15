@@ -13,3 +13,5 @@
  * @param All Ponteiro para a árvore contendo os elementos do SVG
  */
 void OperaSVG(char nome[], RadialTree All);
+
+#endif

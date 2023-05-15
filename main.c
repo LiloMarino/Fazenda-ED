@@ -1,6 +1,7 @@
 #include "radialtree.h"
 #include "geo.h"
 #include "qry.h"
+#include "svg.h"
 #include <string.h>
 #include <stdio.h>
 

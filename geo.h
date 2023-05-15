@@ -59,12 +59,36 @@ void CriaLinhaSvg(ArqSvg fsvg, Item info);
  */
 void CriaTextoSvg(ArqSvg fsvg, Item info);
 
-bool GetRetangulo(Info Figura, double x1, double y1, double x2, double y2);
+/**
+ * @brief Verifica se a figura é um retângulo
+ * @param Figura Ponteiro para a estrutura Figura que contém o tipo
+ * @note Os parâmetros x1,y1,x2,y2 não são usados, visto que a função é somente para verificar o tipo do item
+ * @return Retorna verdadeiro se a figura é equivalente a figura associada a função
+ */
+bool GetRetangulo(Info figura, double x1, double y1, double x2, double y2);
 
-bool GetCirculo(Info Figura, double x1, double y1, double x2, double y2);
+/**
+ * @brief Verifica se a figura é um círculo
+ * @param Figura Ponteiro para a estrutura Figura que contém o tipo
+ * @note Os parâmetros x1,y1,x2,y2 não são usados, visto que a função é somente para verificar o tipo do item
+ * @return Retorna verdadeiro se a figura é equivalente a figura associada a função
+ */
+bool GetCirculo(Info figura, double x1, double y1, double x2, double y2);
 
-bool GetLinha(Info Figura, double x1, double y1, double x2, double y2);
+/**
+ * @brief Verifica se a figura é uma linha
+ * @param Figura Ponteiro para a estrutura Figura que contém o tipo
+ * @note Os parâmetros x1,y1,x2,y2 não são usados, visto que a função é somente para verificar o tipo do item
+ * @return Retorna verdadeiro se a figura é equivalente a figura associada a função
+ */
+bool GetLinha(Info figura, double x1, double y1, double x2, double y2);
 
-bool GetTexto(Info Figura, double x1, double y1, double x2, double y2);
+/**
+ * @brief Verifica se a figura é um texto
+ * @param Figura Ponteiro para a estrutura Figura que contém o tipo
+ * @note Os parâmetros x1,y1,x2,y2 não são usados, visto que a função é somente para verificar o tipo do item
+ * @return Retorna verdadeiro se a figura é equivalente a figura associada a função
+ */
+bool GetTexto(Info figura, double x1, double y1, double x2, double y2);
 
 #endif
