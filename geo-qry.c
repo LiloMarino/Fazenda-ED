@@ -84,7 +84,7 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
             sscanf(linha, "%s %d %lf %lf %lf", comando, &c->ID, &c->x, &c->y, &c->raio);
             c->corb = getParametroI(linha, 5);
             c->corp = getParametroI(linha, 6);
-            insertRadialT(Circ, c);
+            insertRadialT(All, c->x, c->y, c);
         }
         else if (strcmp(comando, "r") == 0)
         {
@@ -93,14 +93,14 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
             r->corb = getParametroI(linha, 6);
             r->corp = getParametroI(linha, 7);
             r->pont = -1;
-            insertRadialT(Ret, r);
+            insertRadialT(All, r->x, r->y, r);
         }
         else if (strcmp(comando, "l") == 0)
         {
             Linha *l = malloc(sizeof(Linha));
             sscanf(linha, "%s %d %lf %lf %lf %lf", comando, &l->ID, &l->x1, &l->y1, &l->x2, &l->y2);
             l->cor = getParametroI(linha, 6);
-            insertRadialT(Lin, l);
+            insertRadialT(All, l->x1, l->y1, l);
         }
         else if (strcmp(comando, "ts") == 0)
         {
@@ -153,7 +153,7 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
             {
                 t->fSize = NULL;
             }
-            insertRadialT(All,);
+            insertRadialT(All, t->x, t->y, t);
         }
         else
         {
