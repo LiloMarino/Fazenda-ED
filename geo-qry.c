@@ -78,6 +78,7 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
     style->fSize = NULL;
     while (leLinha(fgeo, &linha))
     {
+        linha[strcspn(linha, "\n")] = '\0';
         sscanf(linha, "%s", comando);
         if (strcmp(comando, "c") == 0)
         {
