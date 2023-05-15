@@ -16,7 +16,7 @@ void OperaSVG(char nome[], RadialTree All)
     Lista Lin = createLst(-1);
     Lista Circ = createLst(-1);
     Lista Tex = createLst(-1);
-
+    
     getInfosDentroRegiaoRadialT(All,0,0,9999,9999,GetRetangulo,Ret);
     getInfosDentroRegiaoRadialT(All,0,0,9999,9999,GetLinha,Lin);
     getInfosDentroRegiaoRadialT(All,0,0,9999,9999,GetCirculo,Circ);
@@ -26,22 +26,22 @@ void OperaSVG(char nome[], RadialTree All)
     Iterador R = createIterador(Ret, false);
 
     while (!isIteratorEmpty(Ret, R))
-        CriaRetanguloSvg(B, getIteratorNext(Ret, R));
+        CriaRetanguloSvg(B, getInfoRadialT(All,getIteratorNext(Ret, R)));
 
     Iterador L = createIterador(Lin, false);
 
     while (!isIteratorEmpty(Lin, L))
-        CriaLinhaSvg(B, getIteratorNext(Lin, L));
+        CriaLinhaSvg(B, getInfoRadialT(All,getIteratorNext(Lin, L)));
 
     Iterador C = createIterador(Circ, false);
 
     while (!isIteratorEmpty(Circ, C))
-        CriaCirculoSvg(B, getIteratorNext(Circ, C));
+        CriaCirculoSvg(B, getInfoRadialT(All,getIteratorNext(Circ, C)));
 
     Iterador T = createIterador(Tex, false);
 
     while (!isIteratorEmpty(Tex, T))
-        CriaTextoSvg(B, getIteratorNext(Tex, T));
+        CriaTextoSvg(B, getInfoRadialT(All,getIteratorNext(Tex, T)));
 
     killIterator(R);
     killIterator(L);

@@ -194,7 +194,8 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
 
 void CriaRetanguloSvg(ArqSvg fsvg, Item info)
 {
-    Retangulo *r = (Retangulo *)info;
+    Figura *f = info;
+    Retangulo *r = f->Figura;
     char *deco = NULL;
     preparaDecoracao(&deco, 0, r->corb, r->corp, NULL, -1, -1, -1, r->pont);
     escreveRetanguloSvg(fsvg, r->x, r->y, r->larg, r->alt, deco);
@@ -202,7 +203,8 @@ void CriaRetanguloSvg(ArqSvg fsvg, Item info)
 
 void CriaCirculoSvg(ArqSvg fsvg, Item info)
 {
-    Circulo *c = (Circulo *)info;
+    Figura *f = info;
+    Circulo *c = f->Figura;
     char *deco = NULL;
     preparaDecoracao(&deco, 0, c->corb, c->corp, NULL, -1, -1, -1, -1);
     escreveCirculoSvg(fsvg, c->x, c->y, c->raio, deco);
@@ -210,7 +212,8 @@ void CriaCirculoSvg(ArqSvg fsvg, Item info)
 
 void CriaLinhaSvg(ArqSvg fsvg, Item info)
 {
-    Linha *l = (Linha *)info;
+    Figura *f = info;
+    Linha *l = f->Figura;
     char *deco = NULL;
     preparaDecoracao(&deco, 0, l->cor, NULL, NULL, -1, -1, -1, -1);
     escreveLinhaSvg(fsvg, l->x1, l->y1, l->x2, l->y2, deco);
@@ -218,7 +221,8 @@ void CriaLinhaSvg(ArqSvg fsvg, Item info)
 
 void CriaTextoSvg(ArqSvg fsvg, Item info)
 {
-    Texto *t = (Texto *)info;
+    Figura *f = info;
+    Texto *t = f->Figura;
     char *deco = NULL, *fontWeight = NULL, *textAnchor = NULL;
     if (*(t->a) == 'i')
     {
