@@ -1,5 +1,6 @@
 #include "radialtree.h"
 #include "Bibliotecas/utilities.h"
+#include "geo.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -146,7 +147,10 @@ void freeNode(Node n, bool ClearTotal)
     NodeTree *No = n;
     if (ClearTotal)
     {
-        free(No->info); // Atenção aqui, tem que analisar esta parte dependendo da info
+        #ifdef GEO_H
+        FreeFigura(No->info);
+        #endif
+        free(No->info); // Atenção aqui, é necessário analisar esta parte dependendo da informação contida no nó
         No->info = NULL;
     }
     free(No->filhos);

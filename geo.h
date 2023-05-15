@@ -91,4 +91,10 @@ bool GetLinha(Info figura, double x1, double y1, double x2, double y2);
  */
 bool GetTexto(Info figura, double x1, double y1, double x2, double y2);
 
+/**
+ * @brief Analisa o tipo de figura e faz o free()
+ * @param figura Ponteiro para a estrutura Figura que contém o tipo
+ */
+void FreeFigura(Info figura);
+
 #endif

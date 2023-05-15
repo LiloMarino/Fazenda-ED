@@ -208,6 +208,10 @@ void CriaRetanguloSvg(ArqSvg fsvg, Item info)
     char *deco = NULL;
     preparaDecoracao(&deco, 0, r->corb, r->corp, NULL, -1, -1, -1, r->pont);
     escreveRetanguloSvg(fsvg, r->x, r->y, r->larg, r->alt, deco);
+    if (deco != NULL)
+    {
+        free(deco);
+    }
 }
 
 void CriaCirculoSvg(ArqSvg fsvg, Item info)
@@ -217,6 +221,10 @@ void CriaCirculoSvg(ArqSvg fsvg, Item info)
     char *deco = NULL;
     preparaDecoracao(&deco, 0, c->corb, c->corp, NULL, -1, -1, -1, -1);
     escreveCirculoSvg(fsvg, c->x, c->y, c->raio, deco);
+    if (deco != NULL)
+    {
+        free(deco);
+    }
 }
 
 void CriaLinhaSvg(ArqSvg fsvg, Item info)
@@ -226,6 +234,10 @@ void CriaLinhaSvg(ArqSvg fsvg, Item info)
     char *deco = NULL;
     preparaDecoracao(&deco, 0, l->cor, NULL, NULL, -1, -1, -1, -1);
     escreveLinhaSvg(fsvg, l->x1, l->y1, l->x2, l->y2, deco);
+    if (deco != NULL)
+    {
+        free(deco);
+    }
 }
 
 void CriaTextoSvg(ArqSvg fsvg, Item info)
@@ -264,6 +276,10 @@ void CriaTextoSvg(ArqSvg fsvg, Item info)
     }
     preparaDecoracaoTexto(&deco, 0, t->fFamily, NULL, fontWeight, t->fSize, t->corb, t->corp, textAnchor, t->rotacao);
     escreveTextoSvg(fsvg, t->x, t->y, t->txto, deco);
+    if (deco != NULL)
+    {
+        free(deco);
+    }
     free(fontWeight);
     free(textAnchor);
 }
@@ -290,6 +306,31 @@ bool GetTexto(Info figura, double x1, double y1, double x2, double y2)
 {
     Figura *f = figura;
     return (f->Tipo == 'T');
+}
+
+void FreeFigura(Info figura)
+{
+    Figura *f = figura;
+    if (f->Tipo == 'R')
+    {
+        Retangulo *r = f->Figura;
+        free(r);
+    }
+    else if (f->Tipo == 'C')
+    {
+        Circulo *c = f->Figura;
+        free(c);
+    }
+    else if (f->Tipo == 'L')
+    {
+        Linha *l = f->Figura;
+        free(l);
+    }
+    else if (f->Tipo == 'T')
+    {
+        Texto *t = f->Figura;
+        free(t);
+    }
 }
 
 void fechaGeo(ArqGeo fgeo)
