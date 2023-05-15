@@ -450,5 +450,69 @@ bool getInfosAtingidoPontoRadialT(RadialTree t, double x, double y, FpontoIntern
     return Existe;
 }
 
+void visitaProfundidadeRadialT(RadialTree t, FvisitaNo f, void *aux)
+{
+    Raiz *Tree = t;
+    NodeTree *raiz = Tree->node;
+    if (Tree->node == NULL)
+    {
+        return;
+    }
+    /*Cria o Stack de verificação, junto com um vetor para indicar se já foi verificado*/
+    bool *visitado = calloc(Tree->numTotalNos, sizeof(bool));
+    Lista Stack = createLst(-1);
+    insertLst(Stack, raiz);
+    while (!isEmptyLst(Stack))
+    {
+        NodeTree *Atual = popLst(Stack);
 
+        if (!visitado[Atual - raiz])
+        {
+            visitado[Atual - raiz] = true;
+            f(Atual->info, Atual->x, Atual->y, aux);
 
+            for (int i = Tree->numSetores - 1; i >= 0; i--)
+            {
+                NodeTree *filho = Atual->filhos[i];
+                if (filho != NULL && !visitado[filho - raiz])
+                {
+                    insertLst(Stack, filho);
+                }
+            }
+        }
+    }
+
+    killLst(Stack);
+    free(visitado);
+}
+
+void visitaLarguraRadialT(RadialTree t, FvisitaNo f, void *aux)
+{
+    Raiz *Tree = t;
+    if (Tree->node == NULL)
+    {
+        return; // Árvore vazia, não há nada para visitar
+    }
+
+    NodeTree *No = Tree->node;
+    Lista Stack = createLst(-1);
+    insertLst(Stack, No);
+
+    while (!isEmptyLst(Stack))
+    {
+        No = popLst(Stack);
+        if (!No->removido)
+        {
+            f(No->info, No->x, No->y, aux);
+            for (int i = 0; i < Tree->numSetores; i++)
+            {
+                if (No->filhos[i] != NULL && !No->filhos[i]->removido)
+                {
+                    insertLst(Stack, No->filhos[i]);
+                }
+            }
+        }
+    }
+
+    killLst(Stack);
+}
