@@ -352,6 +352,10 @@ ArqQry abreLeituraQry(char *fn)
     return fqry;
 }
 
+void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
+{
+}
+
 void fechaQry(ArqQry fqry)
 {
     if (fqry != NULL)

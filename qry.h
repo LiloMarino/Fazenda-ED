@@ -18,6 +18,27 @@ typedef void *ArqQry;
 ArqQry abreLeituraQry(char *fn);
 
 /**
+ * @brief A função recebe um arquivo .qry interpreta e opera os elementos na árvore radial
+ * @param fqry Ponteiro para o arquivo QRY aberto
+ * @param All Ponteiro para a árvore radial com todos os elementos
+ * @param log Ponteiro para o arquivo de registro
+ * @param PathOutput Ponteiro contendo o caminho de saída dos arquivos
+ */
+void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput);
+
+void Harvest(int ID, int Passos, char Direcao, FILE *log);
+
+void Move(int ID, double dx, double dy, FILE *log);
+
+void Praga(double x, double y, double largura, double altura, double raio);
+
+void Cura(double x, double y, double largura, double altura, double raio);
+
+void Aduba(double x, double y, double largura, double altura, double raio);
+
+void Semeia(double x, double y, double largura, double altura, double fator, double dx, double dy, double ID);
+
+/**
  * @brief Fecha o arquivo fqry
  * @param fqry Ponteiro para o arquivo QRY aberto
  */
