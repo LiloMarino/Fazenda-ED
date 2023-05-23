@@ -4,7 +4,9 @@
         "math.h": "c",
         "geo.h": "c",
         "learquivo.h": "c",
-        "arqsvg.h": "c"
+        "arqsvg.h": "c",
+        "utilities.h": "c",
+        "algorithm": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [

@@ -2,6 +2,7 @@
 #define QRY_H
 
 #include "radialtree.h"
+#include <stdio.h>
 
 /*
  * Conjunto de funções que interpretam arquivos .qry e realizam operações nas figuras lidas pelos arquivos .geo

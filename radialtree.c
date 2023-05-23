@@ -1,6 +1,5 @@
 #include "radialtree.h"
 #include "Bibliotecas/utilities.h"
-#include "geo.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -24,8 +23,220 @@ struct StRaiz
     struct StNodeTree *node;
 };
 
+struct StOrganiza
+{
+    double distancia;
+    struct StNodeTree *node;
+};
+
 typedef struct StNodeTree NodeTree;
 typedef struct StRaiz Raiz;
+typedef struct StOrganiza Organiza;
+
+/*========================================================================================================== *
+ * Funções Auxiliares                                                                                        *
+ *========================================================================================================== */
+
+/**
+ * @brief Desaloca a memória alocada pelo nó da árvore
+ * @param n Nó da árvore radial
+ */
+void freeNode(Node n, bool ClearTotal)
+{
+    NodeTree *No = n;
+    if (ClearTotal)
+    {
+#ifdef GEO_H
+        FreeFigura(No->info);
+#endif
+        free(No->info); // Atenção aqui, é necessário analisar esta parte dependendo da informação contida no nó
+        No->info = NULL;
+    }
+    free(No->filhos);
+    free(No);
+}
+
+/**
+ * @brief Desaloca toda a memória da árvore
+ * @param t Árvore radial
+ */
+void freeRadialTree(RadialTree t, bool ClearTotal)
+{
+    /** @warning É necessário passar o endereço do ponteiro da árvore para esta função*/
+    Raiz *Tree = *((Raiz **)t);
+    NodeTree *No = Tree->node;
+    NodeTree *Clear = NULL;
+    int i;
+    while (Tree->numTotalNos != 0)
+    {
+        bool Vazio = true;
+        for (i = 0; i < Tree->numSetores; i++)
+        {
+            if (No->filhos[i] != NULL)
+            {
+                Vazio = false;
+                break;
+            }
+        }
+        if (Vazio)
+        {
+            /*Nó não tem filhos*/
+            Clear = No;
+            No = No->pai;
+            freeNode(Clear, ClearTotal);
+            if (No != NULL)
+            {
+                /*Atribui NULL ao filho desalocado*/
+                for (i = 0; i < Tree->numSetores; i++)
+                {
+                    if (No->filhos[i] != NULL)
+                    {
+                        No->filhos[i] = NULL;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                /*Nó raiz*/
+                Tree->node = NULL;
+                free(Tree);
+                *(void **)t = NULL;
+                return;
+            }
+        }
+        else
+        {
+            /*Primeiro filho diferente de NULL encontrado do nó*/
+            No = No->filhos[i];
+        }
+    }
+}
+
+/**
+ * @brief Função usada para o qsort ordenar o vetor de Nós conforme a distância
+ * @param a Elemento A
+ * @param b Elemento B
+ * @return Retorna 1 se a distancia A > distancia B, -1 se distancia A < distancia B e 0 se distancia A = distancia B
+ */
+int ComparaDistancia(const void *a, const void *b)
+{
+    const Organiza *elem1 = (const Organiza *)a;
+    const Organiza *elem2 = (const Organiza *)b;
+
+    if (elem1->distancia > elem2->distancia)
+    {
+        return 1;
+    }
+    else if (elem1->distancia < elem2->distancia)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+/**
+ * @brief Percorre toda a árvore e retorna a lista reorganizada dos elementos não removidos
+ * @param t Árvore radial
+ * @return Retorna a lista reorganizada de elementos presentes na árvore
+ */
+Lista VerificaArvore(RadialTree t)
+{
+    Raiz *Tree = t;
+    NodeTree *raiz = Tree->node;
+    Lista Stack = createLst(-1);
+    Lista Existe = createLst(-1);
+
+    insertLst(Stack, raiz);
+    bool first = true;
+    double xmin, xmax, ymin, ymax;
+
+    while (!isEmptyLst(Stack))
+    {
+        NodeTree *No = popLst(Stack);
+
+        for (int i = 0; i < Tree->numSetores; i++)
+        {
+            if (No->filhos[i] != NULL)
+            {
+                insertLst(Stack, No->filhos[i]);
+            }
+        }
+        if (!(No->removido))
+        {
+            insertLst(Existe, No);
+            if (first)
+            {
+                xmin = No->x;
+                xmax = No->x;
+                ymin = No->y;
+                ymax = No->y;
+                first = false;
+            }
+
+            /*Verifica se o nó existente é algum máximo ou mínimo*/
+            if (No->x > xmax)
+            {
+                xmax = No->x;
+            }
+            else if (No->x < xmin)
+            {
+                xmin = No->x;
+            }
+            if (No->y > ymax)
+            {
+                ymax = No->y;
+            }
+            else if (No->y < ymin)
+            {
+                ymin = No->y;
+            }
+        }
+        else
+        {
+#ifdef GEO_H
+            FreeFigura(No->info);
+#endif
+            free(No->info); // Atenção aqui, tem que analisar esta parte dependendo da info
+            No->info = NULL;
+        }
+    }
+    killLst(Stack);
+
+    /*Reorganiza a árvore baseado no ponto médio*/
+    double xmeio = (xmax + xmin) / 2;
+    double ymeio = (ymax + ymin) / 2;
+
+    /*Cria o vetor para a ordenação a partir da lista*/
+    Organiza Aux[lengthLst(Existe)];
+    Iterador I = createIterador(Existe, false);
+    for (int i = 0; !isIteratorEmpty(Existe, I); i++)
+    {
+        Aux[i].node = getIteratorNext(Existe, I);
+        Aux[i].distancia = Distancia2Pontos(xmeio, ymeio, Aux[i].node->x, Aux[i].node->y);
+    }
+    killIterator(I);
+
+    /*Ordena utilizando qsort*/
+    qsort(Aux, lengthLst(Existe), sizeof(Organiza), ComparaDistancia);
+
+    /*Insere os elementos organizados na nova lista*/
+    Lista Ordenado = createLst(-1);
+    for (int i = 0; i < lengthLst(Existe); i++)
+    {
+        insertLst(Ordenado, Aux[i].node);
+    }
+    killLst(Existe);
+
+    return Ordenado;
+}
+
+/*========================================================================================================== *
+ * Funções Principais                                                                                        *
+ *========================================================================================================== */
 
 RadialTree newRadialTree(int numSetores, double fd)
 {
@@ -136,121 +347,6 @@ Node getNodeRadialT(RadialTree t, double x, double y, double epsilon)
         }
     } while (P != NULL);
     return NULL;
-}
-
-/**
- * @brief Desaloca a memória alocada pelo nó da árvore
- * @param n Nó da árvore radial
- */
-void freeNode(Node n, bool ClearTotal)
-{
-    NodeTree *No = n;
-    if (ClearTotal)
-    {
-        #ifdef GEO_H
-        FreeFigura(No->info);
-        #endif
-        free(No->info); // Atenção aqui, é necessário analisar esta parte dependendo da informação contida no nó
-        No->info = NULL;
-    }
-    free(No->filhos);
-    free(No);
-}
-
-/**
- * @brief Desaloca toda a memória da árvore
- * @param t Árvore radial
- */
-void freeRadialTree(RadialTree t, bool ClearTotal)
-{
-    /** @warning É necessário passar o endereço do ponteiro da árvore para esta função*/
-    Raiz *Tree = *((Raiz **)t);
-    NodeTree *No = Tree->node;
-    NodeTree *Clear = NULL;
-    int i;
-    while (Tree->numTotalNos != 0)
-    {
-        bool Vazio = true;
-        for (i = 0; i < Tree->numSetores; i++)
-        {
-            if (No->filhos[i] != NULL)
-            {
-                Vazio = false;
-                break;
-            }
-        }
-        if (Vazio)
-        {
-            /*Nó não tem filhos*/
-            Clear = No;
-            No = No->pai;
-            freeNode(Clear, ClearTotal);
-            if (No != NULL)
-            {
-                /*Atribui NULL ao filho desalocado*/
-                for (i = 0; i < Tree->numSetores; i++)
-                {
-                    if (No->filhos[i] != NULL)
-                    {
-                        No->filhos[i] = NULL;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                /*Nó raiz*/
-                Tree->node = NULL;
-                free(Tree);
-                *(void **)t = NULL;
-                return;
-            }
-        }
-        else
-        {
-            /*Primeiro filho diferente de NULL encontrado do nó*/
-            No = No->filhos[i];
-        }
-    }
-}
-
-/**
- * @brief Percorre toda a árvore e retorna a lista dos elementos não removidos
- * @param t Árvore radial
- * @return Retorna a lista de elementos presentes na árvore
- */
-Lista VerificaArvore(RadialTree t)
-{
-    Raiz *Tree = t;
-    NodeTree *raiz = Tree->node;
-    Lista Stack = createLst(-1);
-    Lista Existe = createLst(-1);
-
-    insertLst(Stack, raiz);
-
-    while (!isEmptyLst(Stack))
-    {
-        NodeTree *No = popLst(Stack);
-
-        for (int i = 0; i < Tree->numSetores; i++)
-        {
-            if (No->filhos[i] != NULL)
-            {
-                insertLst(Stack, No->filhos[i]);
-            }
-        }
-
-        if (!(No->removido))
-        {
-            insertLst(Existe, No);
-        }
-        else
-        {
-            free(No->info); // Atenção aqui, tem que analisar esta parte dependendo da info
-        }
-    }
-    killLst(Stack);
-    return Existe;
 }
 
 void removeNoRadialT(RadialTree t, Node n)

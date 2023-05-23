@@ -1,40 +1,42 @@
 #include "radialtree.h"
-#include "geo.h"
-#include "qry.h"
-#include "svg.h"
 #include <string.h>
 #include <stdio.h>
-
 int main()
 {
-    RadialTree All = newRadialTree(8, 0.1);
-    ArqGeo Geo00 = abreLeituraGeo("../00-smpls-caca-disp.geo");
-    InterpretaGeo(Geo00,All);
-    OperaSVG("00-smpls-caca-disp",All);
-    fechaGeo(Geo00);
-    freeRadialTree(&All, true);
-    All = newRadialTree(8, 0.1);
-    ArqGeo Geo01 = abreLeituraGeo("../01-caca-fotos.geo");
-    InterpretaGeo(Geo01,All);
-    OperaSVG("01-caca-fotos",All);
-    fechaGeo(Geo01);
-    freeRadialTree(&All, true);
-    All = newRadialTree(8, 0.1);
-    ArqGeo Geo02 = abreLeituraGeo("../01-smpls-balao-fotografa.geo");
-    InterpretaGeo(Geo02,All);
-    OperaSVG("01-smpls-balao-fotografa",All);
-    fechaGeo(Geo02);
-    freeRadialTree(&All, true);
-    All = newRadialTree(8, 0.1);
-    ArqGeo Geo03 = abreLeituraGeo("../02-planta-cidade.geo");
-    InterpretaGeo(Geo03,All);
-    OperaSVG("02-planta-cidade",All);
-    fechaGeo(Geo03);
-    freeRadialTree(&All, true);
-    All = newRadialTree(8, 0.1);
-    ArqGeo Geo04 = abreLeituraGeo("../03-cenario-grande.geo");
-    InterpretaGeo(Geo04,All);
-    OperaSVG("03-cenario-grande",All);
-    fechaGeo(Geo04);
-    freeRadialTree(&All, true);
+    RadialTree t = newRadialTree(8, 0.1);
+    insertRadialT(t, 0, 0, strdup("Ponto A"));
+    insertRadialT(t, 1, 0.5, strdup("Ponto C"));
+    insertRadialT(t, 0.5, 1, strdup("Ponto D"));
+    insertRadialT(t, -0.5, 1, strdup("Ponto E"));
+    insertRadialT(t, -1, 0.5, strdup("Ponto F"));
+    insertRadialT(t, -1, -0.5, strdup("Ponto G"));
+    insertRadialT(t, -0.5, -1, strdup("Ponto H"));
+    insertRadialT(t, 0.5, -1, strdup("Ponto I"));
+    insertRadialT(t, 1, -0.5, strdup("Ponto J"));
+    insertRadialT(t, 0.6, 0.2, strdup("Ponto K"));
+    Lista Teste;
+    // Imprime
+    printf("Area Total:\n");
+    Teste = createLst(-1);
+    getNodesDentroRegiaoRadialT(t, 1, -1, -1, 1, Teste);
+    while (!isEmptyLst(Teste))
+    {
+        Node n = popLst(Teste);
+        printf("%s\n", (char *)getInfoRadialT(t, n));
+    }
+    killLst(Teste);
+    // Remove os nós
+    removeNoRadialT(&t, getNodeRadialT(t, 1, -0.5, 0.1)); // Ponto K
+    removeNoRadialT(&t, getNodeRadialT(t, 1, 0.5, 0.1)); // Ponto C
+    // Imprime
+    printf("Area Total:\n");
+    Teste = createLst(-1);
+    getNodesDentroRegiaoRadialT(t, 1, -1, -1, 1, Teste);
+    while (!isEmptyLst(Teste))
+    {
+        Node n = popLst(Teste);
+        printf("%s\n", (char *)getInfoRadialT(t, n));
+    }
+    killLst(Teste);
+    freeRadialTree(&t, true);
 }
