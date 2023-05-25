@@ -354,6 +354,48 @@ ArqQry abreLeituraQry(char *fn)
 
 void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
 {
+    char comando[3], forma[1];
+    char *linha = NULL;
+    int ID;
+    while (leLinha(fqry, &linha))
+    {
+        sscanf(linha, "%s", comando);
+        if (strcmp(comando, "c") == 0)
+        {
+        }
+        else if (strcmp(comando, "hvt") == 0)
+        {
+        }
+        else if (strcmp(comando, "mv") == 0)
+        {
+        }
+        else if (strcmp(comando, "ct") == 0)
+        {
+        }
+        else if (strcmp(comando, "cr") == 0)
+        {
+        }
+        else if (strcmp(comando, "ad") == 0)
+        {
+        }
+        else if (strcmp(comando, "st") == 0)
+        {
+        }
+        else if (strcmp(comando, "d?") == 0)
+        {
+        }
+        else if (strcmp(comando, "c?") == 0)
+        {
+        }
+        else
+        {
+            printf("Comando desconhecido: %s\n", comando);
+        }
+    }
+    if (linha != NULL)
+    {
+        free(linha);
+    }
 }
 
 void fechaQry(ArqQry fqry)
