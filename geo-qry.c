@@ -384,7 +384,7 @@ Info ProcuraID(int ID, RadialTree All)
 
 void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
 {
-    char comando[3], forma[1];
+    char comando[3];
     char *linha = NULL;
     int ID;
     while (leLinha(fqry, &linha))
@@ -401,10 +401,11 @@ void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
             double dx, dy;
             int ID;
             sscanf(linha, "%s %d %f %f", comando, &ID, &dx, &dy);
+            fprintf(log,"[*] %s %d %f %f\n", comando, ID, dx, dy);
             ProcID *I = ProcuraID(ID, All);
             Move(I->NoInfo, dx, dy, log);
             insertRadialT(All, I->Nox + dx, I->Noy + dy, I->NoInfo);
-            removeNoRadialT(All,getNodeRadialT(All,I->Nox,I->Noy,EPSILON_PADRAO));
+            removeNoRadialT(All, getNodeRadialT(All, I->Nox, I->Noy, EPSILON_PADRAO));
             free(I);
         }
         else if (strcmp(comando, "ct") == 0)
@@ -439,11 +440,12 @@ void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
 void Move(Info I, double dx, double dy, FILE *log)
 {
     Figura *F = I;
+    char forma = F->Tipo;
     fprintf(log, "Moveu:\n");
-    if (forma[0] == 'T')
+    if (forma == 'T')
     {
-        Texto *t =
-            fprintf(log, "Texto\n");
+        Texto *t = F->Figura;
+        fprintf(log, "Texto\n");
         fprintf(log, "ID: %d\n", t->ID);
         fprintf(log, "De\n");
         fprintf(log, "x:%f y:%f\n", t->x, t->y);
@@ -452,10 +454,10 @@ void Move(Info I, double dx, double dy, FILE *log)
         fprintf(log, "Para\n");
         fprintf(log, "x:%f y:%f\n", t->x, t->y);
     }
-    else if (forma[0] == 'C')
+    else if (forma == 'C')
     {
-        Circulo *c =
-            fprintf(log, "Circulo\n");
+        Circulo *c = F->Figura;
+        fprintf(log, "Circulo\n");
         fprintf(log, "ID: %d\n", c->ID);
         fprintf(log, "De\n");
         fprintf(log, "x:%f y:%f\n", c->x, c->y);
@@ -464,10 +466,10 @@ void Move(Info I, double dx, double dy, FILE *log)
         fprintf(log, "Para\n");
         fprintf(log, "x:%f y:%f\n", c->x, c->y);
     }
-    else if (forma[0] == 'R')
+    else if (forma == 'R')
     {
-        Retangulo *r =
-            fprintf(log, "Retangulo\n");
+        Retangulo *r = F->Figura;
+        fprintf(log, "Retangulo\n");
         fprintf(log, "ID: %d\n", r->ID);
         fprintf(log, "De\n");
         fprintf(log, "x:%f y:%f\n", r->x, r->y);
@@ -476,10 +478,10 @@ void Move(Info I, double dx, double dy, FILE *log)
         fprintf(log, "Para\n");
         fprintf(log, "x:%f y:%f\n", r->x, r->y);
     }
-    else if (forma[0] == 'L')
+    else if (forma == 'L')
     {
-        Linha *l =
-            fprintf(log, "Linha\n");
+        Linha *l = F->Figura;
+        fprintf(log, "Linha\n");
         fprintf(log, "ID:%d\n", l->ID);
         fprintf(log, "De\n");
         fprintf(log, "x1:%f y1:%f x2:%f y2:%f\n", l->x1, l->y1, l->x2, l->y2);
