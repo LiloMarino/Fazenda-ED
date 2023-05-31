@@ -5,13 +5,14 @@
 #include "Bibliotecas/geradores.h"
 #include <string.h>
 #include <stdio.h>
+#define PERSONALIZADO 1 /* 0 = False, 1 = True */
 
 int main()
 {
     FILE* log;
-
+#if PERSONALIZADO == 0
     RadialTree All = newRadialTree(8, 0.1);
-    log = CriaLog("Registro","txt");
+    log = CriaLog("../logs/Registro","txt");
     ArqGeo Geo00 = abreLeituraGeo("../00-caso-de-teste.geo");
     ArqQry Qry00 = abreLeituraQry("../00-caso-de-teste.qry");
     InterpretaGeo(Geo00,All);
@@ -24,7 +25,7 @@ int main()
     freeRadialTree(&All, true);
 
     All = newRadialTree(8, 0.1);
-    log = CriaLog("Registro","txt");
+    log = CriaLog("../logs/Registro","txt");
     ArqGeo Geo01 = abreLeituraGeo("../01-caso-de-teste.geo");
     ArqQry Qry01 = abreLeituraQry("../01-caso-de-teste.qry");
     InterpretaGeo(Geo01,All);
@@ -37,7 +38,7 @@ int main()
     freeRadialTree(&All, true);
 
     All = newRadialTree(8, 0.1);
-    log = CriaLog("Registro","txt");
+    log = CriaLog("../logs/Registro","txt");
     ArqGeo Geo02 = abreLeituraGeo("../02-caso-de-teste.geo");
     ArqQry Qry02 = abreLeituraQry("../02-caso-de-teste.qry");
     InterpretaGeo(Geo02,All);
@@ -50,7 +51,7 @@ int main()
     freeRadialTree(&All, true);
 
     All = newRadialTree(8, 0.1);
-    log = CriaLog("Registro","txt");
+    log = CriaLog("../logs/Registro","txt");
     ArqGeo Geo03 = abreLeituraGeo("../03-caso-de-teste.geo");
     ArqQry Qry03 = abreLeituraQry("../03-caso-de-teste.qry");
     InterpretaGeo(Geo03,All);
@@ -63,7 +64,7 @@ int main()
     freeRadialTree(&All, true);
 
     All = newRadialTree(8, 0.1);
-    log = CriaLog("Registro","txt");
+    log = CriaLog("../logs/Registro","txt");
     ArqGeo Geo04 = abreLeituraGeo("../04-caso-de-teste.geo");
     ArqQry Qry04 = abreLeituraQry("../04-caso-de-teste.qry");
     InterpretaGeo(Geo04,All);
@@ -74,4 +75,18 @@ int main()
     fechaQry(Qry04);
     fclose(log);
     freeRadialTree(&All, true);
+#elif PERSONALIZADO == 1
+    RadialTree All = newRadialTree(8, 0.1);
+    log = CriaLog("../logs/Registro","txt");
+    ArqGeo Geo00 = abreLeituraGeo("../caso-de-teste.geo");
+    ArqQry Qry00 = abreLeituraQry("../caso-de-teste.qry");
+    InterpretaGeo(Geo00,All);
+    OperaSVG("caso-de-teste.geo",All);
+    InterpretaQry(Qry00,All,log,"../logs/");
+    OperaSVG("caso-de-teste.qry",All);
+    fechaGeo(Geo00);
+    fechaQry(Qry00);
+    fclose(log);
+    freeRadialTree(&All, true);
+#endif
 }
