@@ -368,7 +368,7 @@ void VerificaID(Info i, double x, double y, void *aux)
     Figura *F = i;
     if (F->ID == ((ProcID *)aux)->ID)
     {
-        ((ProcID *)aux)->I = i;
+        ((ProcID *)aux)->NoInfo = i;
         ((ProcID *)aux)->Nox = x;
         ((ProcID *)aux)->Noy = y;
     }
@@ -400,8 +400,8 @@ void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
         {
             double dx, dy;
             int ID;
-            sscanf(linha, "%s %d %f %f", comando, &ID, &dx, &dy);
-            fprintf(log,"[*] %s %d %f %f\n", comando, ID, dx, dy);
+            sscanf(linha, "%s %d %lf %lf", comando, &ID, &dx, &dy);
+            fprintf(log,"[*] %s %d %lf %lf\n", comando, ID, dx, dy);
             ProcID *I = ProcuraID(ID, All);
             Move(I->NoInfo, dx, dy, log);
             insertRadialT(All, I->Nox + dx, I->Noy + dy, I->NoInfo);
