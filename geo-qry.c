@@ -3,10 +3,11 @@
 #include <string.h>
 #include <math.h>
 #include "geo.h"
-#include "qry.h"
 #include "Bibliotecas/arqsvg.h"
 #include "Bibliotecas/learquivo.h"
 #include "radialtree.h"
+#include "qry.h"
+#include "def.h"
 
 /*========================================================================================================== *
  * Funções GEO                                                                                               *
@@ -345,11 +346,40 @@ void fechaGeo(ArqGeo fgeo)
  * Funções QRY                                                                                               *
  *========================================================================================================== */
 
+struct StProcID
+{
+    int ID;
+    Info NoInfo;
+    double Nox;
+    double Noy;
+};
+
+typedef struct StProcID ProcID;
+
 ArqQry abreLeituraQry(char *fn)
 {
     ArqQry fqry;
     fqry = fopen(fn, "r");
     return fqry;
+}
+
+void VerificaID(Info i, double x, double y, void *aux)
+{
+    Figura *F = i;
+    if (F->ID == ((ProcID *)aux)->ID)
+    {
+        ((ProcID *)aux)->I = i;
+        ((ProcID *)aux)->Nox = x;
+        ((ProcID *)aux)->Noy = y;
+    }
+}
+
+Info ProcuraID(int ID, RadialTree All)
+{
+    ProcID *aux = malloc(sizeof(ProcID));
+    aux->ID = ID;
+    visitaLarguraRadialT(All, VerificaID, aux);
+    return aux;
 }
 
 void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
@@ -359,7 +389,7 @@ void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
     int ID;
     while (leLinha(fqry, &linha))
     {
-        sscanf(linha, "%s", comando);
+        sscanf(linha, "%s ", comando);
         if (strcmp(comando, "c") == 0)
         {
         }
@@ -368,6 +398,14 @@ void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
         }
         else if (strcmp(comando, "mv") == 0)
         {
+            double dx, dy;
+            int ID;
+            sscanf(linha, "%s %d %f %f", comando, &ID, &dx, &dy);
+            ProcID *I = ProcuraID(ID, All);
+            Move(I->NoInfo, dx, dy, log);
+            insertRadialT(All, I->Nox + dx, I->Noy + dy, I->NoInfo);
+            removeNoRadialT(All,getNodeRadialT(All,I->Nox,I->Noy,EPSILON_PADRAO));
+            free(I);
         }
         else if (strcmp(comando, "ct") == 0)
         {
@@ -395,6 +433,66 @@ void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
     if (linha != NULL)
     {
         free(linha);
+    }
+}
+
+void Move(Info I, double dx, double dy, FILE *log)
+{
+    Figura *F = I;
+    fprintf(log, "Moveu:\n");
+    if (forma[0] == 'T')
+    {
+        Texto *t =
+            fprintf(log, "Texto\n");
+        fprintf(log, "ID: %d\n", t->ID);
+        fprintf(log, "De\n");
+        fprintf(log, "x:%f y:%f\n", t->x, t->y);
+        t->x += dx;
+        t->y += dy;
+        fprintf(log, "Para\n");
+        fprintf(log, "x:%f y:%f\n", t->x, t->y);
+    }
+    else if (forma[0] == 'C')
+    {
+        Circulo *c =
+            fprintf(log, "Circulo\n");
+        fprintf(log, "ID: %d\n", c->ID);
+        fprintf(log, "De\n");
+        fprintf(log, "x:%f y:%f\n", c->x, c->y);
+        c->x += dx;
+        c->y += dy;
+        fprintf(log, "Para\n");
+        fprintf(log, "x:%f y:%f\n", c->x, c->y);
+    }
+    else if (forma[0] == 'R')
+    {
+        Retangulo *r =
+            fprintf(log, "Retangulo\n");
+        fprintf(log, "ID: %d\n", r->ID);
+        fprintf(log, "De\n");
+        fprintf(log, "x:%f y:%f\n", r->x, r->y);
+        r->x += dx;
+        r->y += dy;
+        fprintf(log, "Para\n");
+        fprintf(log, "x:%f y:%f\n", r->x, r->y);
+    }
+    else if (forma[0] == 'L')
+    {
+        Linha *l =
+            fprintf(log, "Linha\n");
+        fprintf(log, "ID:%d\n", l->ID);
+        fprintf(log, "De\n");
+        fprintf(log, "x1:%f y1:%f x2:%f y2:%f\n", l->x1, l->y1, l->x2, l->y2);
+        l->x1 += dx;
+        l->y1 += dy;
+        l->x2 += dx;
+        l->y2 += dy;
+        fprintf(log, "Para\n");
+        fprintf(log, "x1:%f y1:%f x2:%f y2:%f\n", l->x1, l->y1, l->x2, l->y2);
+    }
+    else
+    {
+        return;
     }
 }
 

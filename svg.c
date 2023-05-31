@@ -2,6 +2,7 @@
 #include "radialtree.h"
 #include "geo.h"
 #include "Bibliotecas/arqsvg.h"
+#include "def.h"
 
 void OperaSVG(char nome[], RadialTree All)
 {
@@ -17,10 +18,10 @@ void OperaSVG(char nome[], RadialTree All)
     Lista Circ = createLst(-1);
     Lista Tex = createLst(-1);
     
-    getInfosDentroRegiaoRadialT(All,-99,-99,9999,9999,GetRetangulo,Ret);
-    getInfosDentroRegiaoRadialT(All,-99,-99,9999,9999,GetLinha,Lin);
-    getInfosDentroRegiaoRadialT(All,-99,-99,9999,9999,GetCirculo,Circ);
-    getInfosDentroRegiaoRadialT(All,-99,-99,9999,9999,GetTexto,Tex);
+    getInfosDentroRegiaoRadialT(All,SIZE_X1_Y1,SIZE_X1_Y1,SIZE_X2_Y2,SIZE_X2_Y2,GetRetangulo,Ret);
+    getInfosDentroRegiaoRadialT(All,SIZE_X1_Y1,SIZE_X1_Y1,SIZE_X2_Y2,SIZE_X2_Y2,GetLinha,Lin);
+    getInfosDentroRegiaoRadialT(All,SIZE_X1_Y1,SIZE_X1_Y1,SIZE_X2_Y2,SIZE_X2_Y2,GetCirculo,Circ);
+    getInfosDentroRegiaoRadialT(All,SIZE_X1_Y1,SIZE_X1_Y1,SIZE_X2_Y2,SIZE_X2_Y2,GetTexto,Tex);
 
     /*Cria as figuras no SVG baseado nas listas*/
     Iterador R = createIterador(Ret, false);
