@@ -63,7 +63,6 @@ void InicializaDot(ArqDot fdot)
 {
     fprintf(fdot, "digraph Tree {\n");
     fprintf(fdot, "node [shape=box];\n");
-    return fdot;
 }
 
 void TerminaDot(ArqDot fdot)

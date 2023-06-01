@@ -6,9 +6,12 @@
 #include <string.h>
 #include <stdio.h>
 
+FILE* ARQDOT;
+
 int main()
 {
-    InicializaDot(ARVORE);
+    ARQDOT = CriaLog("../logs/Arvore","dot");
+    InicializaDot(ARQDOT);
     FILE* log;
     RadialTree All = newRadialTree(8, 0.1);
     log = CriaLog("../logs/Registro","txt");
@@ -22,5 +25,5 @@ int main()
     fechaQry(Qry00);
     fclose(log);
     freeRadialTree(&All, true);
-    TerminaDot(ARVORE);
+    TerminaDot(ARQDOT);
 }

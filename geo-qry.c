@@ -349,18 +349,27 @@ void fechaGeo(ArqGeo fgeo)
 
 void LigaNo(ArqDot fdot, RadialTree All, Node pai, Node filho)
 {
-    char Forma1 = ((Figura *) getInfoRadialT(All,pai))->Tipo;
-    char Forma2 = ((Figura *) getInfoRadialT(All,filho))->Tipo;
-    int ID1 = ((Figura *) getInfoRadialT(All,pai))->ID;
-    int ID2 = ((Figura *) getInfoRadialT(All,filho))->ID;
-    fprintf("%c%d -> %c%d\n",Forma1,ID1,Forma2,ID2);
+    if (pai == NULL)
+    {
+        char Forma = ((Figura *)getInfoRadialT(All, filho))->Tipo;
+        int ID = ((Figura *)getInfoRadialT(All, filho))->ID;
+        fprintf(fdot,"Raiz -> %c %d\n", Forma, ID);
+    }
+    else
+    {
+        char Forma1 = ((Figura *)getInfoRadialT(All, pai))->Tipo;
+        int ID1 = ((Figura *)getInfoRadialT(All, pai))->ID;
+        char Forma2 = ((Figura *)getInfoRadialT(All, filho))->Tipo;
+        int ID2 = ((Figura *)getInfoRadialT(All, filho))->ID;
+        fprintf(fdot,"%c%d -> %c%d\n", Forma1, ID1, Forma2, ID2);
+    }
 }
 
 void MarcaNoRemovido(ArqDot fdot, RadialTree All, Node removido)
 {
-    char Forma = ((Figura *) getInfoRadialT(All,removido))->Tipo;
-    int ID = ((Figura *) getInfoRadialT(All,removido))->ID;
-    fprintf(fdot,"%c%d [shape=none, label=\"X\", color=red, fontcolor=red, fontsize=20, width=0.3, height=0.3];\n",Forma,ID);
+    char Forma = ((Figura *)getInfoRadialT(All, removido))->Tipo;
+    int ID = ((Figura *)getInfoRadialT(All, removido))->ID;
+    fprintf(fdot, "%c%d [shape=none, label=\"X\", color=red, fontcolor=red, fontsize=20, width=0.3, height=0.3];\n", Forma, ID);
 }
 
 /*========================================================================================================== *
@@ -409,7 +418,7 @@ void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
     char *linha = NULL;
     int ID;
     char nome[25]; // Remover depois
-    int num = 0; // Remover depois
+    int num = 0;   // Remover depois
     while (leLinha(fqry, &linha))
     {
         sscanf(linha, "%s ", comando);
@@ -424,18 +433,18 @@ void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
             double dx, dy;
             int ID;
             sscanf(linha, "%s %d %lf %lf", comando, &ID, &dx, &dy);
-            fprintf(log,"\n[*] %s %d %lf %lf\n", comando, ID, dx, dy);
+            fprintf(log, "\n[*] %s %d %lf %lf\n", comando, ID, dx, dy);
             ProcID *I = ProcuraID(ID, All);
-            if(getNodeRadialT(All, I->Nox + dx, I->Noy + dy, EPSILON_PADRAO) == NULL)
+            if (getNodeRadialT(All, I->Nox + dx, I->Noy + dy, EPSILON_PADRAO) == NULL)
             {
-               Move(I->NoInfo, dx, dy, log);
-               insertRadialT(All, I->Nox + dx, I->Noy + dy, I->NoInfo);
-               removeNoRadialT(&All, getNodeRadialT(All, I->Nox, I->Noy, EPSILON_PADRAO));
+                Move(I->NoInfo, dx, dy, log);
+                insertRadialT(All, I->Nox + dx, I->Noy + dy, I->NoInfo);
+                removeNoRadialT(&All, getNodeRadialT(All, I->Nox, I->Noy, EPSILON_PADRAO));
             }
             else
             {
                 printf("Colisão de Nó evitada em: %s %d %lf %lf\n", comando, ID, dx, dy);
-                fprintf(log,"Colisão de Nó evitada\n");
+                fprintf(log, "Colisão de Nó evitada\n");
             }
             free(I);
         }
@@ -461,9 +470,9 @@ void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
         {
             printf("Comando desconhecido: %s\n", comando);
         }
-        sprintf(nome,"%d-caso-de-teste.qry",num); // Remover depois
-        num++; // Remover depois
-        OperaSVG(nome,All); // Remover depois
+        sprintf(nome, "%d-caso-de-teste.qry", num); // Remover depois
+        num++;                                      // Remover depois
+        OperaSVG(nome, All);                        // Remover depois
     }
     if (linha != NULL)
     {

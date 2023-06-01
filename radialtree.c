@@ -314,6 +314,7 @@ Node insertRadialT(RadialTree t, double x, double y, Info i)
             }
         } while (P != NULL);
     }
+    LigaNo(ARQDOT,t,No->pai,No);
     return No;
 }
 
@@ -359,10 +360,13 @@ void removeNoRadialT(RadialTree t, Node n)
     Rmv->removido = true;
     Tree->numNosRemovidos++;
     double fd = ((double)Tree->numNosRemovidos) / Tree->numTotalNos;
-
+    MarcaNoRemovido(ARQDOT,t,Rmv);
     /*Verifica se é necessário recriar a árvore*/
     if (fd > Tree->limiar)
     {
+        TerminaDot(ARQDOT);
+        ARQDOT = CriaLog("../logs/Arvore","dot");
+        InicializaDot(ARQDOT);
         RadialTree NovaArvore = newRadialTree(Tree->numSetores, Tree->limiar);
         Lista Aux = VerificaArvore(Tree);
         while (!isEmptyLst(Aux))

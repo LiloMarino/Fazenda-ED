@@ -11,7 +11,9 @@
         "radialtree.h": "c",
         "stdbool.h": "c",
         "dot.h": "c",
-        "geradores.h": "c"
+        "geradores.h": "c",
+        "stdio.h": "c",
+        "svg-dot.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [

@@ -10,7 +10,7 @@
 
 typedef void *ArqDot;
 
-FILE* ARVORE = CriaLog("../logs/Arvore","dot");
+extern FILE* ARQDOT;
 
 /**
  * @brief Opera a árvore criando o SVG conforme o nome
@@ -19,12 +19,34 @@ FILE* ARVORE = CriaLog("../logs/Arvore","dot");
  */
 void OperaSVG(char nome[], RadialTree All);
 
+/**
+ * @brief Inicializa o arquivo .dot já aberto
+ * @param fdot Ponteiro para o arquivo .dot
+ */
 void InicializaDot(ArqDot fdot);
 
+/**
+ * @brief Termina e fecha o arquivo .dot
+ * @param fdot Ponteiro para o arquivo .dot
+ */
+void TerminaDot(ArqDot fdot);
+
+/**
+ * @brief Liga o Pai->Filho
+ * @param fdot Ponteiro para o arquivo .dot
+ * @param All Ponteiro para a árvore radial
+ * @param pai Ponteiro para o pai
+ * @param filho Ponteiro para o filho
+ */
 void LigaNo(ArqDot fdot, RadialTree All, Node pai, Node filho);
 
+/**
+ * @brief Marca o nó como removido no .dot
+ * @param fdot Ponteiro para o arquivo .dot
+ * @param All Ponteiro para a árvore radial
+ * @param removido Ponteiro para o nó removido
+ */
 void MarcaNoRemovido(ArqDot fdot, RadialTree All, Node removido);
 
-void TerminaDot(ArqDot fdot);
 
 #endif
