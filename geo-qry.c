@@ -405,7 +405,7 @@ void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
             double dx, dy;
             int ID;
             sscanf(linha, "%s %d %lf %lf", comando, &ID, &dx, &dy);
-            fprintf(log,"[*] %s %d %lf %lf\n", comando, ID, dx, dy);
+            fprintf(log,"\n[*] %s %d %lf %lf\n", comando, ID, dx, dy);
             ProcID *I = ProcuraID(ID, All);
             if(getNodeRadialT(All, I->Nox + dx, I->Noy + dy, EPSILON_PADRAO) == NULL)
             {
@@ -415,7 +415,8 @@ void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
             }
             else
             {
-                printf("Colisão de Nó\n");
+                printf("Colisão de Nó evitada em: %s %d %lf %lf\n", comando, ID, dx, dy);
+                fprintf(log,"Colisão de Nó evitada\n");
             }
             free(I);
         }
