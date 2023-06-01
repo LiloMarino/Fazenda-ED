@@ -345,6 +345,8 @@ void fechaGeo(ArqGeo fgeo)
 /*========================================================================================================== *
  * Funções QRY                                                                                               *
  *========================================================================================================== */
+#include "svg.h"
+#include "string.h"
 
 struct StProcID
 {
@@ -387,6 +389,8 @@ void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
     char comando[3];
     char *linha = NULL;
     int ID;
+    char nome[25]; // Remover depois
+    int num = 0; // Remover depois
     while (leLinha(fqry, &linha))
     {
         sscanf(linha, "%s ", comando);
@@ -403,9 +407,16 @@ void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
             sscanf(linha, "%s %d %lf %lf", comando, &ID, &dx, &dy);
             fprintf(log,"[*] %s %d %lf %lf\n", comando, ID, dx, dy);
             ProcID *I = ProcuraID(ID, All);
-            Move(I->NoInfo, dx, dy, log);
-            insertRadialT(All, I->Nox + dx, I->Noy + dy, I->NoInfo);
-            removeNoRadialT(All, getNodeRadialT(All, I->Nox, I->Noy, EPSILON_PADRAO));
+            if(getNodeRadialT(All, I->Nox + dx, I->Noy + dy, EPSILON_PADRAO) == NULL)
+            {
+               Move(I->NoInfo, dx, dy, log);
+               insertRadialT(All, I->Nox + dx, I->Noy + dy, I->NoInfo);
+               removeNoRadialT(&All, getNodeRadialT(All, I->Nox, I->Noy, EPSILON_PADRAO));
+            }
+            else
+            {
+                printf("Colisão de Nó\n");
+            }
             free(I);
         }
         else if (strcmp(comando, "ct") == 0)
@@ -430,6 +441,9 @@ void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
         {
             printf("Comando desconhecido: %s\n", comando);
         }
+        sprintf(nome,"%d-caso-de-teste.qry",num); // Remover depois
+        num++; // Remover depois
+        OperaSVG(nome,All); // Remover depois
     }
     if (linha != NULL)
     {

@@ -610,7 +610,7 @@ void visitaLarguraRadialT(RadialTree t, FvisitaNo f, void *aux)
             f(No->info, No->x, No->y, aux);
             for (int i = 0; i < Tree->numSetores; i++)
             {
-                if (No->filhos[i] != NULL && !No->filhos[i]->removido)
+                if (No->filhos[i] != NULL)
                 {
                     insertLst(Stack, No->filhos[i]);
                 }

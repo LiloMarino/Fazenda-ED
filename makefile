@@ -36,6 +36,7 @@ $(OUTPUT)%.o: %.c
 # Regra para limpar os arquivos objeto e o executável
 clean:
 	rm -rf $(OUTPUT) $(PROJETO)
+	rm -rf $(LOGS)
 
 # Regra para executar o programa com o Valgrind
 run:

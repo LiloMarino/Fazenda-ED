@@ -16,7 +16,7 @@ int main()
     InterpretaGeo(Geo00,All);
     OperaSVG("caso-de-teste.geo",All);
     InterpretaQry(Qry00,All,log,"../logs/");
-    OperaSVG("caso-de-teste.qry",All);
+    //OperaSVG("caso-de-teste.qry",All);
     fechaGeo(Geo00);
     fechaQry(Qry00);
     fclose(log);
