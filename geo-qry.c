@@ -1,3 +1,4 @@
+#include "svg-dot.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -343,10 +344,28 @@ void fechaGeo(ArqGeo fgeo)
 }
 
 /*========================================================================================================== *
+ * Funções DOT                                                                                               *
+ *========================================================================================================== */
+
+void LigaNo(ArqDot fdot, RadialTree All, Node pai, Node filho)
+{
+    char Forma1 = ((Figura *) getInfoRadialT(All,pai))->Tipo;
+    char Forma2 = ((Figura *) getInfoRadialT(All,filho))->Tipo;
+    int ID1 = ((Figura *) getInfoRadialT(All,pai))->ID;
+    int ID2 = ((Figura *) getInfoRadialT(All,filho))->ID;
+    fprintf("%c%d -> %c%d\n",Forma1,ID1,Forma2,ID2);
+}
+
+void MarcaNoRemovido(ArqDot fdot, RadialTree All, Node removido)
+{
+    char Forma = ((Figura *) getInfoRadialT(All,removido))->Tipo;
+    int ID = ((Figura *) getInfoRadialT(All,removido))->ID;
+    fprintf(fdot,"%c%d [shape=none, label=\"X\", color=red, fontcolor=red, fontsize=20, width=0.3, height=0.3];\n",Forma,ID);
+}
+
+/*========================================================================================================== *
  * Funções QRY                                                                                               *
  *========================================================================================================== */
-#include "svg.h"
-#include "string.h"
 
 struct StProcID
 {

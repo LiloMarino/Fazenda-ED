@@ -9,7 +9,9 @@
         "algorithm": "c",
         "string.h": "c",
         "radialtree.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "dot.h": "c",
+        "geradores.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [

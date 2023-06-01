@@ -1,13 +1,14 @@
 #include "radialtree.h"
 #include "geo.h"
 #include "qry.h"
-#include "svg.h"
+#include "svg-dot.h"
 #include "Bibliotecas/geradores.h"
 #include <string.h>
 #include <stdio.h>
 
 int main()
 {
+    InicializaDot(ARVORE);
     FILE* log;
     RadialTree All = newRadialTree(8, 0.1);
     log = CriaLog("../logs/Registro","txt");
@@ -21,5 +22,5 @@ int main()
     fechaQry(Qry00);
     fclose(log);
     freeRadialTree(&All, true);
-
+    TerminaDot(ARVORE);
 }

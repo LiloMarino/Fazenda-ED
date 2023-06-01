@@ -1,3 +1,4 @@
+#include "svg-dot.h"
 #include <string.h>
 #include "radialtree.h"
 #include "geo.h"
@@ -56,4 +57,20 @@ void OperaSVG(char nome[], RadialTree All)
     killLst(Tex);
 
     fechaSvg(B);
+}
+
+void InicializaDot(ArqDot fdot)
+{
+    fprintf(fdot, "digraph Tree {\n");
+    fprintf(fdot, "node [shape=box];\n");
+    return fdot;
+}
+
+void TerminaDot(ArqDot fdot)
+{
+    if (fdot != NULL)
+    {
+        fprintf(fdot,"}");
+        fclose(fdot);
+    }
 }
