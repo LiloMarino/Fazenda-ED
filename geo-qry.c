@@ -347,13 +347,14 @@ void fechaGeo(ArqGeo fgeo)
  * Funções DOT                                                                                               *
  *========================================================================================================== */
 
+
 void LigaNo(ArqDot fdot, RadialTree All, Node pai, Node filho)
 {
     if (pai == NULL)
     {
         char Forma = ((Figura *)getInfoRadialT(All, filho))->Tipo;
         int ID = ((Figura *)getInfoRadialT(All, filho))->ID;
-        fprintf(fdot,"Raiz -> %c %d\n", Forma, ID);
+        fprintf(fdot,"Raiz -> %c%d\n", Forma, ID);
     }
     else
     {

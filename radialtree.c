@@ -48,9 +48,7 @@ void freeNode(Node n, bool ClearTotal)
     NodeTree *No = n;
     if (ClearTotal)
     {
-#ifdef GEO_H
         FreeFigura(No->info);
-#endif
         free(No->info); // Atenção aqui, é necessário analisar esta parte dependendo da informação contida no nó
         No->info = NULL;
     }
@@ -151,7 +149,7 @@ Lista VerificaArvore(RadialTree t)
     NodeTree *raiz = Tree->node;
     Lista Stack = createLst(-1);
     Lista Existe = createLst(-1);
-
+    Lista Removidos = createLst(-1);
     insertLst(Stack, raiz);
     bool first = true;
     double xmin, xmax, ymin, ymax;
@@ -199,14 +197,23 @@ Lista VerificaArvore(RadialTree t)
         }
         else
         {
-#ifdef GEO_H
-            FreeFigura(No->info);
-#endif
-            free(No->info); // Atenção aqui, tem que analisar esta parte dependendo da info
-            No->info = NULL;
+            insertLst(Removidos, No);
         }
     }
     killLst(Stack);
+
+    /*Remove as informações dos nós removidos*/
+    while (!isEmptyLst(Removidos))
+    {
+        NodeTree *No = popLst(Removidos);
+        if (No->info != NULL)
+        {
+            FreeFigura(No->info);
+            free(No->info); // Atenção aqui, é necessário analisar esta parte dependendo da informação contida no nó
+            No->info = NULL;
+        }
+    }
+    killLst(Removidos);
 
     /*Reorganiza a árvore baseado no ponto médio*/
     double xmeio = (xmax + xmin) / 2;
@@ -302,6 +309,7 @@ Node insertRadialT(RadialTree t, double x, double y, Info i)
                         /*Nó não tem um filho pertencente ao setor*/
                         P->filhos[i] = No;
                         No->pai = P;
+                        LigaNo(ARQDOT, t, No->pai, No);
                         return No;
                     }
                     else
@@ -314,7 +322,7 @@ Node insertRadialT(RadialTree t, double x, double y, Info i)
             }
         } while (P != NULL);
     }
-    LigaNo(ARQDOT,t,No->pai,No);
+    LigaNo(ARQDOT, t, No->pai, No);
     return No;
 }
 
@@ -360,12 +368,12 @@ void removeNoRadialT(RadialTree t, Node n)
     Rmv->removido = true;
     Tree->numNosRemovidos++;
     double fd = ((double)Tree->numNosRemovidos) / Tree->numTotalNos;
-    MarcaNoRemovido(ARQDOT,t,Rmv);
+    MarcaNoRemovido(ARQDOT, t, Rmv);
     /*Verifica se é necessário recriar a árvore*/
     if (fd > Tree->limiar)
     {
         TerminaDot(ARQDOT);
-        ARQDOT = CriaLog("../logs/Arvore","dot");
+        ARQDOT = CriaLog("../logs/Arvore", "dot");
         InicializaDot(ARQDOT);
         RadialTree NovaArvore = newRadialTree(Tree->numSetores, Tree->limiar);
         Lista Aux = VerificaArvore(Tree);
