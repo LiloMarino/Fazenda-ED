@@ -3,10 +3,11 @@
 #include <string.h>
 #include <math.h>
 #include "geo.h"
-#include "qry.h"
 #include "Bibliotecas/arqsvg.h"
 #include "Bibliotecas/learquivo.h"
 #include "radialtree.h"
+#include "qry.h"
+#include "def.h"
 
 /*========================================================================================================== *
  * Funções GEO                                                                                               *
@@ -344,6 +345,18 @@ void fechaGeo(ArqGeo fgeo)
 /*========================================================================================================== *
  * Funções QRY                                                                                               *
  *========================================================================================================== */
+#include "svg.h"
+#include "string.h"
+
+struct StProcID
+{
+    int ID;
+    Info NoInfo;
+    double Nox;
+    double Noy;
+};
+
+typedef struct StProcID ProcID;
 
 ArqQry abreLeituraQry(char *fn)
 {
@@ -352,14 +365,35 @@ ArqQry abreLeituraQry(char *fn)
     return fqry;
 }
 
+void VerificaID(Info i, double x, double y, void *aux)
+{
+    Figura *F = i;
+    if (F->ID == ((ProcID *)aux)->ID)
+    {
+        ((ProcID *)aux)->NoInfo = i;
+        ((ProcID *)aux)->Nox = x;
+        ((ProcID *)aux)->Noy = y;
+    }
+}
+
+Info ProcuraID(int ID, RadialTree All)
+{
+    ProcID *aux = malloc(sizeof(ProcID));
+    aux->ID = ID;
+    visitaLarguraRadialT(All, VerificaID, aux);
+    return aux;
+}
+
 void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
 {
-    char comando[3], forma[1];
+    char comando[3];
     char *linha = NULL;
     int ID;
+    char nome[25]; // Remover depois
+    int num = 0; // Remover depois
     while (leLinha(fqry, &linha))
     {
-        sscanf(linha, "%s", comando);
+        sscanf(linha, "%s ", comando);
         if (strcmp(comando, "c") == 0)
         {
         }
@@ -368,6 +402,23 @@ void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
         }
         else if (strcmp(comando, "mv") == 0)
         {
+            double dx, dy;
+            int ID;
+            sscanf(linha, "%s %d %lf %lf", comando, &ID, &dx, &dy);
+            fprintf(log,"\n[*] %s %d %lf %lf\n", comando, ID, dx, dy);
+            ProcID *I = ProcuraID(ID, All);
+            if(getNodeRadialT(All, I->Nox + dx, I->Noy + dy, EPSILON_PADRAO) == NULL)
+            {
+               Move(I->NoInfo, dx, dy, log);
+               insertRadialT(All, I->Nox + dx, I->Noy + dy, I->NoInfo);
+               removeNoRadialT(&All, getNodeRadialT(All, I->Nox, I->Noy, EPSILON_PADRAO));
+            }
+            else
+            {
+                printf("Colisão de Nó evitada em: %s %d %lf %lf\n", comando, ID, dx, dy);
+                fprintf(log,"Colisão de Nó evitada\n");
+            }
+            free(I);
         }
         else if (strcmp(comando, "ct") == 0)
         {
@@ -391,10 +442,74 @@ void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
         {
             printf("Comando desconhecido: %s\n", comando);
         }
+        sprintf(nome,"%d-caso-de-teste.qry",num); // Remover depois
+        num++; // Remover depois
+        OperaSVG(nome,All); // Remover depois
     }
     if (linha != NULL)
     {
         free(linha);
+    }
+}
+
+void Move(Info I, double dx, double dy, FILE *log)
+{
+    Figura *F = I;
+    char forma = F->Tipo;
+    fprintf(log, "Moveu:\n");
+    if (forma == 'T')
+    {
+        Texto *t = F->Figura;
+        fprintf(log, "Texto\n");
+        fprintf(log, "ID: %d\n", t->ID);
+        fprintf(log, "De\n");
+        fprintf(log, "x:%f y:%f\n", t->x, t->y);
+        t->x += dx;
+        t->y += dy;
+        fprintf(log, "Para\n");
+        fprintf(log, "x:%f y:%f\n", t->x, t->y);
+    }
+    else if (forma == 'C')
+    {
+        Circulo *c = F->Figura;
+        fprintf(log, "Circulo\n");
+        fprintf(log, "ID: %d\n", c->ID);
+        fprintf(log, "De\n");
+        fprintf(log, "x:%f y:%f\n", c->x, c->y);
+        c->x += dx;
+        c->y += dy;
+        fprintf(log, "Para\n");
+        fprintf(log, "x:%f y:%f\n", c->x, c->y);
+    }
+    else if (forma == 'R')
+    {
+        Retangulo *r = F->Figura;
+        fprintf(log, "Retangulo\n");
+        fprintf(log, "ID: %d\n", r->ID);
+        fprintf(log, "De\n");
+        fprintf(log, "x:%f y:%f\n", r->x, r->y);
+        r->x += dx;
+        r->y += dy;
+        fprintf(log, "Para\n");
+        fprintf(log, "x:%f y:%f\n", r->x, r->y);
+    }
+    else if (forma == 'L')
+    {
+        Linha *l = F->Figura;
+        fprintf(log, "Linha\n");
+        fprintf(log, "ID:%d\n", l->ID);
+        fprintf(log, "De\n");
+        fprintf(log, "x1:%f y1:%f x2:%f y2:%f\n", l->x1, l->y1, l->x2, l->y2);
+        l->x1 += dx;
+        l->y1 += dy;
+        l->x2 += dx;
+        l->y2 += dy;
+        fprintf(log, "Para\n");
+        fprintf(log, "x1:%f y1:%f x2:%f y2:%f\n", l->x1, l->y1, l->x2, l->y2);
+    }
+    else
+    {
+        return;
     }
 }
 

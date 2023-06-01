@@ -1,4 +1,5 @@
 #include "radialtree.h"
+#include "geo.h"
 #include "Bibliotecas/utilities.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -607,12 +608,12 @@ void visitaLarguraRadialT(RadialTree t, FvisitaNo f, void *aux)
         if (!No->removido)
         {
             f(No->info, No->x, No->y, aux);
-            for (int i = 0; i < Tree->numSetores; i++)
+        }
+        for (int i = 0; i < Tree->numSetores; i++)
+        {
+            if (No->filhos[i] != NULL)
             {
-                if (No->filhos[i] != NULL && !No->filhos[i]->removido)
-                {
-                    insertLst(Stack, No->filhos[i]);
-                }
+                insertLst(Stack, No->filhos[i]);
             }
         }
     }

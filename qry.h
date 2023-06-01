@@ -29,7 +29,7 @@ void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput);
 
 void Harvest(int ID, int Passos, char Direcao, FILE *log);
 
-void Move(int ID, double dx, double dy, FILE *log);
+void Move(Info I, double dx, double dy, FILE *log);
 
 void Praga(double x, double y, double largura, double altura, double raio);
 
@@ -37,7 +37,11 @@ void Cura(double x, double y, double largura, double altura, double raio);
 
 void Aduba(double x, double y, double largura, double altura, double raio);
 
-void Semeia(double x, double y, double largura, double altura, double fator, double dx, double dy, double ID);
+void Semeia(double x, double y, double largura, double altura, double fator, double dx, double dy, int ID);
+
+void DadosI(int ID);
+
+void InfoColheitadeiras();
 
 /**
  * @brief Fecha o arquivo fqry

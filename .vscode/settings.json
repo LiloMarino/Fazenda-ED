@@ -6,7 +6,10 @@
         "learquivo.h": "c",
         "arqsvg.h": "c",
         "utilities.h": "c",
-        "algorithm": "c"
+        "algorithm": "c",
+        "string.h": "c",
+        "radialtree.h": "c",
+        "stdbool.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
