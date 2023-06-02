@@ -48,8 +48,7 @@ void freeNode(Node n, bool ClearTotal)
     NodeTree *No = n;
     if (ClearTotal)
     {
-        FreeFigura(No->info);
-        free(No->info); // Atenção aqui, é necessário analisar esta parte dependendo da informação contida no nó
+        FreeFigura(No->info); // Atenção aqui, é necessário analisar esta parte dependendo da informação contida no nó
         No->info = NULL;
     }
     free(No->filhos);
@@ -208,8 +207,7 @@ Lista VerificaArvore(RadialTree t)
         NodeTree *No = popLst(Removidos);
         if (No->info != NULL)
         {
-            FreeFigura(No->info);
-            free(No->info); // Atenção aqui, é necessário analisar esta parte dependendo da informação contida no nó
+            FreeFigura(No->info); // Atenção aqui, é necessário analisar esta parte dependendo da informação contida no nó
             No->info = NULL;
         }
     }
@@ -372,6 +370,7 @@ void removeNoRadialT(RadialTree t, Node n)
     /*Verifica se é necessário recriar a árvore*/
     if (fd > Tree->limiar)
     {
+        CriaPngDot(ARQDOT);
         TerminaDot(ARQDOT);
         ARQDOT = CriaLog("../logs/Arvore", "dot");
         InicializaDot(ARQDOT);

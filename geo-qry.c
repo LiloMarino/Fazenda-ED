@@ -21,6 +21,7 @@ struct StFigura
     int ID;
     char Tipo;
     Item Figura;
+    int RefCount;
 };
 
 struct StCirculo
@@ -99,6 +100,7 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
             f->Tipo = 'C';
             f->Figura = c;
             insertRadialT(All, c->x, c->y, f);
+            f->RefCount = 1;
         }
         else if (strcmp(comando, "r") == 0)
         {
@@ -116,6 +118,7 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
             f->Tipo = 'R';
             f->Figura = r;
             insertRadialT(All, r->x, r->y, f);
+            f->RefCount = 1;
         }
         else if (strcmp(comando, "l") == 0)
         {
@@ -129,6 +132,7 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
             f->Tipo = 'L';
             f->Figura = l;
             insertRadialT(All, l->x1, l->y1, f);
+            f->RefCount = 1;
         }
         else if (strcmp(comando, "ts") == 0)
         {
@@ -182,6 +186,7 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
             f->Tipo = 'T';
             f->Figura = t;
             insertRadialT(All, t->x, t->y, f);
+            f->RefCount = 1;
         }
         else
         {
@@ -312,26 +317,41 @@ bool GetTexto(Info figura, double x1, double y1, double x2, double y2)
 
 void FreeFigura(Info figura)
 {
-    Figura *f = figura;
-    if (f->Tipo == 'R')
+    Figura *f = (Figura *)figura;
+    if (f->RefCount == 1)
     {
-        Retangulo *r = f->Figura;
-        free(r);
+        switch (f->Tipo)
+        {
+        case 'R':
+        {
+            Retangulo *r = (Retangulo *)f->Figura;
+            free(r);
+            break;
+        }
+        case 'C':
+        {
+            Circulo *c = (Circulo *)f->Figura;
+            free(c);
+            break;
+        }
+        case 'L':
+        {
+            Linha *l = (Linha *)f->Figura;
+            free(l);
+            break;
+        }
+        case 'T':
+        {
+            Texto *t = (Texto *)f->Figura;
+            free(t);
+            break;
+        }
+        }
+        free(f);
     }
-    else if (f->Tipo == 'C')
+    else
     {
-        Circulo *c = f->Figura;
-        free(c);
-    }
-    else if (f->Tipo == 'L')
-    {
-        Linha *l = f->Figura;
-        free(l);
-    }
-    else if (f->Tipo == 'T')
-    {
-        Texto *t = f->Figura;
-        free(t);
+        f->RefCount--;
     }
 }
 
@@ -347,14 +367,13 @@ void fechaGeo(ArqGeo fgeo)
  * Funções DOT                                                                                               *
  *========================================================================================================== */
 
-
 void LigaNo(ArqDot fdot, RadialTree All, Node pai, Node filho)
 {
     if (pai == NULL)
     {
         char Forma = ((Figura *)getInfoRadialT(All, filho))->Tipo;
         int ID = ((Figura *)getInfoRadialT(All, filho))->ID;
-        fprintf(fdot,"Raiz -> %c%d\n", Forma, ID);
+        fprintf(fdot, "Raiz -> %c%d\n", Forma, ID);
     }
     else
     {
@@ -362,7 +381,7 @@ void LigaNo(ArqDot fdot, RadialTree All, Node pai, Node filho)
         int ID1 = ((Figura *)getInfoRadialT(All, pai))->ID;
         char Forma2 = ((Figura *)getInfoRadialT(All, filho))->Tipo;
         int ID2 = ((Figura *)getInfoRadialT(All, filho))->ID;
-        fprintf(fdot,"%c%d -> %c%d\n", Forma1, ID1, Forma2, ID2);
+        fprintf(fdot, "%c%d -> %c%d\n", Forma1, ID1, Forma2, ID2);
     }
 }
 
@@ -413,7 +432,7 @@ Info ProcuraID(int ID, RadialTree All)
     return aux;
 }
 
-void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
+void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
 {
     char comando[3];
     char *linha = NULL;
@@ -435,12 +454,13 @@ void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
             int ID;
             sscanf(linha, "%s %d %lf %lf", comando, &ID, &dx, &dy);
             fprintf(log, "\n[*] %s %d %lf %lf\n", comando, ID, dx, dy);
-            ProcID *I = ProcuraID(ID, All);
-            if (getNodeRadialT(All, I->Nox + dx, I->Noy + dy, EPSILON_PADRAO) == NULL)
+            ProcID *I = ProcuraID(ID, *All);
+            if (getNodeRadialT(*All, I->Nox + dx, I->Noy + dy, EPSILON_PADRAO) == NULL)
             {
                 Move(I->NoInfo, dx, dy, log);
-                insertRadialT(All, I->Nox + dx, I->Noy + dy, I->NoInfo);
-                removeNoRadialT(&All, getNodeRadialT(All, I->Nox, I->Noy, EPSILON_PADRAO));
+                insertRadialT(*All, I->Nox + dx, I->Noy + dy, I->NoInfo);
+                ((Figura *)I->NoInfo)->RefCount++;
+                removeNoRadialT(All, getNodeRadialT(*All, I->Nox, I->Noy, EPSILON_PADRAO));
             }
             else
             {
@@ -473,7 +493,7 @@ void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput)
         }
         sprintf(nome, "%d-caso-de-teste.qry", num); // Remover depois
         num++;                                      // Remover depois
-        OperaSVG(nome, All);                        // Remover depois
+        OperaSVG(nome, *All);                     // Remover depois
     }
     if (linha != NULL)
     {

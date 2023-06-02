@@ -21,11 +21,11 @@ ArqQry abreLeituraQry(char *fn);
 /**
  * @brief A função recebe um arquivo .qry interpreta e opera os elementos na árvore radial
  * @param fqry Ponteiro para o arquivo QRY aberto
- * @param All Ponteiro para a árvore radial com todos os elementos
+ * @param All Endereço para a árvore radial com todos os elementos
  * @param log Ponteiro para o arquivo de registro
  * @param PathOutput Ponteiro contendo o caminho de saída dos arquivos
  */
-void InterpretaQry(ArqQry fqry, RadialTree All, FILE *log, char *PathOutput);
+void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput);
 
 void Harvest(int ID, int Passos, char Direcao, FILE *log);
 
