@@ -39,7 +39,7 @@ void Aduba(double x, double y, double largura, double altura, double raio);
 
 void Semeia(double x, double y, double largura, double altura, double fator, double dx, double dy, int ID);
 
-void DadosI(int ID);
+void DadosI(int ID, RadialTree All, FILE *log);
 
 void InfoColheitadeiras();
 
