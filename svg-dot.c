@@ -77,30 +77,25 @@ void TerminaDot(ArqDot fdot)
     }
 }
 
-void CriaPngDot(ArqDot fdot)
+void CriaPngDot(char nome[])
 {
-    int descritor = fileno(fdot);
-    char nome_do_arquivo[256];
+    char ext[] = "dot";
+    // Aloca memória para o nome do arquivo
+    char nomearq[strlen(nome) + 10 + strlen(ext)];
 
-    if (descritor != -1)
-    {
-        ssize_t tamanho = readlink("/proc/self/fd/<descritor>", nome_do_arquivo, sizeof(nome_do_arquivo) - 1);
-        if (tamanho != -1)
-        {
-            nome_do_arquivo[tamanho] = '\0';
-            printf("O nome do arquivo é: %s\n", nome_do_arquivo);
-        }
-        else
-        {
-            printf("Não foi possível obter o nome do arquivo.\n");
-        }
-    }
-    else
-    {
-        printf("Não foi possível obter o descritor de arquivo.\n");
-    }
+    int n = 1;
+    sprintf(nomearq, "%s.%s", nome, ext);
 
-    char command[1000];
-    sprintf(command, "dot -Tpng %s -o %s.png", nome_do_arquivo, nome_do_arquivo);
-    system(command);
+    // Verifica se o arquivo já existe
+    FILE *vrfy = fopen(nomearq, "r");
+    while (vrfy != NULL)
+    {
+        fclose(vrfy);
+        char command[strlen(nomearq) + 30];
+        sprintf(command, "dot -Tpng %s -o %s.png", nomearq, nomearq);
+        system(command);
+        n++;
+        sprintf(nomearq, "%s-%d.%s", nome, n, ext);
+        vrfy = fopen(nomearq, "r");
+    }
 }

@@ -26,6 +26,6 @@ int main()
     fechaQry(Qry00);
     fclose(log);
     freeRadialTree(&All, true);
-    CriaPngDot(ARQDOT);
     TerminaDot(ARQDOT);
+    CriaPngDot("../logs/Arvore");
 }

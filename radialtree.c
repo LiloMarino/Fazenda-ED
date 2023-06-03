@@ -370,7 +370,6 @@ void removeNoRadialT(RadialTree t, Node n)
     /*Verifica se é necessário recriar a árvore*/
     if (fd > Tree->limiar)
     {
-        CriaPngDot(ARQDOT);
         TerminaDot(ARQDOT);
         ARQDOT = CriaLog("../logs/Arvore", "dot");
         InicializaDot(ARQDOT);
