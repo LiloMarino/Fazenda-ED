@@ -413,6 +413,13 @@ ArqQry abreLeituraQry(char *fn)
     return fqry;
 }
 
+/**
+ * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore um ID especificado e guardar suas informações em aux
+ * @param i Conteúdo do nó
+ * @param x Coordenada x do nó
+ * @param y Coordenada y do nó
+ * @param aux Estrutura que guarda as informações do nó que contenha o ID especificado
+ */
 void VerificaID(Info i, double x, double y, void *aux)
 {
     Figura *F = i;
@@ -424,6 +431,13 @@ void VerificaID(Info i, double x, double y, void *aux)
     }
 }
 
+/**
+ * @brief Procura na árvore o ID especificado
+ * @param ID ID a ser procurado na árvore
+ * @param All Ponteiro para a árvore radial
+ * @return Retorna informações sobre o nó como coordenadas do nó e seu conteúdo
+ * @warning É necessário dar free() na variável retornada por essa função
+ */
 Info ProcuraID(int ID, RadialTree All)
 {
     ProcID *aux = malloc(sizeof(ProcID));
@@ -436,7 +450,6 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
 {
     char comando[3];
     char *linha = NULL;
-    int ID;
     char nome[25]; // Remover depois
     int num = 0;   // Remover depois
     while (leLinha(fqry, &linha))
@@ -483,6 +496,10 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
         }
         else if (strcmp(comando, "d?") == 0)
         {
+            int ID;
+            sscanf(linha, "%s %d", comando, &ID);
+            fprintf(log, "\n[*] %s %d\n", comando, ID);
+            DadosI(ID, *All, log);
         }
         else if (strcmp(comando, "c?") == 0)
         {
@@ -493,7 +510,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
         }
         sprintf(nome, "%d-caso-de-teste.qry", num); // Remover depois
         num++;                                      // Remover depois
-        OperaSVG(nome, *All);                     // Remover depois
+        OperaSVG(nome, *All);                       // Remover depois
     }
     if (linha != NULL)
     {
@@ -560,6 +577,58 @@ void Move(Info I, double dx, double dy, FILE *log)
     {
         return;
     }
+}
+
+void DadosI(int ID, RadialTree All, FILE *log)
+{
+    fprintf(log, "ID: %d\n", ID);
+    ProcID *I = ProcuraID(ID, All);
+    Figura *F = I->NoInfo;
+    char Forma = F->Tipo;
+    fprintf(log, "Tipo: ");
+    if (Forma == 'T')
+    {
+        Texto *t = F->Figura;
+        fprintf(log, "Texto\n");
+        fprintf(log, "X: %lf\n", t->x);
+        fprintf(log, "Y: %lf\n", t->y);
+        fprintf(log, "Corb: %s\n", t->corb);
+        fprintf(log, "Corp: %s\n", t->corp);
+        fprintf(log, "Ancora: %s\n", t->a);
+        fprintf(log, "Texto: %s\n", t->txto);
+    }
+    else if (Forma == 'C')
+    {
+        Circulo *c = F->Figura;
+        fprintf(log, "Circulo\n");
+        fprintf(log, "X: %lf\n", c->x);
+        fprintf(log, "Y: %lf\n", c->y);
+        fprintf(log, "Raio: %lf\n", c->raio);
+        fprintf(log, "Corb: %s\n", c->corb);
+        fprintf(log, "Corp: %s\n", c->corp);
+    }
+    else if (Forma == 'R')
+    {
+        Retangulo *r = F->Figura;
+        fprintf(log, "Retangulo\n");
+        fprintf(log, "X: %lf\n", r->x);
+        fprintf(log, "Y: %lf\n", r->y);
+        fprintf(log, "Largura: %lf\n", r->larg);
+        fprintf(log, "Altura: %lf\n", r->alt);
+        fprintf(log, "Corb: %s\n", r->corb);
+        fprintf(log, "Corp: %s\n", r->corp);
+    }
+    else if (Forma == 'L')
+    {
+        Linha *l = F->Figura;
+        fprintf(log, "Linha\n");
+        fprintf(log, "X1: %lf\n", l->x1);
+        fprintf(log, "Y1: %lf\n", l->y1);
+        fprintf(log, "X2: %lf\n", l->x2);
+        fprintf(log, "Y2: %lf\n", l->y2);
+        fprintf(log, "Cor: %s\n", l->cor);
+    }
+    free(I);
 }
 
 void fechaQry(ArqQry fqry)

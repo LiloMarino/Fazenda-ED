@@ -14,7 +14,7 @@ int main()
     ARQDOT = CriaLog("../logs/Arvore","dot");
     InicializaDot(ARQDOT);
     FILE* log;
-    RadialTree All = newRadialTree(3, 0.1);
+    RadialTree All = newRadialTree(8, 0.1);
     log = CriaLog("../logs/Registro","txt");
     ArqGeo Geo00 = abreLeituraGeo("../caso-de-teste.geo");
     ArqQry Qry00 = abreLeituraQry("../caso-de-teste.qry");
