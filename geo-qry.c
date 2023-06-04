@@ -412,8 +412,14 @@ struct StColheitadeira
     double Noy;     // Coordenada do nó da colheitadeira
 };
 
+struct StHortalica
+{
+    Info Fig
+};
+
 typedef struct StProcID ProcID;
 typedef struct StColheitadeira Colheitadeira;
+typedef struct StHortalica Hortalica;
 
 ArqQry abreLeituraQry(char *fn)
 {
@@ -462,6 +468,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
     char nome[25]; // Remover depois
     int num = 0;   // Remover depois
     Lista Entidades = createLst(-1);
+    Lista Colheita = createLst(-1);
     while (leLinha(fqry, &linha))
     {
         sscanf(linha, "%s ", comando);
@@ -483,7 +490,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
             int ID, Passos;
             char Direcao;
             sscanf(linha, "%s %d %d %c", comando, &ID, &Passos, &Direcao);
-            Harvest(ID, Passos, Direcao, log, Entidades, *All);
+            Harvest(ID, Passos, Direcao, log, Entidades, *All, Colheita);
         }
         else if (strcmp(comando, "mv") == 0)
         {
@@ -530,7 +537,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
     killLst(Entidades);
 }
 
-void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, RadialTree *All)
+void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, RadialTree *All, Lista Colheita)
 {
     /* Procura a Colheitadeira ID */
     Colheitadeira *C;
@@ -581,8 +588,50 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
         Xfim = R->x + R->larg;
         Yfim = R->y + R->alt;
     }
+    
+    /* Reporta os atributos de ID e suas posições */
+    DadosI(ID,*All,log);
+    fprintf(log,"Posicao Original:\n");
+    fprintf(log,"X: %lf\n",R->x);
+    fprintf(log,"Y: %lf\n",R->y);
+    fprintf(log,"Posicao Final:\n");
+    fprintf(log,"X: %lf\n",R->x + dx);
+    fprintf(log,"Y: %lf\n",R->y + dy);
+
+    /* Colhe os elementos na área e os insere na lista Nos */
+    Lista Nos = createLst(-1);
+    getNodesDentroRegiaoRadialT(*All,Xinicio,Yinicio,Xfim,Yfim,Nos);
+    
+    /* Remove os nós da árvore sem remover a informação do nó */
+    Iterador Del = createIterador(Nos,false);
+    while (!isIteratorEmpty(Nos,Del))
+    {
+        Node N = getIteratorNext(Nos, Del);
+        Figura *F = getInfoRadialT(*All,N);
+        F->RefCount++;
+        insertLst(Colheita,F);
+        removeNoRadialT(All,N);
+    }
+    killLst(Nos);
+
 
     /* Realiza o movimento da colheitadeira e marca a área colhida */
+    Move(ID, dx, dy, log, All);
+    Retangulo *r = malloc(sizeof(Retangulo));
+    r->x = Xinicio;
+    r->y = Yinicio;
+    r->larg = Xfim - Xinicio;
+    r->alt = Yfim - Yinicio;
+    strcpy(r->corp,"#ffffff00"); // Branco Transparente via canal alpha 00
+    strcpy(r->corb,"#ff0000"); // Vermelho
+    r->pont = 3;
+    r->ID = 9999; // Pode causar problemas é melhor criar um método de obter um ID único
+    Figura *f = malloc(sizeof(Figura));
+    f->ID = r->ID;
+    f->Tipo = 'R';
+    f->Figura = r;
+    insertRadialT(*All, r->x, r->y, f);
+    f->RefCount = 1;
 }
 
 void Move(int ID, double dx, double dy, FILE *log, RadialTree *All)

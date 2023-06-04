@@ -37,7 +37,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput);
  * @param Entidades Lista que contém todas as informações de todas as colheitadeiras
  * @param All ndereço para a árvore radial com todos os elementos
  */
-void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, RadialTree *All);
+void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, RadialTree *All, Lista Colheita);
 
 /**
  * @brief Move uma figura identificada por ID
@@ -66,6 +66,8 @@ void Semeia(double x, double y, double largura, double altura, double fator, dou
 void DadosI(int ID, RadialTree All, FILE *log);
 
 void InfoColheitadeiras();
+
+void ContabilizaColheita(Lista Colheita);
 
 /**
  * @brief Fecha o arquivo fqry
