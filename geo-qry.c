@@ -824,15 +824,15 @@ void ContabilizaColheita(Lista Colheita, FILE *log)
         {
             /*Cebola, Morango, Cenoura ou Mato*/
             Texto *t = F->Figura;
-            if (strcmp(t->txto, "@") == 0)
+            if (strncmp(t->txto, "@",1) == 0)
             {
                 CONT.cebola += 200; // 200g
             }
-            else if (strcmp(t->txto, "*") == 0)
+            else if (strncmp(t->txto, "*",1) == 0)
             {
                 CONT.morango += 20; // 20g
             }
-            else if (strcmp(t->txto, "%") == 0)
+            else if (strncmp(t->txto, "%",1) == 0)
             {
                 CONT.cenoura += 70; // 70g
             }
