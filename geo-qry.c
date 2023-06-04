@@ -405,12 +405,13 @@ struct StProcID
     double Noy;
 };
 
-struct StColheitadeira
+struct StEntidade
 {
-    int ID;         // ID da colheitadeira
-    Info IColheita; // Informação contida no nó da colheitadeira
-    double Nox;     // Coordenada do nó da colheitadeira
-    double Noy;     // Coordenada do nó da colheitadeira
+    bool IsColheita; // Diz se é uma colheitadeira
+    int ID;          // ID da colheitadeira
+    Info IColheita;  // Informação contida no nó da colheitadeira
+    double Nox;      // Coordenada do nó da colheitadeira
+    double Noy;      // Coordenada do nó da colheitadeira
 };
 
 struct StHortalica
@@ -430,7 +431,7 @@ struct StContabiliza
 };
 
 typedef struct StProcID ProcID;
-typedef struct StColheitadeira Colheitadeira;
+typedef struct StEntidade Entidade;
 typedef struct StHortalica Hortalica;
 typedef struct StContabiliza Contabiliza;
 
@@ -490,11 +491,12 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
             int ID;
             sscanf(linha, "%s %d", comando, &ID);
             ProcID *I = ProcuraID(ID, *All);
-            Colheitadeira *C = malloc(sizeof(Colheitadeira));
+            Entidade *C = malloc(sizeof(Entidade));
             C->ID = I->ID;
             C->Nox = I->Nox;
             C->Noy = I->Noy;
             C->IColheita = I->NoInfo;
+            C->IsColheita = true;
             insertLst(Entidades, C);
             free(I);
         }
@@ -553,12 +555,12 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
 void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, RadialTree *All, Lista Colheita)
 {
     /* Procura a Colheitadeira ID */
-    Colheitadeira *C;
+    Entidade *C;
     Iterador E = createIterador(Entidades, false);
     while (!isIteratorEmpty(Entidades, E))
     {
         C = getIteratorNext(Entidades, E);
-        if (C->ID == ID)
+        if (C->ID == ID && C->IsColheita)
         {
             break;
         }
@@ -566,7 +568,8 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     killIterator(E);
 
     /* Obtém a distância a ser percorrida e obtém as coordenadas da área de colheita ambos baseados na direção*/
-    Retangulo *R = C->IColheita;
+    Figura *F = C->IColheita;
+    Retangulo *R = F->Figura;
     double Xinicio, Yinicio, Xfim, Yfim;
     double dx = 0, dy = 0;
     if (Direcao == 'n')
@@ -613,21 +616,36 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
 
     /* Colhe os elementos na área e os insere na lista Nos */
     Lista Nos = createLst(-1);
-    getNodesDentroRegiaoRadialT(*All, Xinicio, Yinicio, Xfim, Yfim, Nos); // A colheitadeira pode acabar indo junto
+    getNodesDentroRegiaoRadialT(*All, Xinicio, Yinicio, Xfim, Yfim, Nos);
 
-    /* Remove os nós da árvore sem remover a informação do nó */
+    /* Remove os nós da árvore sem remover a informação do nó e insere na lista colheita apenas as hortaliças*/
     Iterador Del = createIterador(Nos, false);
     while (!isIteratorEmpty(Nos, Del))
     {
+        bool IsEntity = false;
         Node N = getIteratorNext(Nos, Del);
         Figura *F = getInfoRadialT(*All, N);
-        F->RefCount++;
-        Hortalica *H = malloc(sizeof(Hortalica));
-        H->Fig = F;
-        insertLst(Colheita, H);
-        removeNoRadialT(All, N);
+        E = createIterador(Entidades, false);
+        while (!isIteratorEmpty(Entidades, E))
+        {
+            Entidade *Ent = getIteratorNext(Entidades, E);
+            if (F->ID == Ent->ID)
+            {
+                IsEntity = true;
+            }
+        }
+        killIterator(E);
+        if (!IsEntity)
+        {
+            F->RefCount++;
+            Hortalica *H = malloc(sizeof(Hortalica));
+            H->Fig = F;
+            insertLst(Colheita, H);
+            removeNoRadialT(All, N);
+        }
     }
     killLst(Nos);
+    killIterator(Del);
 
     /* Contabiliza a colheita e reporta */
     ContabilizaColheita(Colheita, log);

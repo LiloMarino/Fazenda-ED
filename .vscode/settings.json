@@ -14,7 +14,12 @@
         "geradores.h": "c",
         "stdio.h": "c",
         "svg-dot.h": "c",
-        "listadupla.h": "c"
+        "listadupla.h": "c",
+        "array": "c",
+        "memory": "c",
+        "functional": "c",
+        "tuple": "c",
+        "utility": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
