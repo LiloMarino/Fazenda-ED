@@ -69,6 +69,8 @@ void InfoColheitadeiras();
 
 void ContabilizaColheita(Lista Colheita, FILE *log);
 
+int GetIDUnico(Lista Entidades);
+
 /**
  * @brief Fecha o arquivo fqry
  * @param fqry Ponteiro para o arquivo QRY aberto

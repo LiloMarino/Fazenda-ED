@@ -660,7 +660,7 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     strcpy(r->corp, "#ffffff00"); // Branco Transparente via canal alpha 00
     strcpy(r->corb, "#ff0000");   // Vermelho
     r->pont = 3;
-    r->ID = 9999; // Pode causar problemas é melhor criar um método de obter um ID único
+    r->ID = GetIDUnico(Entidades);
     Figura *f = malloc(sizeof(Figura));
     f->ID = r->ID;
     f->Tipo = 'R';
@@ -846,6 +846,27 @@ void ContabilizaColheita(Lista Colheita, FILE *log)
     fprintf(log, "Cenoura: %.0lfg ou %.2lfkg\n", CONT.cenoura, CONT.cenoura / 1000);
     fprintf(log, "Mato(linha): %.0lfg ou %.2lfkg\n", CONT.mato_linha, CONT.mato_linha / 1000);
     fprintf(log, "Mato(texto): %.0lfg ou %.2lfkg\n", CONT.mato_texto, CONT.mato_texto / 1000);
+}
+
+int GetIDUnico(Lista Entidades)
+{
+    int IDunico = 9999;
+    bool JaExiste;
+    Iterador E = createIterador(Entidades, false);
+    do
+    {
+        JaExiste = false;
+        while (!isIteratorEmpty(Entidades, E))
+        {
+            Entidade *Ent = getIteratorNext(Entidades, E);
+            if (Ent->ID == IDunico)
+            {
+                IDunico++;
+                JaExiste = true;
+            }
+        }
+    } while (JaExiste);
+    return IDunico;
 }
 
 void fechaQry(ArqQry fqry)
