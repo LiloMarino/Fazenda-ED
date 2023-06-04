@@ -2,6 +2,7 @@
 #define QRY_H
 
 #include "radialtree.h"
+#include "Bibliotecas/listadupla.h"
 #include <stdio.h>
 
 /*
@@ -27,9 +28,25 @@ ArqQry abreLeituraQry(char *fn);
  */
 void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput);
 
-void Harvest(int ID, int Passos, char Direcao, FILE *log);
+/**
+ * @brief 
+ * @param ID 
+ * @param Passos 
+ * @param Direcao 
+ * @param log 
+ * @param Entidades 
+ * @param All 
+ */
+void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, RadialTree All);
 
-void Move(Info I, double dx, double dy, FILE *log);
+/**
+ * @brief 
+ * @param I 
+ * @param dx Variação horizontal
+ * @param dy Variação vertical
+ * @param log 
+ */
+void Move(Info I, double dx, double dy, FILE *log, RadialTree *All);
 
 void Praga(double x, double y, double largura, double altura, double raio);
 
@@ -39,6 +56,12 @@ void Aduba(double x, double y, double largura, double altura, double raio);
 
 void Semeia(double x, double y, double largura, double altura, double fator, double dx, double dy, int ID);
 
+/**
+ * @brief 
+ * @param ID 
+ * @param All 
+ * @param log 
+ */
 void DadosI(int ID, RadialTree All, FILE *log);
 
 void InfoColheitadeiras();

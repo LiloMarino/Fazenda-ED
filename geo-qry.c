@@ -406,10 +406,10 @@ struct StProcID
 
 struct StColheitadeira
 {
-    int ID; // ID da colheitadeira
-    Info IColheita; //Informação contida no nó da colheitadeira
-    double Nox; //Coordenada do nó da colheitadeira
-    double Noy; //Coordenada do nó da colheitadeira
+    int ID;         // ID da colheitadeira
+    Info IColheita; // Informação contida no nó da colheitadeira
+    double Nox;     // Coordenada do nó da colheitadeira
+    double Noy;     // Coordenada do nó da colheitadeira
 };
 
 typedef struct StProcID ProcID;
@@ -461,7 +461,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
     char *linha = NULL;
     char nome[25]; // Remover depois
     int num = 0;   // Remover depois
-    Lista Entidade = createLst(-1); 
+    Lista Entidades = createLst(-1);
     while (leLinha(fqry, &linha))
     {
         sscanf(linha, "%s ", comando);
@@ -475,10 +475,15 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
             C->Nox = I->Nox;
             C->Noy = I->Noy;
             C->IColheita = I->NoInfo;
+            insertLst(Entidades, C);
             free(I);
         }
         else if (strcmp(comando, "hvt") == 0)
         {
+            int ID, Passos;
+            char Direcao;
+            sscanf(linha, "%s %d %d %c", comando, &ID, &Passos, &Direcao);
+            Harvest(ID, Passos, Direcao, log, Entidades, *All);
         }
         else if (strcmp(comando, "mv") == 0)
         {
@@ -535,7 +540,44 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
     {
         free(linha);
     }
-    killLst(Entidade);
+    killLst(Entidades);
+}
+
+void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, RadialTree All)
+{
+    /* Procura a Colheitadeira ID */
+    Colheitadeira *C;
+    Iterador E = createIterador(Entidades, false);
+    while (!isIteratorEmpty(Entidades, E))
+    {
+        C = getIteratorNext(Entidades, E);
+        if (C->ID == ID)
+        {
+            break;
+        }
+    }
+    killIterator(E);
+    
+    /* Obtém o TamanhoDoPasso baseado na direção */
+    Retangulo *R = C->IColheita;
+    double TamanhoDoPasso;
+    if (Direcao == 'n' || Direcao == 's')
+    {
+        TamanhoDoPasso = R->alt;
+    }
+    else if (Direcao == 'l' || Direcao == 'o')
+    {
+        TamanhoDoPasso = R->larg;
+    }
+    else
+    {
+        printf("Direcao Invalida\n");
+    }
+    
+    /* Realiza o movimento da colheitadeira e marca a área colhida */
+    double Xinicio = R->x;
+    double Yinicio = R->y;
+    Move(C->IColheita,)
 }
 
 void Move(Info I, double dx, double dy, FILE *log)
