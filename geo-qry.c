@@ -416,6 +416,7 @@ struct StEntidade
 
 struct StHortalica
 {
+    int ID;
     Info Fig;
 };
 
@@ -615,14 +616,14 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     fprintf(log, "Y: %lf\n", R->y + dy);
 
     /* Colhe os elementos na área e remove os nós da árvore sem remover a informação do nó inserindo na lista colheita apenas as hortaliças*/
-    ColheElementos(All,Entidades,Colheita,Xinicio,Yinicio,Xfim,Yfim);
+    ColheElementos(All, Entidades, Colheita, Xinicio, Yinicio, Xfim, Yfim);
 
     /* Contabiliza a colheita e reporta */
     ContabilizaColheita(Colheita, log);
 
     /* Realiza o movimento da colheitadeira e marca a área colhida para o svg */
     Move(ID, dx, dy, log, All);
-    CriaAreaColhida(*All,Entidades,Xinicio,Yinicio,Xfim,Yfim);
+    CriaAreaColhida(*All, Entidades, Xinicio, Yinicio, Xfim, Yfim);
 }
 
 void Move(int ID, double dx, double dy, FILE *log, RadialTree *All)
@@ -752,11 +753,11 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Colheita, double Xin
     Lista Nos = createLst(-1);
     getNodesDentroRegiaoRadialT(*All, Xinicio, Yinicio, Xfim, Yfim, Nos);
 
-    Iterador Del = createIterador(Nos, false);
-    while (!isIteratorEmpty(Nos, Del))
+    /* Insere na lista Colheita apenas os itens que não são entidades e estão na área */
+    while (!isEmptyLst(Nos))
     {
         bool IsEntity = false;
-        Node N = getIteratorNext(Nos, Del);
+        Node N = popLst(Nos);
         Figura *F = getInfoRadialT(*All, N);
         Iterador E = createIterador(Entidades, false);
         while (!isIteratorEmpty(Entidades, E))
@@ -772,12 +773,22 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Colheita, double Xin
         {
             F->RefCount++; // Para não ser eliminado pelo removeNoRadialT()
             Hortalica *H = malloc(sizeof(Hortalica));
+            H->ID = F->ID;
             H->Fig = F;
             insertLst(Colheita, H);
-            removeNoRadialT(All, N);
         }
     }
     killLst(Nos);
+
+    /* Remove os itens que foram colhidos */
+    Iterador Del = createIterador(Colheita, false);
+    while (!isIteratorEmpty(Colheita, Del))
+    {
+        Hortalica *H = getIteratorNext(Colheita, Del);
+        ProcID *I = ProcuraID(H->ID, *All);
+        removeNoRadialT(All, getNodeRadialT(*All, I->Nox, I->Noy, EPSILON_PADRAO));
+        free(I);
+    }
     killIterator(Del);
 }
 
@@ -825,7 +836,7 @@ void ContabilizaColheita(Lista Colheita, FILE *log)
         {
             /*Mato*/
             Linha *l = F->Figura;
-            CONT.mato_linha += Distancia2Pontos(l->x1, l->y1, l->x2, l->y2) * 10;
+            CONT.mato_linha += Distancia2Pontos(l->x1, l->y1, l->x2, l->y2) * 10; // 10g * Comprimento
         }
     }
     fprintf(log, "Contabilidade da Colheita\n");
@@ -859,7 +870,7 @@ int GetIDUnico(Lista Entidades)
     return IDunico;
 }
 
-void CriaAreaColhida(RadialTree All, Lista Entidades,double Xinicio, double Yinicio, double Xfim, double Yfim)
+void CriaAreaColhida(RadialTree All, Lista Entidades, double Xinicio, double Yinicio, double Xfim, double Yfim)
 {
     Retangulo *r = malloc(sizeof(Retangulo));
     r->x = Xinicio;
