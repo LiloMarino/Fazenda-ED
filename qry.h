@@ -76,6 +76,7 @@ void fechaQry(ArqQry fqry);
 /**
  *  Funções Auxiliares
  */
+
 void ColheElementos(RadialTree *All, Lista Entidades, Lista Colheita, double Xinicio, double Yinicio, double Xfim, double Yfim);
 
 void ContabilizaColheita(Lista Colheita, FILE *log);
@@ -83,5 +84,9 @@ void ContabilizaColheita(Lista Colheita, FILE *log);
 int GetIDUnico(Lista Entidades);
 
 void CriaAreaColhida(RadialTree All, Lista Entidades,double Xinicio, double Yinicio, double Xfim, double Yfim);
+
+void FreeEntidade(Info Ent);
+
+void FreeHortalica(Info Hor);
 
 #endif

@@ -465,7 +465,7 @@ void VerificaID(Info i, double x, double y, void *aux)
  * @brief Procura na árvore o ID especificado
  * @param ID ID a ser procurado na árvore
  * @param All Ponteiro para a árvore radial
- * @return Retorna informações sobre o nó como coordenadas do nó e seu conteúdo
+ * @return Retorna informações sobre o nó como coordenadas do nó e seu conteúdo em uma estrutura do tipo ProcID
  * @warning É necessário dar free() na variável retornada por essa função
  */
 Info ProcuraID(int ID, RadialTree All)
@@ -499,6 +499,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
             C->IColheita = I->NoInfo;
             C->IsColheita = true;
             insertLst(Entidades, C);
+            ((Figura *)I->NoInfo)->RefCount++;
             free(I);
         }
         else if (strcmp(comando, "hvt") == 0)
@@ -506,6 +507,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
             int ID, Passos;
             char Direcao;
             sscanf(linha, "%s %d %d %c", comando, &ID, &Passos, &Direcao);
+            fprintf(log, "\n[*] %s %d %d %c\n", comando, ID, Passos, Direcao);
             Harvest(ID, Passos, Direcao, log, Entidades, All, Colheita);
         }
         else if (strcmp(comando, "mv") == 0)
@@ -550,6 +552,15 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
     {
         free(linha);
     }
+    while (!isEmptyLst(Colheita))
+    {
+        FreeHortalica(popLst(Colheita));
+    }
+    killLst(Colheita);
+    while (!isEmptyLst(Entidades))
+    {
+       FreeEntidade(popLst(Entidades));
+    }
     killLst(Entidades);
 }
 
@@ -557,16 +568,24 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
 {
     /* Procura a Colheitadeira ID */
     Entidade *C;
+    bool Encontrada = false;
     Iterador E = createIterador(Entidades, false);
     while (!isIteratorEmpty(Entidades, E))
     {
         C = getIteratorNext(Entidades, E);
         if (C->ID == ID && C->IsColheita)
         {
+            Encontrada = true;
             break;
         }
     }
     killIterator(E);
+    if (!Encontrada)
+    {
+        printf("Colheitadeira nao encontrada ID: %d\n", ID);
+        fprintf(log, "Colheitadeira nao encontrada ID: %d\n", ID);
+        return;
+    }
 
     /* Obtém a distância a ser percorrida e obtém as coordenadas da área de colheita ambos baseados na direção*/
     Figura *F = C->IColheita;
@@ -839,6 +858,7 @@ void ContabilizaColheita(Lista Colheita, FILE *log)
             CONT.mato_linha += Distancia2Pontos(l->x1, l->y1, l->x2, l->y2) * 10; // 10g * Comprimento
         }
     }
+    killIterator(Col);
     fprintf(log, "Contabilidade da Colheita\n");
     fprintf(log, "Abóbora: %.0lfg ou %.2lfkg\n", CONT.abobora, CONT.abobora / 1000);
     fprintf(log, "Morango: %.0lfg ou %.2lfkg\n", CONT.morango, CONT.morango / 1000);
@@ -867,6 +887,7 @@ int GetIDUnico(Lista Entidades)
             }
         }
     } while (JaExiste);
+    killIterator(E);
     return IDunico;
 }
 
@@ -893,7 +914,21 @@ void CriaAreaColhida(RadialTree All, Lista Entidades, double Xinicio, double Yin
     e->IsColheita = false;
     insertRadialT(All, r->x, r->y, f);
     insertLst(Entidades, e);
-    f->RefCount = 1;
+    f->RefCount = 2; // 2 pois foi inserido tanto na lista de entidades quanto na árvore
+}
+
+void FreeEntidade(Info Ent)
+{
+    Entidade *E = Ent;
+    FreeFigura(E->IColheita);
+    free(E);
+}
+
+void FreeHortalica(Info Hor)
+{
+    Hortalica *H = Hor;
+    FreeFigura(H->Fig);
+    free(H);
 }
 
 void fechaQry(ArqQry fqry)
