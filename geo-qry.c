@@ -6,6 +6,7 @@
 #include "geo.h"
 #include "Bibliotecas/arqsvg.h"
 #include "Bibliotecas/learquivo.h"
+#include "Bibliotecas/utilities.h"
 #include "radialtree.h"
 #include "qry.h"
 #include "def.h"
@@ -404,7 +405,36 @@ struct StProcID
     double Noy;
 };
 
+struct StEntidade
+{
+    bool IsColheita; // Diz se é uma colheitadeira
+    int ID;          // ID da colheitadeira
+    Info IColheita;  // Informação contida no nó da colheitadeira
+    double Nox;      // Coordenada do nó da colheitadeira
+    double Noy;      // Coordenada do nó da colheitadeira
+};
+
+struct StHortalica
+{
+    int ID;
+    Info Fig;
+};
+
+struct StContabiliza
+{
+    double abobora;
+    double morango;
+    double repolho;
+    double cebola;
+    double cenoura;
+    double mato_linha;
+    double mato_texto;
+};
+
 typedef struct StProcID ProcID;
+typedef struct StEntidade Entidade;
+typedef struct StHortalica Hortalica;
+typedef struct StContabiliza Contabiliza;
 
 ArqQry abreLeituraQry(char *fn)
 {
@@ -415,9 +445,9 @@ ArqQry abreLeituraQry(char *fn)
 
 /**
  * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore um ID especificado e guardar suas informações em aux
- * @param i Conteúdo do nó
- * @param x Coordenada x do nó
- * @param y Coordenada y do nó
+ * @param i Conteúdo do nó atual
+ * @param x Coordenada x do nó atual
+ * @param y Coordenada y do nó atual
  * @param aux Estrutura que guarda as informações do nó que contenha o ID especificado
  */
 void VerificaID(Info i, double x, double y, void *aux)
@@ -435,7 +465,7 @@ void VerificaID(Info i, double x, double y, void *aux)
  * @brief Procura na árvore o ID especificado
  * @param ID ID a ser procurado na árvore
  * @param All Ponteiro para a árvore radial
- * @return Retorna informações sobre o nó como coordenadas do nó e seu conteúdo
+ * @return Retorna informações sobre o nó como coordenadas do nó e seu conteúdo em uma estrutura do tipo ProcID
  * @warning É necessário dar free() na variável retornada por essa função
  */
 Info ProcuraID(int ID, RadialTree All)
@@ -452,14 +482,33 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
     char *linha = NULL;
     char nome[25]; // Remover depois
     int num = 0;   // Remover depois
+    Lista Entidades = createLst(-1);
+    Lista Colheita = createLst(-1);
     while (leLinha(fqry, &linha))
     {
         sscanf(linha, "%s ", comando);
         if (strcmp(comando, "c") == 0)
         {
+            int ID;
+            sscanf(linha, "%s %d", comando, &ID);
+            ProcID *I = ProcuraID(ID, *All);
+            Entidade *C = malloc(sizeof(Entidade));
+            C->ID = I->ID;
+            C->Nox = I->Nox;
+            C->Noy = I->Noy;
+            C->IColheita = I->NoInfo;
+            C->IsColheita = true;
+            insertLst(Entidades, C);
+            ((Figura *)I->NoInfo)->RefCount++;
+            free(I);
         }
         else if (strcmp(comando, "hvt") == 0)
         {
+            int ID, Passos;
+            char Direcao;
+            sscanf(linha, "%s %d %d %c", comando, &ID, &Passos, &Direcao);
+            fprintf(log, "\n[*] %s %d %d %c\n", comando, ID, Passos, Direcao);
+            Harvest(ID, Passos, Direcao, log, Entidades, All, Colheita);
         }
         else if (strcmp(comando, "mv") == 0)
         {
@@ -467,20 +516,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
             int ID;
             sscanf(linha, "%s %d %lf %lf", comando, &ID, &dx, &dy);
             fprintf(log, "\n[*] %s %d %lf %lf\n", comando, ID, dx, dy);
-            ProcID *I = ProcuraID(ID, *All);
-            if (getNodeRadialT(*All, I->Nox + dx, I->Noy + dy, EPSILON_PADRAO) == NULL)
-            {
-                Move(I->NoInfo, dx, dy, log);
-                insertRadialT(*All, I->Nox + dx, I->Noy + dy, I->NoInfo);
-                ((Figura *)I->NoInfo)->RefCount++;
-                removeNoRadialT(All, getNodeRadialT(*All, I->Nox, I->Noy, EPSILON_PADRAO));
-            }
-            else
-            {
-                printf("Colisão de Nó evitada em: %s %d %lf %lf\n", comando, ID, dx, dy);
-                fprintf(log, "Colisão de Nó evitada\n");
-            }
-            free(I);
+            Move(ID, dx, dy, log, All);
         }
         else if (strcmp(comando, "ct") == 0)
         {
@@ -516,67 +552,167 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
     {
         free(linha);
     }
+    while (!isEmptyLst(Colheita))
+    {
+        FreeHortalica(popLst(Colheita));
+    }
+    killLst(Colheita);
+    while (!isEmptyLst(Entidades))
+    {
+       FreeEntidade(popLst(Entidades));
+    }
+    killLst(Entidades);
 }
 
-void Move(Info I, double dx, double dy, FILE *log)
+void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, RadialTree *All, Lista Colheita)
 {
-    Figura *F = I;
-    char forma = F->Tipo;
-    fprintf(log, "Moveu:\n");
-    if (forma == 'T')
+    /* Procura a Colheitadeira ID */
+    Entidade *C;
+    bool Encontrada = false;
+    Iterador E = createIterador(Entidades, false);
+    while (!isIteratorEmpty(Entidades, E))
     {
-        Texto *t = F->Figura;
-        fprintf(log, "Texto\n");
-        fprintf(log, "ID: %d\n", t->ID);
-        fprintf(log, "De\n");
-        fprintf(log, "x:%f y:%f\n", t->x, t->y);
-        t->x += dx;
-        t->y += dy;
-        fprintf(log, "Para\n");
-        fprintf(log, "x:%f y:%f\n", t->x, t->y);
+        C = getIteratorNext(Entidades, E);
+        if (C->ID == ID && C->IsColheita)
+        {
+            Encontrada = true;
+            break;
+        }
     }
-    else if (forma == 'C')
+    killIterator(E);
+    if (!Encontrada)
     {
-        Circulo *c = F->Figura;
-        fprintf(log, "Circulo\n");
-        fprintf(log, "ID: %d\n", c->ID);
-        fprintf(log, "De\n");
-        fprintf(log, "x:%f y:%f\n", c->x, c->y);
-        c->x += dx;
-        c->y += dy;
-        fprintf(log, "Para\n");
-        fprintf(log, "x:%f y:%f\n", c->x, c->y);
+        printf("Colheitadeira nao encontrada ID: %d\n", ID);
+        fprintf(log, "Colheitadeira nao encontrada ID: %d\n", ID);
+        return;
     }
-    else if (forma == 'R')
+
+    /* Obtém a distância a ser percorrida e obtém as coordenadas da área de colheita ambos baseados na direção*/
+    Figura *F = C->IColheita;
+    Retangulo *R = F->Figura;
+    double Xinicio, Yinicio, Xfim, Yfim;
+    double dx = 0, dy = 0;
+    if (Direcao == 'n')
     {
-        Retangulo *r = F->Figura;
-        fprintf(log, "Retangulo\n");
-        fprintf(log, "ID: %d\n", r->ID);
-        fprintf(log, "De\n");
-        fprintf(log, "x:%f y:%f\n", r->x, r->y);
-        r->x += dx;
-        r->y += dy;
-        fprintf(log, "Para\n");
-        fprintf(log, "x:%f y:%f\n", r->x, r->y);
+        dy = -(R->alt) * Passos;
+        Xinicio = R->x;
+        Yinicio = R->y + dy;
+        Xfim = R->x + R->larg;
+        Yfim = R->y + R->alt;
     }
-    else if (forma == 'L')
+    else if (Direcao == 's')
     {
-        Linha *l = F->Figura;
-        fprintf(log, "Linha\n");
-        fprintf(log, "ID:%d\n", l->ID);
-        fprintf(log, "De\n");
-        fprintf(log, "x1:%f y1:%f x2:%f y2:%f\n", l->x1, l->y1, l->x2, l->y2);
-        l->x1 += dx;
-        l->y1 += dy;
-        l->x2 += dx;
-        l->y2 += dy;
-        fprintf(log, "Para\n");
-        fprintf(log, "x1:%f y1:%f x2:%f y2:%f\n", l->x1, l->y1, l->x2, l->y2);
+        dy = (R->alt) * Passos;
+        Xinicio = R->x;
+        Yinicio = R->y;
+        Xfim = R->x + R->larg;
+        Yfim = R->y + dy + R->alt;
+    }
+    else if (Direcao == 'l')
+    {
+        dx = (R->larg) * Passos;
+        Xinicio = R->x;
+        Yinicio = R->y;
+        Xfim = R->x + dx + R->larg;
+        Yfim = R->y + R->alt;
+    }
+    else if (Direcao == 'o')
+    {
+        dx = -(R->larg) * Passos;
+        Xinicio = R->x + dx;
+        Yinicio = R->y;
+        Xfim = R->x + R->larg;
+        Yfim = R->y + R->alt;
+    }
+
+    /* Reporta os atributos de ID e suas posições */
+    DadosI(ID, *All, log);
+    fprintf(log, "Posicao Original:\n");
+    fprintf(log, "X: %lf\n", R->x);
+    fprintf(log, "Y: %lf\n", R->y);
+    fprintf(log, "Posicao Final:\n");
+    fprintf(log, "X: %lf\n", R->x + dx);
+    fprintf(log, "Y: %lf\n", R->y + dy);
+
+    /* Colhe os elementos na área e remove os nós da árvore sem remover a informação do nó inserindo na lista colheita apenas as hortaliças*/
+    ColheElementos(All, Entidades, Colheita, Xinicio, Yinicio, Xfim, Yfim);
+
+    /* Contabiliza a colheita e reporta */
+    ContabilizaColheita(Colheita, log);
+
+    /* Realiza o movimento da colheitadeira e marca a área colhida para o svg */
+    Move(ID, dx, dy, log, All);
+    CriaAreaColhida(*All, Entidades, Xinicio, Yinicio, Xfim, Yfim);
+}
+
+void Move(int ID, double dx, double dy, FILE *log, RadialTree *All)
+{
+    ProcID *I = ProcuraID(ID, *All);
+    if (getNodeRadialT(*All, I->Nox + dx, I->Noy + dy, EPSILON_PADRAO) == NULL)
+    {
+        Figura *F = I->NoInfo;
+        char forma = F->Tipo;
+        fprintf(log, "Moveu:\n");
+        if (forma == 'T')
+        {
+            Texto *t = F->Figura;
+            fprintf(log, "Texto\n");
+            fprintf(log, "ID: %d\n", t->ID);
+            fprintf(log, "De\n");
+            fprintf(log, "x:%f y:%f\n", t->x, t->y);
+            t->x += dx;
+            t->y += dy;
+            fprintf(log, "Para\n");
+            fprintf(log, "x:%f y:%f\n", t->x, t->y);
+        }
+        else if (forma == 'C')
+        {
+            Circulo *c = F->Figura;
+            fprintf(log, "Circulo\n");
+            fprintf(log, "ID: %d\n", c->ID);
+            fprintf(log, "De\n");
+            fprintf(log, "x:%f y:%f\n", c->x, c->y);
+            c->x += dx;
+            c->y += dy;
+            fprintf(log, "Para\n");
+            fprintf(log, "x:%f y:%f\n", c->x, c->y);
+        }
+        else if (forma == 'R')
+        {
+            Retangulo *r = F->Figura;
+            fprintf(log, "Retangulo\n");
+            fprintf(log, "ID: %d\n", r->ID);
+            fprintf(log, "De\n");
+            fprintf(log, "x:%f y:%f\n", r->x, r->y);
+            r->x += dx;
+            r->y += dy;
+            fprintf(log, "Para\n");
+            fprintf(log, "x:%f y:%f\n", r->x, r->y);
+        }
+        else if (forma == 'L')
+        {
+            Linha *l = F->Figura;
+            fprintf(log, "Linha\n");
+            fprintf(log, "ID:%d\n", l->ID);
+            fprintf(log, "De\n");
+            fprintf(log, "x1:%f y1:%f x2:%f y2:%f\n", l->x1, l->y1, l->x2, l->y2);
+            l->x1 += dx;
+            l->y1 += dy;
+            l->x2 += dx;
+            l->y2 += dy;
+            fprintf(log, "Para\n");
+            fprintf(log, "x1:%f y1:%f x2:%f y2:%f\n", l->x1, l->y1, l->x2, l->y2);
+        }
+        insertRadialT(*All, I->Nox + dx, I->Noy + dy, I->NoInfo);
+        ((Figura *)I->NoInfo)->RefCount++;
+        removeNoRadialT(All, getNodeRadialT(*All, I->Nox, I->Noy, EPSILON_PADRAO));
     }
     else
     {
-        return;
+        printf("Colisão de Nó evitada em: mv %d %lf %lf\n", ID, dx, dy);
+        fprintf(log, "Colisão de Nó evitada\n");
     }
+    free(I);
 }
 
 void DadosI(int ID, RadialTree All, FILE *log)
@@ -629,6 +765,170 @@ void DadosI(int ID, RadialTree All, FILE *log)
         fprintf(log, "Cor: %s\n", l->cor);
     }
     free(I);
+}
+
+void ColheElementos(RadialTree *All, Lista Entidades, Lista Colheita, double Xinicio, double Yinicio, double Xfim, double Yfim)
+{
+    Lista Nos = createLst(-1);
+    getNodesDentroRegiaoRadialT(*All, Xinicio, Yinicio, Xfim, Yfim, Nos);
+
+    /* Insere na lista Colheita apenas os itens que não são entidades e estão na área */
+    while (!isEmptyLst(Nos))
+    {
+        bool IsEntity = false;
+        Node N = popLst(Nos);
+        Figura *F = getInfoRadialT(*All, N);
+        Iterador E = createIterador(Entidades, false);
+        while (!isIteratorEmpty(Entidades, E))
+        {
+            Entidade *Ent = getIteratorNext(Entidades, E);
+            if (F->ID == Ent->ID)
+            {
+                IsEntity = true;
+            }
+        }
+        killIterator(E);
+        if (!IsEntity)
+        {
+            F->RefCount++; // Para não ser eliminado pelo removeNoRadialT()
+            Hortalica *H = malloc(sizeof(Hortalica));
+            H->ID = F->ID;
+            H->Fig = F;
+            insertLst(Colheita, H);
+        }
+    }
+    killLst(Nos);
+
+    /* Remove os itens que foram colhidos */
+    Iterador Del = createIterador(Colheita, false);
+    while (!isIteratorEmpty(Colheita, Del))
+    {
+        Hortalica *H = getIteratorNext(Colheita, Del);
+        ProcID *I = ProcuraID(H->ID, *All);
+        removeNoRadialT(All, getNodeRadialT(*All, I->Nox, I->Noy, EPSILON_PADRAO));
+        free(I);
+    }
+    killIterator(Del);
+}
+
+void ContabilizaColheita(Lista Colheita, FILE *log)
+{
+    Contabiliza CONT = {0};
+    Iterador Col = createIterador(Colheita, false);
+    while (!isIteratorEmpty(Colheita, Col))
+    {
+        Hortalica *H = getIteratorNext(Colheita, Col);
+        Figura *F = H->Fig;
+        char Forma = F->Tipo;
+        if (Forma == 'T')
+        {
+            /*Cebola, Morango, Cenoura ou Mato*/
+            Texto *t = F->Figura;
+            if (strcmp(t->txto, "@") == 0)
+            {
+                CONT.cebola += 200; // 200g
+            }
+            else if (strcmp(t->txto, "*") == 0)
+            {
+                CONT.morango += 20; // 20g
+            }
+            else if (strcmp(t->txto, "%") == 0)
+            {
+                CONT.cenoura += 70; // 70g
+            }
+            else
+            {
+                CONT.mato_texto += 15; // 15g
+            }
+        }
+        else if (Forma == 'C')
+        {
+            /*Abóbora*/
+            CONT.abobora += 2000; // 2kg
+        }
+        else if (Forma == 'R')
+        {
+            /*Repolho*/
+            CONT.repolho += 1000; // 1kg
+        }
+        else if (Forma == 'L')
+        {
+            /*Mato*/
+            Linha *l = F->Figura;
+            CONT.mato_linha += Distancia2Pontos(l->x1, l->y1, l->x2, l->y2) * 10; // 10g * Comprimento
+        }
+    }
+    killIterator(Col);
+    fprintf(log, "Contabilidade da Colheita\n");
+    fprintf(log, "Abóbora: %.0lfg ou %.2lfkg\n", CONT.abobora, CONT.abobora / 1000);
+    fprintf(log, "Morango: %.0lfg ou %.2lfkg\n", CONT.morango, CONT.morango / 1000);
+    fprintf(log, "Repolho: %.0lfg ou %.2lfkg\n", CONT.repolho, CONT.repolho / 1000);
+    fprintf(log, "Cebola: %.0lfg ou %.2lfkg\n", CONT.cebola, CONT.cebola / 1000);
+    fprintf(log, "Cenoura: %.0lfg ou %.2lfkg\n", CONT.cenoura, CONT.cenoura / 1000);
+    fprintf(log, "Mato(linha): %.0lfg ou %.2lfkg\n", CONT.mato_linha, CONT.mato_linha / 1000);
+    fprintf(log, "Mato(texto): %.0lfg ou %.2lfkg\n", CONT.mato_texto, CONT.mato_texto / 1000);
+}
+
+int GetIDUnico(Lista Entidades)
+{
+    int IDunico = 9999;
+    bool JaExiste;
+    Iterador E = createIterador(Entidades, false);
+    do
+    {
+        JaExiste = false;
+        while (!isIteratorEmpty(Entidades, E))
+        {
+            Entidade *Ent = getIteratorNext(Entidades, E);
+            if (Ent->ID == IDunico)
+            {
+                IDunico++;
+                JaExiste = true;
+            }
+        }
+    } while (JaExiste);
+    killIterator(E);
+    return IDunico;
+}
+
+void CriaAreaColhida(RadialTree All, Lista Entidades, double Xinicio, double Yinicio, double Xfim, double Yfim)
+{
+    Retangulo *r = malloc(sizeof(Retangulo));
+    r->x = Xinicio;
+    r->y = Yinicio;
+    r->larg = Xfim - Xinicio;
+    r->alt = Yfim - Yinicio;
+    strcpy(r->corp, "#ffffff00"); // Branco Transparente via canal alpha 00
+    strcpy(r->corb, "#ff0000");   // Vermelho
+    r->pont = 3;
+    r->ID = GetIDUnico(Entidades);
+    Figura *f = malloc(sizeof(Figura));
+    f->ID = r->ID;
+    f->Tipo = 'R';
+    f->Figura = r;
+    Entidade *e = malloc(sizeof(Entidade));
+    e->ID = r->ID;
+    e->IColheita = f;
+    e->Nox = r->x;
+    e->Noy = r->y;
+    e->IsColheita = false;
+    insertRadialT(All, r->x, r->y, f);
+    insertLst(Entidades, e);
+    f->RefCount = 2; // 2 pois foi inserido tanto na lista de entidades quanto na árvore
+}
+
+void FreeEntidade(Info Ent)
+{
+    Entidade *E = Ent;
+    FreeFigura(E->IColheita);
+    free(E);
+}
+
+void FreeHortalica(Info Hor)
+{
+    Hortalica *H = Hor;
+    FreeFigura(H->Fig);
+    free(H);
 }
 
 void fechaQry(ArqQry fqry)
