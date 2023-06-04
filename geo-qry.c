@@ -6,6 +6,7 @@
 #include "geo.h"
 #include "Bibliotecas/arqsvg.h"
 #include "Bibliotecas/learquivo.h"
+#include "Bibliotecas/utilities.h"
 #include "radialtree.h"
 #include "qry.h"
 #include "def.h"
@@ -414,12 +415,24 @@ struct StColheitadeira
 
 struct StHortalica
 {
-    Info Fig
+    Info Fig;
+};
+
+struct StContabiliza
+{
+    double abobora;
+    double morango;
+    double repolho;
+    double cebola;
+    double cenoura;
+    double mato_linha;
+    double mato_texto;
 };
 
 typedef struct StProcID ProcID;
 typedef struct StColheitadeira Colheitadeira;
 typedef struct StHortalica Hortalica;
+typedef struct StContabiliza Contabiliza;
 
 ArqQry abreLeituraQry(char *fn)
 {
@@ -588,32 +601,36 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
         Xfim = R->x + R->larg;
         Yfim = R->y + R->alt;
     }
-    
+
     /* Reporta os atributos de ID e suas posições */
-    DadosI(ID,*All,log);
-    fprintf(log,"Posicao Original:\n");
-    fprintf(log,"X: %lf\n",R->x);
-    fprintf(log,"Y: %lf\n",R->y);
-    fprintf(log,"Posicao Final:\n");
-    fprintf(log,"X: %lf\n",R->x + dx);
-    fprintf(log,"Y: %lf\n",R->y + dy);
+    DadosI(ID, *All, log);
+    fprintf(log, "Posicao Original:\n");
+    fprintf(log, "X: %lf\n", R->x);
+    fprintf(log, "Y: %lf\n", R->y);
+    fprintf(log, "Posicao Final:\n");
+    fprintf(log, "X: %lf\n", R->x + dx);
+    fprintf(log, "Y: %lf\n", R->y + dy);
 
     /* Colhe os elementos na área e os insere na lista Nos */
     Lista Nos = createLst(-1);
-    getNodesDentroRegiaoRadialT(*All,Xinicio,Yinicio,Xfim,Yfim,Nos);
-    
+    getNodesDentroRegiaoRadialT(*All, Xinicio, Yinicio, Xfim, Yfim, Nos); // A colheitadeira pode acabar indo junto
+
     /* Remove os nós da árvore sem remover a informação do nó */
-    Iterador Del = createIterador(Nos,false);
-    while (!isIteratorEmpty(Nos,Del))
+    Iterador Del = createIterador(Nos, false);
+    while (!isIteratorEmpty(Nos, Del))
     {
         Node N = getIteratorNext(Nos, Del);
-        Figura *F = getInfoRadialT(*All,N);
+        Figura *F = getInfoRadialT(*All, N);
         F->RefCount++;
-        insertLst(Colheita,F);
-        removeNoRadialT(All,N);
+        Hortalica *H = malloc(sizeof(Hortalica));
+        H->Fig = F;
+        insertLst(Colheita, H);
+        removeNoRadialT(All, N);
     }
     killLst(Nos);
 
+    /* Contabiliza a colheita e reporta */
+    ContabilizaColheita(Colheita, log);
 
     /* Realiza o movimento da colheitadeira e marca a área colhida */
     Move(ID, dx, dy, log, All);
@@ -622,8 +639,8 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     r->y = Yinicio;
     r->larg = Xfim - Xinicio;
     r->alt = Yfim - Yinicio;
-    strcpy(r->corp,"#ffffff00"); // Branco Transparente via canal alpha 00
-    strcpy(r->corb,"#ff0000"); // Vermelho
+    strcpy(r->corp, "#ffffff00"); // Branco Transparente via canal alpha 00
+    strcpy(r->corb, "#ff0000");   // Vermelho
     r->pont = 3;
     r->ID = 9999; // Pode causar problemas é melhor criar um método de obter um ID único
     Figura *f = malloc(sizeof(Figura));
@@ -754,6 +771,63 @@ void DadosI(int ID, RadialTree All, FILE *log)
         fprintf(log, "Cor: %s\n", l->cor);
     }
     free(I);
+}
+
+void ContabilizaColheita(Lista Colheita, FILE *log)
+{
+    Contabiliza CONT = {0};
+    Iterador Col = createIterador(Colheita, false);
+    while (!isIteratorEmpty(Colheita, Col))
+    {
+        Hortalica *H = getIteratorNext(Colheita, Col);
+        Figura *F = H->Fig;
+        char Forma = F->Tipo;
+        if (Forma == 'T')
+        {
+            /*Cebola, Morango, Cenoura ou Mato*/
+            Texto *t = F->Figura;
+            if (strcmp(t->txto, "@") == 0)
+            {
+                CONT.cebola += 200; // 200g
+            }
+            else if (strcmp(t->txto, "*") == 0)
+            {
+                CONT.morango += 20; // 20g
+            }
+            else if (strcmp(t->txto, "%") == 0)
+            {
+                CONT.cenoura += 70; // 70g
+            }
+            else
+            {
+                CONT.mato_texto += 15; // 15g
+            }
+        }
+        else if (Forma == 'C')
+        {
+            /*Abóbora*/
+            CONT.abobora += 2000; // 2kg
+        }
+        else if (Forma == 'R')
+        {
+            /*Repolho*/
+            CONT.repolho += 1000; // 1kg
+        }
+        else if (Forma == 'L')
+        {
+            /*Mato*/
+            Linha *l = F->Figura;
+            CONT.mato_linha += Distancia2Pontos(l->x1, l->y1, l->x2, l->y2) * 10;
+        }
+    }
+    fprintf(log, "Contabilidade da Colheita\n");
+    fprintf(log, "Abóbora: %.0lfg ou %.2lfkg\n", CONT.abobora, CONT.abobora / 1000);
+    fprintf(log, "Morango: %.0lfg ou %.2lfkg\n", CONT.morango, CONT.morango / 1000);
+    fprintf(log, "Repolho: %.0lfg ou %.2lfkg\n", CONT.repolho, CONT.repolho / 1000);
+    fprintf(log, "Cebola: %.0lfg ou %.2lfkg\n", CONT.cebola, CONT.cebola / 1000);
+    fprintf(log, "Cenoura: %.0lfg ou %.2lfkg\n", CONT.cenoura, CONT.cenoura / 1000);
+    fprintf(log, "Mato(linha): %.0lfg ou %.2lfkg\n", CONT.mato_linha, CONT.mato_linha / 1000);
+    fprintf(log, "Mato(texto): %.0lfg ou %.2lfkg\n", CONT.mato_texto, CONT.mato_texto / 1000);
 }
 
 void fechaQry(ArqQry fqry)

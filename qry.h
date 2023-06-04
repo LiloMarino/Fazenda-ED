@@ -67,7 +67,7 @@ void DadosI(int ID, RadialTree All, FILE *log);
 
 void InfoColheitadeiras();
 
-void ContabilizaColheita(Lista Colheita);
+void ContabilizaColheita(Lista Colheita, FILE *log);
 
 /**
  * @brief Fecha o arquivo fqry
