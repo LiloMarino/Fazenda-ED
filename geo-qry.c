@@ -530,7 +530,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
     killLst(Entidades);
 }
 
-void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, RadialTree All)
+void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, RadialTree *All)
 {
     /* Procura a Colheitadeira ID */
     Colheitadeira *C;
@@ -545,25 +545,44 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     }
     killIterator(E);
 
-    /* Obtém o TamanhoDoPasso baseado na direção */
+    /* Obtém a distância a ser percorrida e obtém as coordenadas da área de colheita ambos baseados na direção*/
     Retangulo *R = C->IColheita;
-    double TamanhoDoPasso;
-    if (Direcao == 'n' || Direcao == 's')
+    double Xinicio, Yinicio, Xfim, Yfim;
+    double dx = 0, dy = 0;
+    if (Direcao == 'n')
     {
-        TamanhoDoPasso = R->alt;
+        dy = -(R->alt) * Passos;
+        Xinicio = R->x;
+        Yinicio = R->y + dy;
+        Xfim = R->x + R->larg;
+        Yfim = R->y + R->alt;
     }
-    else if (Direcao == 'l' || Direcao == 'o')
+    else if (Direcao == 's')
     {
-        TamanhoDoPasso = R->larg;
+        dy = (R->alt) * Passos;
+        Xinicio = R->x;
+        Yinicio = R->y;
+        Xfim = R->x + R->larg;
+        Yfim = R->y + dy + R->alt;
     }
-    else
+    else if (Direcao == 'l')
     {
-        printf("Direcao Invalida\n");
+        dx = (R->larg) * Passos;
+        Xinicio = R->x;
+        Yinicio = R->y;
+        Xfim = R->x + dx + R->larg;
+        Yfim = R->y + R->alt;
+    }
+    else if (Direcao == 'o')
+    {
+        dx = -(R->larg) * Passos;
+        Xinicio = R->x + dx;
+        Yinicio = R->y;
+        Xfim = R->x + R->larg;
+        Yfim = R->y + R->alt;
     }
 
     /* Realiza o movimento da colheitadeira e marca a área colhida */
-    double Xinicio = R->x;
-    double Yinicio = R->y;
 }
 
 void Move(int ID, double dx, double dy, FILE *log, RadialTree *All)

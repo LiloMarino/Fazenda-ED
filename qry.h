@@ -29,16 +29,15 @@ ArqQry abreLeituraQry(char *fn);
 void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput);
 
 /**
- * @brief 
- * @param ID 
- * @param Passos 
- * @param Direcao 
- * @param log 
- * @param Entidades 
- * @param All 
+ * @brief Move a colheitadeira ID e colhe todos os objetos em sua trajetória
+ * @param ID ID da colheitadeira
+ * @param Passos Número de passos a ser dado pela colheitadeira
+ * @param Direcao Direção dos passos
+ * @param log Ponteiro para o arquivo de registro 
+ * @param Entidades Lista que contém todas as informações de todas as colheitadeiras
+ * @param All ndereço para a árvore radial com todos os elementos
  */
-void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, RadialTree All);
-
+void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, RadialTree *All);
 
 /**
  * @brief Move uma figura identificada por ID
@@ -59,10 +58,10 @@ void Aduba(double x, double y, double largura, double altura, double raio);
 void Semeia(double x, double y, double largura, double altura, double fator, double dx, double dy, int ID);
 
 /**
- * @brief 
- * @param ID 
- * @param All 
- * @param log 
+ * @brief Reporta os dados da figura identificado por ID no arquivo de registro
+ * @param ID ID da figura a ser reportada
+ * @param All Ponteiro para a árvore radial com todos os elementos
+ * @param log Ponteiro para o arquivo de registro 
  */
 void DadosI(int ID, RadialTree All, FILE *log);
 
