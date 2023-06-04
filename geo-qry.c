@@ -491,20 +491,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
             int ID;
             sscanf(linha, "%s %d %lf %lf", comando, &ID, &dx, &dy);
             fprintf(log, "\n[*] %s %d %lf %lf\n", comando, ID, dx, dy);
-            ProcID *I = ProcuraID(ID, *All);
-            if (getNodeRadialT(*All, I->Nox + dx, I->Noy + dy, EPSILON_PADRAO) == NULL)
-            {
-                Move(I->NoInfo, dx, dy, log);
-                insertRadialT(*All, I->Nox + dx, I->Noy + dy, I->NoInfo);
-                ((Figura *)I->NoInfo)->RefCount++;
-                removeNoRadialT(All, getNodeRadialT(*All, I->Nox, I->Noy, EPSILON_PADRAO));
-            }
-            else
-            {
-                printf("Colisão de Nó evitada em: %s %d %lf %lf\n", comando, ID, dx, dy);
-                fprintf(log, "Colisão de Nó evitada\n");
-            }
-            free(I);
+            Move(ID, dx, dy, log, All);
         }
         else if (strcmp(comando, "ct") == 0)
         {
@@ -557,7 +544,7 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
         }
     }
     killIterator(E);
-    
+
     /* Obtém o TamanhoDoPasso baseado na direção */
     Retangulo *R = C->IColheita;
     double TamanhoDoPasso;
@@ -573,72 +560,80 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     {
         printf("Direcao Invalida\n");
     }
-    
+
     /* Realiza o movimento da colheitadeira e marca a área colhida */
     double Xinicio = R->x;
     double Yinicio = R->y;
-    Move(C->IColheita,)
 }
 
-void Move(Info I, double dx, double dy, FILE *log)
+void Move(int ID, double dx, double dy, FILE *log, RadialTree *All)
 {
-    Figura *F = I;
-    char forma = F->Tipo;
-    fprintf(log, "Moveu:\n");
-    if (forma == 'T')
+    ProcID *I = ProcuraID(ID, *All);
+    if (getNodeRadialT(*All, I->Nox + dx, I->Noy + dy, EPSILON_PADRAO) == NULL)
     {
-        Texto *t = F->Figura;
-        fprintf(log, "Texto\n");
-        fprintf(log, "ID: %d\n", t->ID);
-        fprintf(log, "De\n");
-        fprintf(log, "x:%f y:%f\n", t->x, t->y);
-        t->x += dx;
-        t->y += dy;
-        fprintf(log, "Para\n");
-        fprintf(log, "x:%f y:%f\n", t->x, t->y);
-    }
-    else if (forma == 'C')
-    {
-        Circulo *c = F->Figura;
-        fprintf(log, "Circulo\n");
-        fprintf(log, "ID: %d\n", c->ID);
-        fprintf(log, "De\n");
-        fprintf(log, "x:%f y:%f\n", c->x, c->y);
-        c->x += dx;
-        c->y += dy;
-        fprintf(log, "Para\n");
-        fprintf(log, "x:%f y:%f\n", c->x, c->y);
-    }
-    else if (forma == 'R')
-    {
-        Retangulo *r = F->Figura;
-        fprintf(log, "Retangulo\n");
-        fprintf(log, "ID: %d\n", r->ID);
-        fprintf(log, "De\n");
-        fprintf(log, "x:%f y:%f\n", r->x, r->y);
-        r->x += dx;
-        r->y += dy;
-        fprintf(log, "Para\n");
-        fprintf(log, "x:%f y:%f\n", r->x, r->y);
-    }
-    else if (forma == 'L')
-    {
-        Linha *l = F->Figura;
-        fprintf(log, "Linha\n");
-        fprintf(log, "ID:%d\n", l->ID);
-        fprintf(log, "De\n");
-        fprintf(log, "x1:%f y1:%f x2:%f y2:%f\n", l->x1, l->y1, l->x2, l->y2);
-        l->x1 += dx;
-        l->y1 += dy;
-        l->x2 += dx;
-        l->y2 += dy;
-        fprintf(log, "Para\n");
-        fprintf(log, "x1:%f y1:%f x2:%f y2:%f\n", l->x1, l->y1, l->x2, l->y2);
+        Figura *F = I->NoInfo;
+        char forma = F->Tipo;
+        fprintf(log, "Moveu:\n");
+        if (forma == 'T')
+        {
+            Texto *t = F->Figura;
+            fprintf(log, "Texto\n");
+            fprintf(log, "ID: %d\n", t->ID);
+            fprintf(log, "De\n");
+            fprintf(log, "x:%f y:%f\n", t->x, t->y);
+            t->x += dx;
+            t->y += dy;
+            fprintf(log, "Para\n");
+            fprintf(log, "x:%f y:%f\n", t->x, t->y);
+        }
+        else if (forma == 'C')
+        {
+            Circulo *c = F->Figura;
+            fprintf(log, "Circulo\n");
+            fprintf(log, "ID: %d\n", c->ID);
+            fprintf(log, "De\n");
+            fprintf(log, "x:%f y:%f\n", c->x, c->y);
+            c->x += dx;
+            c->y += dy;
+            fprintf(log, "Para\n");
+            fprintf(log, "x:%f y:%f\n", c->x, c->y);
+        }
+        else if (forma == 'R')
+        {
+            Retangulo *r = F->Figura;
+            fprintf(log, "Retangulo\n");
+            fprintf(log, "ID: %d\n", r->ID);
+            fprintf(log, "De\n");
+            fprintf(log, "x:%f y:%f\n", r->x, r->y);
+            r->x += dx;
+            r->y += dy;
+            fprintf(log, "Para\n");
+            fprintf(log, "x:%f y:%f\n", r->x, r->y);
+        }
+        else if (forma == 'L')
+        {
+            Linha *l = F->Figura;
+            fprintf(log, "Linha\n");
+            fprintf(log, "ID:%d\n", l->ID);
+            fprintf(log, "De\n");
+            fprintf(log, "x1:%f y1:%f x2:%f y2:%f\n", l->x1, l->y1, l->x2, l->y2);
+            l->x1 += dx;
+            l->y1 += dy;
+            l->x2 += dx;
+            l->y2 += dy;
+            fprintf(log, "Para\n");
+            fprintf(log, "x1:%f y1:%f x2:%f y2:%f\n", l->x1, l->y1, l->x2, l->y2);
+        }
+        insertRadialT(*All, I->Nox + dx, I->Noy + dy, I->NoInfo);
+        ((Figura *)I->NoInfo)->RefCount++;
+        removeNoRadialT(All, getNodeRadialT(*All, I->Nox, I->Noy, EPSILON_PADRAO));
     }
     else
     {
-        return;
+        printf("Colisão de Nó evitada em: mv %d %lf %lf\n", ID, dx, dy);
+        fprintf(log, "Colisão de Nó evitada\n");
     }
+    free(I);
 }
 
 void DadosI(int ID, RadialTree All, FILE *log)
