@@ -665,7 +665,14 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     f->ID = r->ID;
     f->Tipo = 'R';
     f->Figura = r;
+    Entidade *e = malloc(sizeof(Entidade));
+    e->ID = r->ID;
+    e->IColheita = f;
+    e->Nox = r->x;
+    e->Noy = r->y;
+    e->IsColheita = false;
     insertRadialT(*All, r->x, r->y, f);
+    insertLst(Entidades,e);
     f->RefCount = 1;
 }
 
