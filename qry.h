@@ -77,16 +77,72 @@ void fechaQry(ArqQry fqry);
  *  Funções Auxiliares
  */
 
+/**
+ * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore um ID especificado e guardar suas informações em aux
+ * @param i Conteúdo do nó atual
+ * @param x Coordenada x do nó atual
+ * @param y Coordenada y do nó atual
+ * @param aux Estrutura que guarda as informações do nó que contenha o ID especificado
+ */
+void VerificaID(Info i, double x, double y, void *aux);
+
+/**
+ * @brief Procura na árvore o ID especificado
+ * @param ID ID a ser procurado na árvore
+ * @param All Ponteiro para a árvore radial
+ * @return Retorna informações sobre o nó como coordenadas do nó e seu conteúdo em uma estrutura do tipo ProcID
+ * @warning É necessário dar free() na variável retornada por essa função
+ */
+Info ProcuraID(int ID, RadialTree All);
+
+/**
+ * @brief Colhe os elementos na área e remove os nós da árvore sem remover a informação do nó e insere na lista colheita apenas as hortaliças
+ * @param All Endereço para a árvore radial com todos os elementos
+ * @param Entidades Lista contendo todas as entidades
+ * @param Colheita Lista contendo todos os objetos colhidos
+ * @param Xinicio Coordenada de início da área de colheita
+ * @param Yinicio Coordenada de início da área de colheita
+ * @param Xfim Coordenada de fim da área de colheita
+ * @param Yfim Coordenada de fim da área de colheita
+ */
 void ColheElementos(RadialTree *All, Lista Entidades, Lista Colheita, double Xinicio, double Yinicio, double Xfim, double Yfim);
 
+/**
+ * @brief Contabiliza os elementos colhidos com base na Lista Colheita e os reporta no arquivo log
+ * @param Colheita Lista contendo todos os objetos colhidos
+ * @param log Ponteiro para o arquivo de registro
+ */
 void ContabilizaColheita(Lista Colheita, FILE *log);
 
+/**
+ * @brief Obtém um ID único para entidades que não pertencem a árvore
+ * @param Entidades Lista contendo todas as entidades
+ * @return Retorna um ID único baseado nos IDs existentes na lista de entidades
+ * @note Esta função é necessária para que não haja conflitos entre entidades e objetos na árvore
+ */
 int GetIDUnico(Lista Entidades);
 
+/**
+ * @brief Cria o retângulo de colheita e o insere tanto na árvore quanto na lista de entidades
+ * @param All Ponteiro para a árvore radial
+ * @param Entidades Lista contendo todas as entidades
+ * @param Xinicio Coordenada de início da área de colheita
+ * @param Yinicio Coordenada de início da área de colheita
+ * @param Xfim Coordenada de fim da área de colheita
+ * @param Yfim Coordenada de fim da área de colheita
+ */
 void CriaAreaColhida(RadialTree All, Lista Entidades,double Xinicio, double Yinicio, double Xfim, double Yfim);
 
+/**
+ * @brief Faz o free() para a estrutura de entidades
+ * @param Ent Ponteiro para uma estrutura do tipo Entidade
+ */
 void FreeEntidade(Info Ent);
 
+/**
+ * @brief Faz o free() para a estrutura de hortaliça
+ * @param Hor Ponteiro para uma estrutura do tipo Hortalica
+ */
 void FreeHortalica(Info Hor);
 
 #endif

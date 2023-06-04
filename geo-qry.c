@@ -22,7 +22,7 @@ struct StFigura
     int ID;
     char Tipo;
     Item Figura;
-    int RefCount;
+    int RefCount; // Necessário para não dar free() mais de uma vez
 };
 
 struct StCirculo
@@ -443,13 +443,6 @@ ArqQry abreLeituraQry(char *fn)
     return fqry;
 }
 
-/**
- * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore um ID especificado e guardar suas informações em aux
- * @param i Conteúdo do nó atual
- * @param x Coordenada x do nó atual
- * @param y Coordenada y do nó atual
- * @param aux Estrutura que guarda as informações do nó que contenha o ID especificado
- */
 void VerificaID(Info i, double x, double y, void *aux)
 {
     Figura *F = i;
@@ -461,13 +454,6 @@ void VerificaID(Info i, double x, double y, void *aux)
     }
 }
 
-/**
- * @brief Procura na árvore o ID especificado
- * @param ID ID a ser procurado na árvore
- * @param All Ponteiro para a árvore radial
- * @return Retorna informações sobre o nó como coordenadas do nó e seu conteúdo em uma estrutura do tipo ProcID
- * @warning É necessário dar free() na variável retornada por essa função
- */
 Info ProcuraID(int ID, RadialTree All)
 {
     ProcID *aux = malloc(sizeof(ProcID));
@@ -491,6 +477,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
         {
             int ID;
             sscanf(linha, "%s %d", comando, &ID);
+            fprintf(log, "\n[*] %s %d\n", comando, ID);
             ProcID *I = ProcuraID(ID, *All);
             Entidade *C = malloc(sizeof(Entidade));
             C->ID = I->ID;
@@ -539,6 +526,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
         }
         else if (strcmp(comando, "c?") == 0)
         {
+
         }
         else
         {
