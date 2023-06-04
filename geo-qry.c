@@ -404,7 +404,16 @@ struct StProcID
     double Noy;
 };
 
+struct StColheitadeira
+{
+    int ID; // ID da colheitadeira
+    Info IColheita; //Informação contida no nó da colheitadeira
+    double Nox; //Coordenada do nó da colheitadeira
+    double Noy; //Coordenada do nó da colheitadeira
+};
+
 typedef struct StProcID ProcID;
+typedef struct StColheitadeira Colheitadeira;
 
 ArqQry abreLeituraQry(char *fn)
 {
@@ -415,9 +424,9 @@ ArqQry abreLeituraQry(char *fn)
 
 /**
  * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore um ID especificado e guardar suas informações em aux
- * @param i Conteúdo do nó
- * @param x Coordenada x do nó
- * @param y Coordenada y do nó
+ * @param i Conteúdo do nó atual
+ * @param x Coordenada x do nó atual
+ * @param y Coordenada y do nó atual
  * @param aux Estrutura que guarda as informações do nó que contenha o ID especificado
  */
 void VerificaID(Info i, double x, double y, void *aux)
@@ -452,11 +461,21 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
     char *linha = NULL;
     char nome[25]; // Remover depois
     int num = 0;   // Remover depois
+    Lista Entidade = createLst(-1); 
     while (leLinha(fqry, &linha))
     {
         sscanf(linha, "%s ", comando);
         if (strcmp(comando, "c") == 0)
         {
+            int ID;
+            sscanf(linha, "%s %d", comando, &ID);
+            ProcID *I = ProcuraID(ID, *All);
+            Colheitadeira *C = malloc(sizeof(Colheitadeira));
+            C->ID = I->ID;
+            C->Nox = I->Nox;
+            C->Noy = I->Noy;
+            C->IColheita = I->NoInfo;
+            free(I);
         }
         else if (strcmp(comando, "hvt") == 0)
         {
@@ -516,6 +535,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
     {
         free(linha);
     }
+    killLst(Entidade);
 }
 
 void Move(Info I, double dx, double dy, FILE *log)
