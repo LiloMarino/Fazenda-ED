@@ -629,7 +629,6 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     fprintf(log, "Contabilidade da Colheita\n");
     ContabilizaColheita(Colheita, log);
 
-
     /* Realiza o movimento da colheitadeira e marca a área colhida para o svg */
     Move(ID, dx, dy, log, All);
     CriaArea(*All, Entidades, Xinicio, Yinicio, Xfim, Yfim);
@@ -1115,7 +1114,6 @@ bool VerificaCirculoAtingido(void *aux, void *Circ)
 
 double CalculaAreaAfetada(void *Fig, void *Afeta)
 {
-    ProcAfetado *Af = Afeta;
     Figura *F = Fig;
     if (F->Tipo == 'T')
     {
@@ -1216,4 +1214,47 @@ void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, d
     insertRadialT(All, c->x, c->y, f);
     insertLst(Entidades, e);
     f->RefCount = 2; // 2 pois foi inserido tanto na lista de entidades quanto na árvore
+}
+
+void MostraID(ArqSvg fsvg, Item info)
+{
+    Figura *F = info;
+    char *deco = NULL;
+    char cor[] = "#000000";
+    char ancora[] = "middle";
+    char size[] = "16";
+    char weight[] = "bold";
+    preparaDecoracaoTexto(&deco, 0, NULL, NULL, weight, size, NULL, cor, ancora, NULL);
+    char txto[30];
+    sprintf(txto, "%c%d", F->Tipo, F->ID);
+    double x, y;
+    if (F->Tipo == 'T')
+    {
+        Texto *t = F->Figura;
+        x = t->x;
+        y = t->y;
+    }
+    else if (F->Tipo == 'C')
+    {
+        Circulo *c = F->Figura;
+        x = c->x;
+        y = c->y;
+    }
+    else if (F->Tipo == 'R')
+    {
+        Retangulo *r = F->Figura;
+        x = r->x;
+        y = r->y;
+    }
+    else if (F->Tipo == 'L')
+    {
+        Linha *l = F->Figura;
+        x = l->x1;
+        y = l->y1;
+    }
+    escreveTextoSvg(fsvg, x, y, txto, deco);
+    if (deco != NULL)
+    {
+        free(deco);
+    }
 }
