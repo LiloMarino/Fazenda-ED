@@ -183,4 +183,8 @@ bool VerificaRetanguloAtingido(void *aux, void *Ret);
  */
 bool VerificaCirculoAtingido(void *aux, void *Circ);
 
+double CalculaAreaAfetada(void *Hort, void *Afeta);
+
+void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb []);
+
 #endif

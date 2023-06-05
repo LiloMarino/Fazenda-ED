@@ -714,13 +714,14 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
     A->larg = largura;
     A->alt = altura;
     visitaLarguraRadialT(*All, ObjetoAtingido, A);
-    free(A);
 
-    /* Insere na lista Afetados apenas os itens que não são entidades e foram atingidos */
+    /* Insere na lista Afetados apenas os itens que não são entidades e foram atingidos e caso já tenha sido atingida não as insere novamente */
     while (!isEmptyLst(Atingido))
     {
         bool IsEntity = false;
+        bool IsAtingido = false;
         Figura *F = popLst(Atingido);
+        /* Verifica se não é uma entidade conhecida */
         Iterador E = createIterador(Entidades, false);
         while (!isIteratorEmpty(Entidades, E))
         {
@@ -728,19 +729,44 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
             if (F->ID == Ent->ID)
             {
                 IsEntity = true;
+                break;
             }
         }
         killIterator(E);
-        if (!IsEntity)
+        /* Verifica se já não foi inserida */
+        Iterador HI = createIterador(Afetados, false);
+        Hortalica *Hor;
+        while (!isIteratorEmpty(Afetados, HI))
+        {
+            Hor = getIteratorNext(Afetados, HI);
+            if (F->ID == Hor->ID)
+            {
+                IsAtingido = true;
+                break;
+            }
+        }
+        killIterator(HI);
+        if (!IsEntity && !IsAtingido)
         {
             F->RefCount++; // Para não ser eliminado pelo removeNoRadialT()
             Hortalica *H = malloc(sizeof(Hortalica));
             H->ID = F->ID;
             H->Fig = F;
+            H->Mult = 1;
+            H->Mult -= CalculaAreaAfetada(H, A);
             insertLst(Afetados, H);
+        }
+        else if (!IsEntity)
+        {
+            Hor->Mult -= CalculaAreaAfetada(Hor, A);
         }
     }
     killLst(Atingido);
+    free(A);
+
+    /*Marca a área afetada para o svg e marca o círculo em (x,y)*/
+    CriaArea(*All, Entidades, x, y, x + largura, y + altura);
+    CriaMarcacaoCircular(*All, Entidades, x, y, raio, "#ff0000");
 }
 
 void DadosI(int ID, RadialTree All, FILE *log)
@@ -837,6 +863,7 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Colheita, double Xin
             if (F->ID == Ent->ID)
             {
                 IsEntity = true;
+                break;
             }
         }
         killIterator(E);
@@ -936,6 +963,7 @@ int GetIDUnico(Lista Entidades, int ID)
             {
                 IDunico++;
                 JaExiste = true;
+                break;
             }
         }
     }
@@ -1085,6 +1113,36 @@ bool VerificaCirculoAtingido(void *aux, void *Circ)
     return false; // O círculo não foi atingido
 }
 
+double CalculaAreaAfetada(void *Hort, void *Afeta)
+{
+}
+
+void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[])
+{
+    Circulo *c = malloc(sizeof(Circulo));
+    c->x = x;
+    c->y = y;
+    c->raio = raio;
+    c->ID = GetIDUnico(Entidades, 9999);
+    strcpy(c->corp, "#ffffff00"); // Branco Transparente via canal alpha 00
+    strcpy(c->corb, corb);  
+    Figura *f = malloc(sizeof(Figura));
+    f->ID = c->ID;
+    f->Tipo = 'C';
+    f->Figura = c;
+    Entidade *e = malloc(sizeof(Entidade));
+    e->ID = c->ID;
+    e->Fig = f;
+    e->Nox = c->x;
+    e->Noy = c->y;
+    e->IsColheita = false;
+    insertRadialT(All, c->x, c->y, f);
+    insertLst(Entidades, e);
+    f->RefCount = 2; // 2 pois foi inserido tanto na lista de entidades quanto na árvore
+}
+
+// PROTOTIPO
+
 double calcularAreaIntersecaoRetangulo(const struct StRetangulo *retangulo1, const struct StRetangulo *retangulo2)
 {
     double intersecaoX = fmax(retangulo1->x, retangulo2->x);
@@ -1099,8 +1157,6 @@ double calcularAreaIntersecaoRetangulo(const struct StRetangulo *retangulo1, con
 
     return intersecaoW * intersecaoH;
 }
-
-// PROTOTIPO
 
 double calcularAreaIntersecaoCirculoRetangulo(const struct StCirculo *circulo, const struct StRetangulo *retangulo)
 {
