@@ -409,7 +409,7 @@ struct StEntidade
 {
     bool IsColheita; // Diz se é uma colheitadeira
     int ID;          // ID da colheitadeira
-    Info IColheita;  // Informação contida no nó da colheitadeira
+    Info Fig;        // Informação contida no nó da colheitadeira
     double Nox;      // Coordenada do nó da colheitadeira
     double Noy;      // Coordenada do nó da colheitadeira
 };
@@ -483,7 +483,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
             C->ID = I->ID;
             C->Nox = I->Nox;
             C->Noy = I->Noy;
-            C->IColheita = I->NoInfo;
+            C->Fig = I->NoInfo;
             C->IsColheita = true;
             insertLst(Entidades, C);
             ((Figura *)I->NoInfo)->RefCount++;
@@ -526,7 +526,8 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
         }
         else if (strcmp(comando, "c?") == 0)
         {
-
+            fprintf(log, "\n[*] %s\n", comando);
+            InfoColheitadeiras(Entidades, log, *All);
         }
         else
         {
@@ -547,7 +548,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
     killLst(Colheita);
     while (!isEmptyLst(Entidades))
     {
-       FreeEntidade(popLst(Entidades));
+        FreeEntidade(popLst(Entidades));
     }
     killLst(Entidades);
 }
@@ -576,7 +577,7 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     }
 
     /* Obtém a distância a ser percorrida e obtém as coordenadas da área de colheita ambos baseados na direção*/
-    Figura *F = C->IColheita;
+    Figura *F = C->Fig;
     Retangulo *R = F->Figura;
     double Xinicio, Yinicio, Xfim, Yfim;
     double dx = 0, dy = 0;
@@ -615,18 +616,19 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
 
     /* Reporta os atributos de ID e suas posições */
     DadosI(ID, *All, log);
-    fprintf(log, "Posicao Original:\n");
+    fprintf(log, "\nPosicao Original:\n");
     fprintf(log, "X: %lf\n", R->x);
     fprintf(log, "Y: %lf\n", R->y);
     fprintf(log, "Posicao Final:\n");
     fprintf(log, "X: %lf\n", R->x + dx);
-    fprintf(log, "Y: %lf\n", R->y + dy);
+    fprintf(log, "Y: %lf\n\n", R->y + dy);
 
     /* Colhe os elementos na área e remove os nós da árvore sem remover a informação do nó inserindo na lista colheita apenas as hortaliças*/
     ColheElementos(All, Entidades, Colheita, Xinicio, Yinicio, Xfim, Yfim);
 
     /* Contabiliza a colheita e reporta */
     ContabilizaColheita(Colheita, log);
+    fprintf(log, "\n");
 
     /* Realiza o movimento da colheitadeira e marca a área colhida para o svg */
     Move(ID, dx, dy, log, All);
@@ -640,18 +642,18 @@ void Move(int ID, double dx, double dy, FILE *log, RadialTree *All)
     {
         Figura *F = I->NoInfo;
         char forma = F->Tipo;
-        fprintf(log, "Moveu:\n");
+        fprintf(log, "Moveu: ");
         if (forma == 'T')
         {
             Texto *t = F->Figura;
             fprintf(log, "Texto\n");
             fprintf(log, "ID: %d\n", t->ID);
             fprintf(log, "De\n");
-            fprintf(log, "x:%f y:%f\n", t->x, t->y);
+            fprintf(log, "X:%f\nY:%f\n", t->x, t->y);
             t->x += dx;
             t->y += dy;
             fprintf(log, "Para\n");
-            fprintf(log, "x:%f y:%f\n", t->x, t->y);
+            fprintf(log, "X:%f\nY:%f\n", t->x, t->y);
         }
         else if (forma == 'C')
         {
@@ -659,11 +661,11 @@ void Move(int ID, double dx, double dy, FILE *log, RadialTree *All)
             fprintf(log, "Circulo\n");
             fprintf(log, "ID: %d\n", c->ID);
             fprintf(log, "De\n");
-            fprintf(log, "x:%f y:%f\n", c->x, c->y);
+            fprintf(log, "X:%f\nY:%f\n", c->x, c->y);
             c->x += dx;
             c->y += dy;
             fprintf(log, "Para\n");
-            fprintf(log, "x:%f y:%f\n", c->x, c->y);
+            fprintf(log, "X:%f\nY:%f\n", c->x, c->y);
         }
         else if (forma == 'R')
         {
@@ -671,11 +673,11 @@ void Move(int ID, double dx, double dy, FILE *log, RadialTree *All)
             fprintf(log, "Retangulo\n");
             fprintf(log, "ID: %d\n", r->ID);
             fprintf(log, "De\n");
-            fprintf(log, "x:%f y:%f\n", r->x, r->y);
+            fprintf(log, "X:%f\nY:%f\n", r->x, r->y);
             r->x += dx;
             r->y += dy;
             fprintf(log, "Para\n");
-            fprintf(log, "x:%f y:%f\n", r->x, r->y);
+            fprintf(log, "X:%f\nY:%f\n", r->x, r->y);
         }
         else if (forma == 'L')
         {
@@ -683,13 +685,13 @@ void Move(int ID, double dx, double dy, FILE *log, RadialTree *All)
             fprintf(log, "Linha\n");
             fprintf(log, "ID:%d\n", l->ID);
             fprintf(log, "De\n");
-            fprintf(log, "x1:%f y1:%f x2:%f y2:%f\n", l->x1, l->y1, l->x2, l->y2);
+            fprintf(log, "X1:%f\nY1:%f\nX2:%f\nY2:%f\n", l->x1, l->y1, l->x2, l->y2);
             l->x1 += dx;
             l->y1 += dy;
             l->x2 += dx;
             l->y2 += dy;
             fprintf(log, "Para\n");
-            fprintf(log, "x1:%f y1:%f x2:%f y2:%f\n", l->x1, l->y1, l->x2, l->y2);
+            fprintf(log, "X1:%f\nY1:%f\nX2:%f\nY2:%f\n", l->x1, l->y1, l->x2, l->y2);
         }
         insertRadialT(*All, I->Nox + dx, I->Noy + dy, I->NoInfo);
         ((Figura *)I->NoInfo)->RefCount++;
@@ -755,6 +757,22 @@ void DadosI(int ID, RadialTree All, FILE *log)
     free(I);
 }
 
+void InfoColheitadeiras(Lista Entidades, FILE *log, RadialTree All)
+{
+    /* Procura todas as Colheitadeiras*/
+    fprintf(log, "Colheitadeiras:\n");
+    Iterador E = createIterador(Entidades, false);
+    while (!isIteratorEmpty(Entidades, E))
+    {
+        Entidade *C = getIteratorNext(Entidades, E);
+        if (C->IsColheita)
+        {
+            DadosI(C->ID, All, log);
+        }
+    }
+    killIterator(E);
+}
+
 void ColheElementos(RadialTree *All, Lista Entidades, Lista Colheita, double Xinicio, double Yinicio, double Xfim, double Yfim)
 {
     Lista Nos = createLst(-1);
@@ -812,15 +830,15 @@ void ContabilizaColheita(Lista Colheita, FILE *log)
         {
             /*Cebola, Morango, Cenoura ou Mato*/
             Texto *t = F->Figura;
-            if (strncmp(t->txto, "@",1) == 0)
+            if (strncmp(t->txto, "@", 1) == 0)
             {
                 CONT.cebola += 200; // 200g
             }
-            else if (strncmp(t->txto, "*",1) == 0)
+            else if (strncmp(t->txto, "*", 1) == 0)
             {
                 CONT.morango += 20; // 20g
             }
-            else if (strncmp(t->txto, "%",1) == 0)
+            else if (strncmp(t->txto, "%", 1) == 0)
             {
                 CONT.cenoura += 70; // 70g
             }
@@ -896,7 +914,7 @@ void CriaAreaColhida(RadialTree All, Lista Entidades, double Xinicio, double Yin
     f->Figura = r;
     Entidade *e = malloc(sizeof(Entidade));
     e->ID = r->ID;
-    e->IColheita = f;
+    e->Fig = f;
     e->Nox = r->x;
     e->Noy = r->y;
     e->IsColheita = false;
@@ -908,7 +926,7 @@ void CriaAreaColhida(RadialTree All, Lista Entidades, double Xinicio, double Yin
 void FreeEntidade(Info Ent)
 {
     Entidade *E = Ent;
-    FreeFigura(E->IColheita);
+    FreeFigura(E->Fig);
     free(E);
 }
 
