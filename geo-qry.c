@@ -434,8 +434,8 @@ struct StContabiliza
 
 struct StProcAfetado
 {
-    Lista Atingido;               // Lista que conterá as informações dos nós atingidos
-    double x, y, largura, altura; // Especificações da área afetada
+    Lista Atingido;         // Lista que conterá as informações dos nós atingidos
+    double x, y, larg, alt; // Especificações da área afetada
 };
 
 typedef struct StProcID ProcID;
@@ -711,8 +711,8 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
     A->Atingido = Atingido;
     A->x = x;
     A->y = y;
-    A->largura = largura;
-    A->altura = altura;
+    A->larg = largura;
+    A->alt = altura;
     visitaLarguraRadialT(*All, ObjetoAtingido, A);
     free(A);
 
@@ -1014,25 +1014,26 @@ void ObjetoAtingido(Info i, double x, double y, void *aux)
 
 bool VerificaAtingido(Info i, void *aux)
 {
-    ProcAfetado *A = aux;
+    ProcAfetado *Atinge = aux;
     Figura *F = i;
     if (F->Tipo == 'T')
     {
         Texto *t = F->Figura;
-        return VerificaPonto(A->x, t->x, A->x + A->largura, A->y, t->y, A->y + A->altura);
+        return VerificaPonto(Atinge->x, t->x, Atinge->x + Atinge->larg, Atinge->y, t->y, Atinge->y + Atinge->alt);
     }
     else if (F->Tipo == 'C')
     {
-        Circulo *c = F->Figura;
+        return VerificaCirculoAtingido(aux, F->Figura);
     }
     else if (F->Tipo == 'R')
     {
-        Retangulo *r = F->Figura;
+        return VerificaRetanguloAtingido(aux, F->Figura);
     }
     else if (F->Tipo == 'L')
     {
         Linha *l = F->Figura;
-        return VerificaPonto(A->x, l->x1, A->x + A->largura, A->y, l->y1, A->y + A->altura) || VerificaPonto(A->x, l->x2, A->x + A->largura, A->y, l->y2, A->y + A->altura);
+        return VerificaPonto(Atinge->x, l->x1, Atinge->x + Atinge->larg, Atinge->y, l->y1, Atinge->y + Atinge->alt) ||
+               VerificaPonto(Atinge->x, l->x2, Atinge->x + Atinge->larg, Atinge->y, l->y2, Atinge->y + Atinge->alt);
     }
     else
     {
@@ -1041,45 +1042,47 @@ bool VerificaAtingido(Info i, void *aux)
     }
 }
 
-// PROTOTIPO
-
-bool verificarObjetoAtingidoPraga(const struct StRetangulo *praga, const struct StRetangulo *objeto)
+bool VerificaRetanguloAtingido(void *aux, void *Ret)
 {
-    // Verificar se o objeto está completamente dentro da área da praga
-    if (objeto->x >= praga->x && objeto->x + objeto->larg <= praga->x + praga->larg &&
-        objeto->y >= praga->y && objeto->y + objeto->alt <= praga->y + praga->alt)
+    Retangulo *r = Ret;
+    ProcAfetado *Atinge = aux;
+    /* Verifica se o retângulo está completamente dentro da área atingida */
+    if (VerificaIntervalo(Atinge->x, r->x, Atinge->x + Atinge->larg) &&
+        VerificaIntervalo(Atinge->y, r->y, Atinge->y + Atinge->alt))
     {
-        return 1; // O objeto está totalmente dentro da área da praga
+        return true; // O retângulo está totalmente dentro da área atingida
     }
 
-    // Verificar se há interseção entre a praga e o objeto
-    if (objeto->x + objeto->larg >= praga->x && objeto->x <= praga->x + praga->larg &&
-        objeto->y + objeto->alt >= praga->y && objeto->y <= praga->y + praga->alt)
+    /* Verifica se há interseção entre a área atingida e o retângulo */
+    if (VerificaIntervalo(r->x, Atinge->x, Atinge->x + Atinge->larg) &&
+        VerificaIntervalo(r->y, Atinge->y, Atinge->y + Atinge->alt))
     {
-        return 1; // O objeto tem interseção com a área da praga
+        return true; // O retângulo tem interseção com a área atingida
     }
 
-    return 0; // O objeto não foi atingido pela praga
+    return false; // O retângulo não foi atingido
 }
 
-bool verificarObjetoAtingidoPragaCirculo(const struct StRetangulo *praga, const struct StCirculo *circulo)
+bool VerificaCirculoAtingido(void *aux, void *Circ)
 {
-    // Verificar se o círculo está completamente dentro da área da praga
-    if (circulo->x - circulo->raio >= praga->x && circulo->x + circulo->raio <= praga->x + praga->larg &&
-        circulo->y - circulo->raio >= praga->y && circulo->y + circulo->raio <= praga->y + praga->alt)
+    Circulo *c = Circ;
+    ProcAfetado *Atinge = aux;
+    /* Verifica se o círculo está completamente dentro da área atingida */
+    if (VerificaIntervalo(Atinge->x, c->x - c->raio, Atinge->x + Atinge->larg) &&
+        VerificaIntervalo(Atinge->y, c->y - c->raio, Atinge->y + Atinge->alt))
     {
-        return 1; // O círculo está totalmente dentro da área da praga
+        return true; // O círculo está totalmente dentro da área atingida
     }
 
-    // Verificar se há interseção entre a praga e o círculo
-    double deltaX = circulo->x - fmax(praga->x, fmin(circulo->x, praga->x + praga->larg));
-    double deltaY = circulo->y - fmax(praga->y, fmin(circulo->y, praga->y + praga->alt));
-    if ((deltaX * deltaX + deltaY * deltaY) <= (circulo->raio * circulo->raio))
+    /* Verifica se há interseção entre a área atingida e o círculo */
+    if (VerificaPonto(Atinge->x, c->x, Atinge->x + Atinge->larg, Atinge->y, c->y, Atinge->y + Atinge->alt) ||
+        (VerificaIntervalo(c->x, Atinge->x, Atinge->x + Atinge->larg) &&
+         VerificaIntervalo(c->y, Atinge->y, Atinge->y + Atinge->alt)))
     {
-        return 1; // O círculo tem interseção com a área da praga
+        return true; // O círculo tem interseção com a área atingida
     }
 
-    return 0; // O círculo não foi atingido pela praga
+    return false; // O círculo não foi atingido
 }
 
 double calcularAreaIntersecaoRetangulo(const struct StRetangulo *retangulo1, const struct StRetangulo *retangulo2)
@@ -1096,6 +1099,8 @@ double calcularAreaIntersecaoRetangulo(const struct StRetangulo *retangulo1, con
 
     return intersecaoW * intersecaoH;
 }
+
+// PROTOTIPO
 
 double calcularAreaIntersecaoCirculoRetangulo(const struct StCirculo *circulo, const struct StRetangulo *retangulo)
 {

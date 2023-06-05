@@ -148,6 +148,10 @@ void FreeHortalica(Info Hor);
 
 void ObjetoAtingido(Info i, double x, double y, void *aux);
 
-bool VerificaAtingido();
+bool VerificaAtingido(Info i, void *aux);
+
+bool VerificaRetanguloAtingido(void *aux, void *Ret);
+
+bool VerificaCirculoAtingido(void *aux, void *Circ);
 
 #endif
