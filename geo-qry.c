@@ -1115,6 +1115,84 @@ bool VerificaCirculoAtingido(void *aux, void *Circ)
 
 double CalculaAreaAfetada(void *Hort, void *Afeta)
 {
+    ProcAfetado *Af = Afeta;
+    Hortalica *H = Hort;
+    Figura *F = H->Fig;
+    if (F->Tipo == 'T')
+    {
+        return 0.1; // Proporção fixa em 10%
+    }
+    else if (F->Tipo == 'C')
+    {
+        Circulo *c = F->Figura;
+        double AreaIntersecao = CalculaAreaIntersecaoCirculoRetangulo(F->Figura, Afeta);
+        double AreaCirculo = PI * c->raio * c->raio;
+        return AreaIntersecao / AreaCirculo * 100.0;
+    }
+    else if (F->Tipo == 'R')
+    {
+        Retangulo *r = F->Figura;
+        double AreaIntersecao = CalculaAreaIntersecaoRetanguloRetangulo(F->Figura, Afeta);
+        double AreaRetangulo = r->larg * r->alt;
+        return AreaIntersecao / AreaRetangulo * 100.0;
+    }
+    else if (F->Tipo == 'L')
+    {
+        return 0.1; // Proporção fixa em 10%
+    }
+    else
+    {
+        printf("Erro ao verificar forma da figura afetada!\n");
+        return 0.0;
+    }
+}
+
+double CalculaAreaIntersecaoRetanguloRetangulo(void *Ret, void *Afeta)
+{
+    Retangulo *r = Ret;
+    ProcAfetado *Af = Afeta;
+    double intersecaoX = fmax(r->x, Af->x);
+    double intersecaoY = fmax(r->y, Af->y);
+    double intersecaoW = fmin(r->x + r->larg, Af->x + Af->larg) - intersecaoX;
+    double intersecaoH = fmin(r->y + r->alt, Af->y + Af->alt) - intersecaoY;
+    return intersecaoW * intersecaoH;
+}
+
+double CalculaAreaIntersecaoCirculoRetangulo(void *Circ, void *Afeta)
+{
+    Circulo *c = Circ;
+    ProcAfetado *Af = Afeta;
+    double circuloX = c->x;
+    double circuloY = c->y;
+    double retanguloX = Af->x;
+    double retanguloY = Af->y;
+
+    if (circuloX < retanguloX)
+    {
+        circuloX = retanguloX;
+    }
+    else if (circuloX > retanguloX + Af->larg)
+    {
+        circuloX = retanguloX + Af->larg;
+    }
+
+    if (circuloY < retanguloY)
+    {
+        circuloY = retanguloY;
+    }
+    else if (circuloY > retanguloY + Af->alt)
+    {
+        circuloY = retanguloY + Af->alt;
+    }
+
+    double distanciaX = circuloX - c->x;
+    double distanciaY = circuloY - c->y;
+    double distancia = sqrt(distanciaX * distanciaX + distanciaY * distanciaY);
+    double theta = acos(distancia / c->raio);
+    double setorCircular = (0.5 * c->raio * c->raio * theta) - (0.5 * c->raio * c->raio * sin(theta));
+    double retanguloIntersecao = distanciaX * distanciaY;
+
+    return setorCircular + retanguloIntersecao;
 }
 
 void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[])
@@ -1125,7 +1203,7 @@ void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, d
     c->raio = raio;
     c->ID = GetIDUnico(Entidades, 9999);
     strcpy(c->corp, "#ffffff00"); // Branco Transparente via canal alpha 00
-    strcpy(c->corb, corb);  
+    strcpy(c->corb, corb);
     Figura *f = malloc(sizeof(Figura));
     f->ID = c->ID;
     f->Tipo = 'C';
@@ -1139,78 +1217,4 @@ void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, d
     insertRadialT(All, c->x, c->y, f);
     insertLst(Entidades, e);
     f->RefCount = 2; // 2 pois foi inserido tanto na lista de entidades quanto na árvore
-}
-
-// PROTOTIPO
-
-double calcularAreaIntersecaoRetangulo(const struct StRetangulo *retangulo1, const struct StRetangulo *retangulo2)
-{
-    double intersecaoX = fmax(retangulo1->x, retangulo2->x);
-    double intersecaoY = fmax(retangulo1->y, retangulo2->y);
-    double intersecaoW = fmin(retangulo1->x + retangulo1->larg, retangulo2->x + retangulo2->larg) - intersecaoX;
-    double intersecaoH = fmin(retangulo1->y + retangulo1->alt, retangulo2->y + retangulo2->alt) - intersecaoY;
-
-    if (intersecaoW <= 0 || intersecaoH <= 0)
-    {
-        return 0.0; // Não há sobreposição, área de interseção é zero
-    }
-
-    return intersecaoW * intersecaoH;
-}
-
-double calcularAreaIntersecaoCirculoRetangulo(const struct StCirculo *circulo, const struct StRetangulo *retangulo)
-{
-    double circuloX = circulo->x;
-    double circuloY = circulo->y;
-    double retanguloX = retangulo->x;
-    double retanguloY = retangulo->y;
-
-    if (circuloX < retanguloX)
-    {
-        circuloX = retanguloX;
-    }
-    else if (circuloX > retanguloX + retangulo->larg)
-    {
-        circuloX = retanguloX + retangulo->larg;
-    }
-
-    if (circuloY < retanguloY)
-    {
-        circuloY = retanguloY;
-    }
-    else if (circuloY > retanguloY + retangulo->alt)
-    {
-        circuloY = retanguloY + retangulo->alt;
-    }
-
-    double distanciaX = circuloX - circulo->x;
-    double distanciaY = circuloY - circulo->y;
-    double distancia = sqrt(distanciaX * distanciaX + distanciaY * distanciaY);
-
-    if (distancia > circulo->raio)
-    {
-        return 0.0; // Não há sobreposição, área de interseção é zero
-    }
-
-    double theta = acos(distancia / circulo->raio);
-    double setorCircular = (0.5 * circulo->raio * circulo->raio * theta) - (0.5 * circulo->raio * circulo->raio * sin(theta));
-    double retanguloIntersecao = distanciaX * distanciaY;
-
-    return setorCircular + retanguloIntersecao;
-}
-
-double calcularAreaAtingidaPraga(const struct StRetangulo *praga, const struct StRetangulo *objeto)
-{
-    double areaIntersecao = calcularAreaIntersecaoRetangulo(praga, objeto);
-    double areaObjeto = objeto->larg * objeto->alt;
-
-    return areaIntersecao / areaObjeto * 100.0;
-}
-
-double calcularAreaAtingidaPragaCirculo(const struct StRetangulo *praga, const struct StCirculo *circulo)
-{
-    double areaIntersecao = calcularAreaIntersecaoCirculoRetangulo(circulo, praga);
-    double areaCirculo = PI * circulo->raio * circulo->raio;
-
-    return areaIntersecao / areaCirculo * 100.0;
 }
