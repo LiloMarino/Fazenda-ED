@@ -11,6 +11,10 @@
 
 typedef void *ArqQry;
 
+/*========================================================================================================== *
+ * Funções Principais                                                                                        *
+ *========================================================================================================== */
+
 /**
  * @brief Cria o arquivo "fn" para escrita. Substitui o arquivo, caso exista.
  * @note Retorna NULL, caso nao tenha sido possivel criar arquivo.
@@ -73,9 +77,9 @@ void InfoColheitadeiras(Lista Entidades, FILE *log, RadialTree All);
  */
 void fechaQry(ArqQry fqry);
 
-/**
- *  Funções Auxiliares
- */
+/*========================================================================================================== *
+ * Funções Auxiliares                                                                                        *
+ *========================================================================================================== */
 
 /**
  * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore um ID especificado e guardar suas informações em aux
@@ -121,7 +125,7 @@ void ContabilizaColheita(Lista Colheita, FILE *log);
  * @return Retorna um ID único baseado nos IDs existentes na lista de entidades
  * @note Esta função é necessária para que não haja conflitos entre entidades e objetos na árvore
  */
-int GetIDUnico(Lista Entidades,int ID);
+int GetIDUnico(Lista Entidades, int ID);
 
 /**
  * @brief Cria o retângulo de colheita/praga/adubo e o insere tanto na árvore quanto na lista de entidades
@@ -132,26 +136,51 @@ int GetIDUnico(Lista Entidades,int ID);
  * @param Xfim Coordenada de fim da área de colheita
  * @param Yfim Coordenada de fim da área de colheita
  */
-void CriaArea(RadialTree All, Lista Entidades,double Xinicio, double Yinicio, double Xfim, double Yfim);
+void CriaArea(RadialTree All, Lista Entidades, double Xinicio, double Yinicio, double Xfim, double Yfim);
 
 /**
  * @brief Faz o free() para a estrutura de entidades
  * @param Ent Ponteiro para uma estrutura do tipo Entidade
  */
-void FreeEntidade(Info Ent);
+void FreeEntidade(void *Ent);
 
 /**
  * @brief Faz o free() para a estrutura de hortaliça
  * @param Hor Ponteiro para uma estrutura do tipo Hortalica
  */
-void FreeHortalica(Info Hor);
+void FreeHortalica(void *Hor);
 
+/**
+ * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore os objetos atingidos e inserí-los numa lista
+ * @param i Conteúdo do nó atual
+ * @param x Coordenada x do nó atual
+ * @param y Coordenada y do nó atual
+ * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
+ */
 void ObjetoAtingido(Info i, double x, double y, void *aux);
 
+/**
+ * @brief Verifica se determinado objeto foi atingido pela área
+ * @param i Conteúdo do nó atual
+ * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
+ * @return Retorna verdadeiro caso tenha sido atingido e falso caso não tenha
+ */
 bool VerificaAtingido(Info i, void *aux);
 
+/**
+ * @brief Verifica se o retângulo foi atingido pela área
+ * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
+ * @param Ret Ponteiro para a estrutura do tipo Retangulo
+ * @return Retorna verdadeiro caso tenha sido atingido e falso caso não tenha
+ */
 bool VerificaRetanguloAtingido(void *aux, void *Ret);
 
+/**
+ * @brief Verifica se o círculo foi atingido pela área
+ * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
+ * @param Circ Ponteiro para a estrutura do tipo Circulo
+ * @return Retorna verdadeiro caso tenha sido atingido e falso caso não tenha
+ */
 bool VerificaCirculoAtingido(void *aux, void *Circ);
 
 #endif

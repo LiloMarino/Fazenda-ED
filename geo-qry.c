@@ -969,14 +969,14 @@ void CriaArea(RadialTree All, Lista Entidades, double Xinicio, double Yinicio, d
     f->RefCount = 2; // 2 pois foi inserido tanto na lista de entidades quanto na árvore
 }
 
-void FreeEntidade(Info Ent)
+void FreeEntidade(void *Ent)
 {
     Entidade *E = Ent;
     FreeFigura(E->Fig);
     free(E);
 }
 
-void FreeHortalica(Info Hor)
+void FreeHortalica(void *Hor)
 {
     Hortalica *H = Hor;
     FreeFigura(H->Fig);
