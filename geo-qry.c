@@ -632,7 +632,7 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
 
     /* Realiza o movimento da colheitadeira e marca a área colhida para o svg */
     Move(ID, dx, dy, log, All);
-    CriaAreaColhida(*All, Entidades, Xinicio, Yinicio, Xfim, Yfim);
+    CriaArea(*All, Entidades, Xinicio, Yinicio, Xfim, Yfim);
 }
 
 void Move(int ID, double dx, double dy, FILE *log, RadialTree *All)
@@ -875,12 +875,12 @@ void ContabilizaColheita(Lista Colheita, FILE *log)
     fprintf(log, "Mato(texto): %.0lfg ou %.2lfkg\n", CONT.mato_texto, CONT.mato_texto / 1000);
 }
 
-int GetIDUnico(Lista Entidades)
+int GetIDUnico(Lista Entidades, int ID)
 {
-    int IDunico = 9999;
-    bool JaExiste;
+    int IDunico = ID;
+    bool JaExiste = true;
     Iterador E = createIterador(Entidades, false);
-    do
+    while (JaExiste)
     {
         JaExiste = false;
         while (!isIteratorEmpty(Entidades, E))
@@ -892,12 +892,12 @@ int GetIDUnico(Lista Entidades)
                 JaExiste = true;
             }
         }
-    } while (JaExiste);
+    }
     killIterator(E);
     return IDunico;
 }
 
-void CriaAreaColhida(RadialTree All, Lista Entidades, double Xinicio, double Yinicio, double Xfim, double Yfim)
+void CriaArea(RadialTree All, Lista Entidades, double Xinicio, double Yinicio, double Xfim, double Yfim)
 {
     Retangulo *r = malloc(sizeof(Retangulo));
     r->x = Xinicio;
@@ -907,7 +907,7 @@ void CriaAreaColhida(RadialTree All, Lista Entidades, double Xinicio, double Yin
     strcpy(r->corp, "#ffffff00"); // Branco Transparente via canal alpha 00
     strcpy(r->corb, "#ff0000");   // Vermelho
     r->pont = 3;
-    r->ID = GetIDUnico(Entidades);
+    r->ID = GetIDUnico(Entidades,9999);
     Figura *f = malloc(sizeof(Figura));
     f->ID = r->ID;
     f->Tipo = 'R';

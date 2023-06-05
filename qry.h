@@ -69,7 +69,7 @@ void InfoColheitadeiras(Lista Entidades, FILE *log, RadialTree All);
 
 /**
  * @brief Fecha o arquivo fqry
- * @param fqry Ponteiro para o arquivo QRY aberto
+ * @param fqry Ponteiro para o arquivo QRY abertoi
  */
 void fechaQry(ArqQry fqry);
 
@@ -115,15 +115,16 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Colheita, double Xin
 void ContabilizaColheita(Lista Colheita, FILE *log);
 
 /**
- * @brief Obtém um ID único para entidades que não pertencem a árvore
+ * @brief Obtém um ID único para entidades que não pertencem a árvore a partir do ID especificado
  * @param Entidades Lista contendo todas as entidades
+ * @param ID ID especificado para ser único se houver um igual somará +1 e verificará novamente até ser único
  * @return Retorna um ID único baseado nos IDs existentes na lista de entidades
  * @note Esta função é necessária para que não haja conflitos entre entidades e objetos na árvore
  */
-int GetIDUnico(Lista Entidades);
+int GetIDUnico(Lista Entidades,int ID);
 
 /**
- * @brief Cria o retângulo de colheita e o insere tanto na árvore quanto na lista de entidades
+ * @brief Cria o retângulo de colheita/praga/adubo e o insere tanto na árvore quanto na lista de entidades
  * @param All Ponteiro para a árvore radial
  * @param Entidades Lista contendo todas as entidades
  * @param Xinicio Coordenada de início da área de colheita
@@ -131,7 +132,7 @@ int GetIDUnico(Lista Entidades);
  * @param Xfim Coordenada de fim da área de colheita
  * @param Yfim Coordenada de fim da área de colheita
  */
-void CriaAreaColhida(RadialTree All, Lista Entidades,double Xinicio, double Yinicio, double Xfim, double Yfim);
+void CriaArea(RadialTree All, Lista Entidades,double Xinicio, double Yinicio, double Xfim, double Yfim);
 
 /**
  * @brief Faz o free() para a estrutura de entidades
