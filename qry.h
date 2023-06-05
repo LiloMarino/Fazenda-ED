@@ -35,7 +35,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput);
  * @param Direcao Direção dos passos
  * @param log Ponteiro para o arquivo de registro
  * @param Entidades Lista que contém todas as informações de todas as colheitadeiras
- * @param All ndereço para a árvore radial com todos os elementos
+ * @param All Endereço para a árvore radial com todos os elementos
  */
 void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, RadialTree *All, Lista Colheita);
 
@@ -49,11 +49,11 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
  */
 void Move(int ID, double dx, double dy, FILE *log, RadialTree *All);
 
-void Praga(double x, double y, double largura, double altura, double raio);
+void Praga(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All);
 
-void Cura(double x, double y, double largura, double altura, double raio);
+void Cura(double x, double y, double largura, double altura, double raio, Lista Afetados);
 
-void Aduba(double x, double y, double largura, double altura, double raio);
+void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados);
 
 void Semeia(double x, double y, double largura, double altura, double fator, double dx, double dy, int ID);
 

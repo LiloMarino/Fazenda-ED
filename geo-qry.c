@@ -470,6 +470,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
     int num = 0;   // Remover depois
     Lista Entidades = createLst(-1);
     Lista Colheita = createLst(-1);
+    Lista Afetados = createLst(-1);
     while (leLinha(fqry, &linha))
     {
         sscanf(linha, "%s ", comando);
@@ -507,6 +508,10 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
         }
         else if (strcmp(comando, "ct") == 0)
         {
+            double x, y, larg, alt, raio;
+            sscanf(linha, "%s %lf %lf %lf %lf", comando, &x, &y, &larg, &alt, &raio);
+            fprintf(log, "\n[*] %s %lf %lf %lf %lf\n", comando, x, y, larg, alt, raio);
+            Praga(x, y, larg, alt, raio);
         }
         else if (strcmp(comando, "cr") == 0)
         {
@@ -541,16 +546,21 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
     {
         free(linha);
     }
-    while (!isEmptyLst(Colheita))
-    {
-        FreeHortalica(popLst(Colheita));
-    }
-    killLst(Colheita);
     while (!isEmptyLst(Entidades))
     {
         FreeEntidade(popLst(Entidades));
     }
+    while (!isEmptyLst(Colheita))
+    {
+        FreeHortalica(popLst(Colheita));
+    }
+    while (!isEmptyLst(Afetados))
+    {
+        FreeHortalica(popLst(Afetados));
+    }
     killLst(Entidades);
+    killLst(Colheita);
+    killLst(Afetados);
 }
 
 void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, RadialTree *All, Lista Colheita)
@@ -703,6 +713,41 @@ void Move(int ID, double dx, double dy, FILE *log, RadialTree *All)
         fprintf(log, "Colisão de Nó evitada\n");
     }
     free(I);
+}
+
+void Praga(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All)
+{
+    Lista Nos = createLst(-1);
+    getNodesDentroRegiaoRadialT(*All, x, y, x + largura, y + altura, Nos);
+
+    /* Insere na lista Afetados apenas os itens que não são entidades e estão na área */
+    while (!isEmptyLst(Nos))
+    {
+        bool IsEntity = false;
+        Node N = popLst(Nos);
+        Figura *F = getInfoRadialT(*All, N);
+        Iterador E = createIterador(Entidades, false);
+        while (!isIteratorEmpty(Entidades, E))
+        {
+            Entidade *Ent = getIteratorNext(Entidades, E);
+            if (F->ID == Ent->ID)
+            {
+                IsEntity = true;
+            }
+        }
+        killIterator(E);
+        if (!IsEntity)
+        {
+            F->RefCount++; // Para não ser eliminado pelo removeNoRadialT()
+            Hortalica *H = malloc(sizeof(Hortalica));
+            H->ID = F->ID;
+            H->Fig = F;
+            insertLst(Afetados, H);
+        }
+    }
+    killLst(Nos);
+
+
 }
 
 void DadosI(int ID, RadialTree All, FILE *log)
@@ -907,7 +952,7 @@ void CriaArea(RadialTree All, Lista Entidades, double Xinicio, double Yinicio, d
     strcpy(r->corp, "#ffffff00"); // Branco Transparente via canal alpha 00
     strcpy(r->corb, "#ff0000");   // Vermelho
     r->pont = 3;
-    r->ID = GetIDUnico(Entidades,9999);
+    r->ID = GetIDUnico(Entidades, 9999);
     Figura *f = malloc(sizeof(Figura));
     f->ID = r->ID;
     f->Tipo = 'R';
@@ -943,4 +988,39 @@ void fechaQry(ArqQry fqry)
     {
         fclose(fqry);
     }
+}
+
+//PROTOTIPO
+
+double calcularAreaAtingidaRetangulo(const struct StRetangulo* retangulo, double pragaX, double pragaY, double pragaW, double pragaH)
+{
+    double intersecaoX = fmax(retangulo->x, pragaX);
+    double intersecaoY = fmax(retangulo->y, pragaY);
+    double intersecaoW = fmin(retangulo->x + retangulo->larg, pragaX + pragaW) - intersecaoX;
+    double intersecaoH = fmin(retangulo->y + retangulo->alt, pragaY + pragaH) - intersecaoY;
+    
+    // Verifica se há sobreposição entre o retângulo e a praga
+    if (intersecaoW <= 0 || intersecaoH <= 0) {
+        return 0.0; // Não há sobreposição, área atingida é zero
+    }
+    
+    double areaTotal = retangulo->larg * retangulo->alt;
+    double areaAtingida = intersecaoW * intersecaoH;
+    
+    return areaAtingida / areaTotal * 100.0;
+}
+
+double calcularAreaAtingidaCirculo(const struct StCirculo* circulo, double pragaX, double pragaY, double pragaR)
+{
+    double distanciaCentro = sqrt(pow(pragaX - circulo->x, 2) + pow(pragaY - circulo->y, 2));
+    double intersecaoR = fmax(0.0, pragaR + circulo->raio - distanciaCentro);
+    
+    if (intersecaoR <= 0) {
+        return 0.0; // Não há sobreposição, área atingida é zero
+    }
+    
+    double areaTotal = M_PI * pow(circulo->raio, 2);
+    double areaAtingida = M_PI * pow(intersecaoR, 2);
+    
+    return areaAtingida / areaTotal * 100.0;
 }
