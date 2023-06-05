@@ -1050,11 +1050,15 @@ bool VerificaAtingido(Info i, void *aux)
     }
     else if (F->Tipo == 'C')
     {
-        return VerificaCirculoAtingido(aux, F->Figura);
+        Circulo *c = F->Figura;
+        return (c->x + c->raio >= Atinge->x && c->x - c->raio <= Atinge->x + Atinge->larg &&
+        c->y + c->raio >= Atinge->y && c->y - c->raio <= Atinge->y + Atinge->alt);
     }
     else if (F->Tipo == 'R')
     {
-        return VerificaRetanguloAtingido(aux, F->Figura);
+        Retangulo *r = F->Figura;
+        return (r->x + r->larg >= Atinge->x && r->x <= Atinge->x + Atinge->larg &&
+                r->y + r->alt >= Atinge->y && r->y <= Atinge->y + Atinge->alt);
     }
     else if (F->Tipo == 'L')
     {
@@ -1067,49 +1071,6 @@ bool VerificaAtingido(Info i, void *aux)
         printf("Erro ao verificar forma da figura atingida!\n");
         return false;
     }
-}
-
-bool VerificaRetanguloAtingido(void *aux, void *Ret)
-{
-    Retangulo *r = Ret;
-    ProcAfetado *Atinge = aux;
-    /* Verifica se o retângulo está completamente dentro da área atingida */
-    if (VerificaIntervalo(Atinge->x, r->x, Atinge->x + Atinge->larg) &&
-        VerificaIntervalo(Atinge->y, r->y, Atinge->y + Atinge->alt))
-    {
-        return true; // O retângulo está totalmente dentro da área atingida
-    }
-
-    /* Verifica se há interseção entre a área atingida e o retângulo */
-    if (VerificaIntervalo(r->x, Atinge->x, Atinge->x + Atinge->larg) &&
-        VerificaIntervalo(r->y, Atinge->y, Atinge->y + Atinge->alt))
-    {
-        return true; // O retângulo tem interseção com a área atingida
-    }
-
-    return false; // O retângulo não foi atingido
-}
-
-bool VerificaCirculoAtingido(void *aux, void *Circ)
-{
-    Circulo *c = Circ;
-    ProcAfetado *Atinge = aux;
-    /* Verifica se o círculo está completamente dentro da área atingida */
-    if (VerificaIntervalo(Atinge->x, c->x - c->raio, Atinge->x + Atinge->larg) &&
-        VerificaIntervalo(Atinge->y, c->y - c->raio, Atinge->y + Atinge->alt))
-    {
-        return true; // O círculo está totalmente dentro da área atingida
-    }
-
-    /* Verifica se há interseção entre a área atingida e o círculo */
-    if (VerificaPonto(Atinge->x, c->x, Atinge->x + Atinge->larg, Atinge->y, c->y, Atinge->y + Atinge->alt) ||
-        (VerificaIntervalo(c->x, Atinge->x, Atinge->x + Atinge->larg) &&
-         VerificaIntervalo(c->y, Atinge->y, Atinge->y + Atinge->alt)))
-    {
-        return true; // O círculo tem interseção com a área atingida
-    }
-
-    return false; // O círculo não foi atingido
 }
 
 double CalculaAreaAfetada(void *Fig, void *Afeta)

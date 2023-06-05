@@ -167,22 +167,6 @@ void ObjetoAtingido(Info i, double x, double y, void *aux);
  */
 bool VerificaAtingido(Info i, void *aux);
 
-/**
- * @brief Verifica se o retângulo foi atingido pela área
- * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
- * @param Ret Ponteiro para a estrutura do tipo Retangulo
- * @return Retorna verdadeiro caso tenha sido atingido e falso caso não tenha
- */
-bool VerificaRetanguloAtingido(void *aux, void *Ret);
-
-/**
- * @brief Verifica se o círculo foi atingido pela área
- * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
- * @param Circ Ponteiro para a estrutura do tipo Circulo
- * @return Retorna verdadeiro caso tenha sido atingido e falso caso não tenha
- */
-bool VerificaCirculoAtingido(void *aux, void *Circ);
-
 double CalculaAreaAfetada(void *Fig, void *Afeta);
 
 double CalculaAreaIntersecaoRetanguloRetangulo(void *Ret, void *Afeta);
