@@ -65,7 +65,7 @@ void Semeia(double x, double y, double largura, double altura, double fator, dou
  */
 void DadosI(int ID, RadialTree All, FILE *log);
 
-void InfoColheitadeiras();
+void InfoColheitadeiras(Lista Entidades, FILE *log, RadialTree All);
 
 /**
  * @brief Fecha o arquivo fqry
