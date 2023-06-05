@@ -626,8 +626,9 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     ColheElementos(All, Entidades, Colheita, Xinicio, Yinicio, Xfim, Yfim);
 
     /* Contabiliza a colheita e reporta */
+    fprintf(log, "Contabilidade da Colheita\n");
     ContabilizaColheita(Colheita, log);
-    fprintf(log, "\n");
+
 
     /* Realiza o movimento da colheitadeira e marca a área colhida para o svg */
     Move(ID, dx, dy, log, All);
@@ -753,18 +754,18 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
             H->ID = F->ID;
             H->Fig = F;
             H->Mult = 1;
-            H->Mult -= CalculaAreaAfetada(H, A);
+            H->Mult -= CalculaAreaAfetada(H->Fig, A);
             insertLst(Afetados, H);
         }
         else if (!IsEntity)
         {
-            Hor->Mult -= CalculaAreaAfetada(Hor, A);
+            Hor->Mult -= CalculaAreaAfetada(Hor->Fig, A);
         }
     }
     killLst(Atingido);
     free(A);
 
-    /*Marca a área afetada para o svg e marca o círculo em (x,y)*/
+    /*Marca a área afetada para o svg e marca o círculo vermelho em (x,y)*/
     CriaArea(*All, Entidades, x, y, x + largura, y + altura);
     CriaMarcacaoCircular(*All, Entidades, x, y, raio, "#ff0000");
 }
@@ -938,14 +939,13 @@ void ContabilizaColheita(Lista Colheita, FILE *log)
         }
     }
     killIterator(Col);
-    fprintf(log, "Contabilidade da Colheita\n");
     fprintf(log, "Abóbora: %.0lfg ou %.2lfkg\n", CONT.abobora, CONT.abobora / 1000);
     fprintf(log, "Morango: %.0lfg ou %.2lfkg\n", CONT.morango, CONT.morango / 1000);
     fprintf(log, "Repolho: %.0lfg ou %.2lfkg\n", CONT.repolho, CONT.repolho / 1000);
     fprintf(log, "Cebola: %.0lfg ou %.2lfkg\n", CONT.cebola, CONT.cebola / 1000);
     fprintf(log, "Cenoura: %.0lfg ou %.2lfkg\n", CONT.cenoura, CONT.cenoura / 1000);
     fprintf(log, "Mato(linha): %.0lfg ou %.2lfkg\n", CONT.mato_linha, CONT.mato_linha / 1000);
-    fprintf(log, "Mato(texto): %.0lfg ou %.2lfkg\n", CONT.mato_texto, CONT.mato_texto / 1000);
+    fprintf(log, "Mato(texto): %.0lfg ou %.2lfkg\n\n", CONT.mato_texto, CONT.mato_texto / 1000);
 }
 
 int GetIDUnico(Lista Entidades, int ID)
@@ -1113,11 +1113,10 @@ bool VerificaCirculoAtingido(void *aux, void *Circ)
     return false; // O círculo não foi atingido
 }
 
-double CalculaAreaAfetada(void *Hort, void *Afeta)
+double CalculaAreaAfetada(void *Fig, void *Afeta)
 {
     ProcAfetado *Af = Afeta;
-    Hortalica *H = Hort;
-    Figura *F = H->Fig;
+    Figura *F = Fig;
     if (F->Tipo == 'T')
     {
         return 0.1; // Proporção fixa em 10%

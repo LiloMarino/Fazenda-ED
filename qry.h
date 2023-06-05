@@ -183,7 +183,7 @@ bool VerificaRetanguloAtingido(void *aux, void *Ret);
  */
 bool VerificaCirculoAtingido(void *aux, void *Circ);
 
-double CalculaAreaAfetada(void *Hort, void *Afeta);
+double CalculaAreaAfetada(void *Fig, void *Afeta);
 
 double CalculaAreaIntersecaoRetanguloRetangulo(void *Ret, void *Afeta);
 
