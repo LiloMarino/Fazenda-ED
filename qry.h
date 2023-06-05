@@ -146,4 +146,8 @@ void FreeEntidade(Info Ent);
  */
 void FreeHortalica(Info Hor);
 
+void ObjetoAtingido(Info i, double x, double y, void *aux);
+
+bool VerificaAtingido();
+
 #endif

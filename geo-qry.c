@@ -418,6 +418,7 @@ struct StHortalica
 {
     int ID;
     Info Fig;
+    double Mult;
 };
 
 struct StContabiliza
@@ -431,35 +432,23 @@ struct StContabiliza
     double mato_texto;
 };
 
+struct StProcAfetado
+{
+    Lista Atingido;               // Lista que conterá as informações dos nós atingidos
+    double x, y, largura, altura; // Especificações da área afetada
+};
+
 typedef struct StProcID ProcID;
 typedef struct StEntidade Entidade;
 typedef struct StHortalica Hortalica;
 typedef struct StContabiliza Contabiliza;
+typedef struct StProcAfetado ProcAfetado;
 
 ArqQry abreLeituraQry(char *fn)
 {
     ArqQry fqry;
     fqry = fopen(fn, "r");
     return fqry;
-}
-
-void VerificaID(Info i, double x, double y, void *aux)
-{
-    Figura *F = i;
-    if (F->ID == ((ProcID *)aux)->ID)
-    {
-        ((ProcID *)aux)->NoInfo = i;
-        ((ProcID *)aux)->Nox = x;
-        ((ProcID *)aux)->Noy = y;
-    }
-}
-
-Info ProcuraID(int ID, RadialTree All)
-{
-    ProcID *aux = malloc(sizeof(ProcID));
-    aux->ID = ID;
-    visitaLarguraRadialT(All, VerificaID, aux);
-    return aux;
 }
 
 void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
@@ -509,9 +498,9 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
         else if (strcmp(comando, "ct") == 0)
         {
             double x, y, larg, alt, raio;
-            sscanf(linha, "%s %lf %lf %lf %lf", comando, &x, &y, &larg, &alt, &raio);
-            fprintf(log, "\n[*] %s %lf %lf %lf %lf\n", comando, x, y, larg, alt, raio);
-            Praga(x, y, larg, alt, raio);
+            sscanf(linha, "%s %lf %lf %lf %lf %lf", comando, &x, &y, &larg, &alt, &raio);
+            fprintf(log, "\n[*] %s %lf %lf %lf %lf %lf\n", comando, x, y, larg, alt, raio);
+            Praga(x, y, larg, alt, raio, Afetados, Entidades, All);
         }
         else if (strcmp(comando, "cr") == 0)
         {
@@ -717,15 +706,21 @@ void Move(int ID, double dx, double dy, FILE *log, RadialTree *All)
 
 void Praga(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All)
 {
-    Lista Nos = createLst(-1);
-    getNodesDentroRegiaoRadialT(*All, x, y, x + largura, y + altura, Nos);
+    Lista Atingido = createLst(-1);
+    ProcAfetado *A = malloc(sizeof(ProcAfetado));
+    A->Atingido = Atingido;
+    A->x = x;
+    A->y = y;
+    A->largura = largura;
+    A->altura = altura;
+    visitaLarguraRadialT(*All, ObjetoAtingido, A);
+    free(A);
 
-    /* Insere na lista Afetados apenas os itens que não são entidades e estão na área */
-    while (!isEmptyLst(Nos))
+    /* Insere na lista Afetados apenas os itens que não são entidades e foram atingidos */
+    while (!isEmptyLst(Atingido))
     {
         bool IsEntity = false;
-        Node N = popLst(Nos);
-        Figura *F = getInfoRadialT(*All, N);
+        Figura *F = popLst(Atingido);
         Iterador E = createIterador(Entidades, false);
         while (!isIteratorEmpty(Entidades, E))
         {
@@ -745,9 +740,7 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
             insertLst(Afetados, H);
         }
     }
-    killLst(Nos);
-
-
+    killLst(Atingido);
 }
 
 void DadosI(int ID, RadialTree All, FILE *log)
@@ -816,6 +809,14 @@ void InfoColheitadeiras(Lista Entidades, FILE *log, RadialTree All)
         }
     }
     killIterator(E);
+}
+
+void fechaQry(ArqQry fqry)
+{
+    if (fqry != NULL)
+    {
+        fclose(fqry);
+    }
 }
 
 void ColheElementos(RadialTree *All, Lista Entidades, Lista Colheita, double Xinicio, double Yinicio, double Xfim, double Yfim)
@@ -982,45 +983,173 @@ void FreeHortalica(Info Hor)
     free(H);
 }
 
-void fechaQry(ArqQry fqry)
+void VerificaID(Info i, double x, double y, void *aux)
 {
-    if (fqry != NULL)
+    Figura *F = i;
+    if (F->ID == ((ProcID *)aux)->ID)
     {
-        fclose(fqry);
+        ((ProcID *)aux)->NoInfo = i;
+        ((ProcID *)aux)->Nox = x;
+        ((ProcID *)aux)->Noy = y;
     }
 }
 
-//PROTOTIPO
-
-double calcularAreaAtingidaRetangulo(const struct StRetangulo* retangulo, double pragaX, double pragaY, double pragaW, double pragaH)
+Info ProcuraID(int ID, RadialTree All)
 {
-    double intersecaoX = fmax(retangulo->x, pragaX);
-    double intersecaoY = fmax(retangulo->y, pragaY);
-    double intersecaoW = fmin(retangulo->x + retangulo->larg, pragaX + pragaW) - intersecaoX;
-    double intersecaoH = fmin(retangulo->y + retangulo->alt, pragaY + pragaH) - intersecaoY;
-    
-    // Verifica se há sobreposição entre o retângulo e a praga
-    if (intersecaoW <= 0 || intersecaoH <= 0) {
-        return 0.0; // Não há sobreposição, área atingida é zero
-    }
-    
-    double areaTotal = retangulo->larg * retangulo->alt;
-    double areaAtingida = intersecaoW * intersecaoH;
-    
-    return areaAtingida / areaTotal * 100.0;
+    ProcID *aux = malloc(sizeof(ProcID));
+    aux->ID = ID;
+    visitaLarguraRadialT(All, VerificaID, aux);
+    return aux;
 }
 
-double calcularAreaAtingidaCirculo(const struct StCirculo* circulo, double pragaX, double pragaY, double pragaR)
+void ObjetoAtingido(Info i, double x, double y, void *aux)
 {
-    double distanciaCentro = sqrt(pow(pragaX - circulo->x, 2) + pow(pragaY - circulo->y, 2));
-    double intersecaoR = fmax(0.0, pragaR + circulo->raio - distanciaCentro);
-    
-    if (intersecaoR <= 0) {
-        return 0.0; // Não há sobreposição, área atingida é zero
+    ProcAfetado *A = aux;
+    Lista Atingido = A->Atingido;
+    if (VerificaAtingido(i, aux))
+    {
+        insertLst(Atingido, i);
     }
-    
-    double areaTotal = M_PI * pow(circulo->raio, 2);
-    double areaAtingida = M_PI * pow(intersecaoR, 2);
-    
-    return areaAtingida / areaTotal * 100.0;
+}
+
+bool VerificaAtingido(Info i, void *aux)
+{
+    ProcAfetado *A = aux;
+    Figura *F = i;
+    if (F->Tipo == 'T')
+    {
+        Texto *t = F->Figura;
+        return VerificaPonto(A->x, t->x, A->x + A->largura, A->y, t->y, A->y + A->altura);
+    }
+    else if (F->Tipo == 'C')
+    {
+        Circulo *c = F->Figura;
+    }
+    else if (F->Tipo == 'R')
+    {
+        Retangulo *r = F->Figura;
+    }
+    else if (F->Tipo == 'L')
+    {
+        Linha *l = F->Figura;
+        return VerificaPonto(A->x, l->x1, A->x + A->largura, A->y, l->y1, A->y + A->altura) || VerificaPonto(A->x, l->x2, A->x + A->largura, A->y, l->y2, A->y + A->altura);
+    }
+    else
+    {
+        printf("Erro ao verificar forma da figura atingida!\n");
+        return false;
+    }
+}
+
+// PROTOTIPO
+
+bool verificarObjetoAtingidoPraga(const struct StRetangulo *praga, const struct StRetangulo *objeto)
+{
+    // Verificar se o objeto está completamente dentro da área da praga
+    if (objeto->x >= praga->x && objeto->x + objeto->larg <= praga->x + praga->larg &&
+        objeto->y >= praga->y && objeto->y + objeto->alt <= praga->y + praga->alt)
+    {
+        return 1; // O objeto está totalmente dentro da área da praga
+    }
+
+    // Verificar se há interseção entre a praga e o objeto
+    if (objeto->x + objeto->larg >= praga->x && objeto->x <= praga->x + praga->larg &&
+        objeto->y + objeto->alt >= praga->y && objeto->y <= praga->y + praga->alt)
+    {
+        return 1; // O objeto tem interseção com a área da praga
+    }
+
+    return 0; // O objeto não foi atingido pela praga
+}
+
+bool verificarObjetoAtingidoPragaCirculo(const struct StRetangulo *praga, const struct StCirculo *circulo)
+{
+    // Verificar se o círculo está completamente dentro da área da praga
+    if (circulo->x - circulo->raio >= praga->x && circulo->x + circulo->raio <= praga->x + praga->larg &&
+        circulo->y - circulo->raio >= praga->y && circulo->y + circulo->raio <= praga->y + praga->alt)
+    {
+        return 1; // O círculo está totalmente dentro da área da praga
+    }
+
+    // Verificar se há interseção entre a praga e o círculo
+    double deltaX = circulo->x - fmax(praga->x, fmin(circulo->x, praga->x + praga->larg));
+    double deltaY = circulo->y - fmax(praga->y, fmin(circulo->y, praga->y + praga->alt));
+    if ((deltaX * deltaX + deltaY * deltaY) <= (circulo->raio * circulo->raio))
+    {
+        return 1; // O círculo tem interseção com a área da praga
+    }
+
+    return 0; // O círculo não foi atingido pela praga
+}
+
+double calcularAreaIntersecaoRetangulo(const struct StRetangulo *retangulo1, const struct StRetangulo *retangulo2)
+{
+    double intersecaoX = fmax(retangulo1->x, retangulo2->x);
+    double intersecaoY = fmax(retangulo1->y, retangulo2->y);
+    double intersecaoW = fmin(retangulo1->x + retangulo1->larg, retangulo2->x + retangulo2->larg) - intersecaoX;
+    double intersecaoH = fmin(retangulo1->y + retangulo1->alt, retangulo2->y + retangulo2->alt) - intersecaoY;
+
+    if (intersecaoW <= 0 || intersecaoH <= 0)
+    {
+        return 0.0; // Não há sobreposição, área de interseção é zero
+    }
+
+    return intersecaoW * intersecaoH;
+}
+
+double calcularAreaIntersecaoCirculoRetangulo(const struct StCirculo *circulo, const struct StRetangulo *retangulo)
+{
+    double circuloX = circulo->x;
+    double circuloY = circulo->y;
+    double retanguloX = retangulo->x;
+    double retanguloY = retangulo->y;
+
+    if (circuloX < retanguloX)
+    {
+        circuloX = retanguloX;
+    }
+    else if (circuloX > retanguloX + retangulo->larg)
+    {
+        circuloX = retanguloX + retangulo->larg;
+    }
+
+    if (circuloY < retanguloY)
+    {
+        circuloY = retanguloY;
+    }
+    else if (circuloY > retanguloY + retangulo->alt)
+    {
+        circuloY = retanguloY + retangulo->alt;
+    }
+
+    double distanciaX = circuloX - circulo->x;
+    double distanciaY = circuloY - circulo->y;
+    double distancia = sqrt(distanciaX * distanciaX + distanciaY * distanciaY);
+
+    if (distancia > circulo->raio)
+    {
+        return 0.0; // Não há sobreposição, área de interseção é zero
+    }
+
+    double theta = acos(distancia / circulo->raio);
+    double setorCircular = (0.5 * circulo->raio * circulo->raio * theta) - (0.5 * circulo->raio * circulo->raio * sin(theta));
+    double retanguloIntersecao = distanciaX * distanciaY;
+
+    return setorCircular + retanguloIntersecao;
+}
+
+double calcularAreaAtingidaPraga(const struct StRetangulo *praga, const struct StRetangulo *objeto)
+{
+    double areaIntersecao = calcularAreaIntersecaoRetangulo(praga, objeto);
+    double areaObjeto = objeto->larg * objeto->alt;
+
+    return areaIntersecao / areaObjeto * 100.0;
+}
+
+double calcularAreaAtingidaPragaCirculo(const struct StRetangulo *praga, const struct StCirculo *circulo)
+{
+    double areaIntersecao = calcularAreaIntersecaoCirculoRetangulo(circulo, praga);
+    double areaCirculo = PI * circulo->raio * circulo->raio;
+
+    return areaIntersecao / areaCirculo * 100.0;
 }
