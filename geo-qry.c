@@ -1046,7 +1046,7 @@ bool VerificaAtingido(Info i, void *aux)
     if (F->Tipo == 'T')
     {
         Texto *t = F->Figura;
-        return VerificaPonto(Atinge->x, t->x, Atinge->x + Atinge->larg, Atinge->y, t->y, Atinge->y + Atinge->alt);
+        return VerificaPonto(Atinge->x, t->x, Atinge->x + Atinge->larg, Atinge->y + Atinge->alt, t->y, Atinge->y);
     }
     else if (F->Tipo == 'C')
     {
