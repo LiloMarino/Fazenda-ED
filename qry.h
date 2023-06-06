@@ -112,7 +112,7 @@ Info ProcuraID(int ID, RadialTree All);
  * @param Xfim Coordenada de fim da área de colheita
  * @param Yfim Coordenada de fim da área de colheita
  */
-void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, double Xinicio, double Yinicio, double Xfim, double Yfim);
+void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, FILE *log, double Xinicio, double Yinicio, double Xfim, double Yfim);
 
 /**
  * @brief Contabiliza os elementos colhidos com base na Lista Colheita e os reporta no arquivo log

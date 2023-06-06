@@ -623,7 +623,7 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     fprintf(log, "Y: %lf\n\n", R->y + dy);
 
     /* Colhe os elementos na área e remove os nós da árvore sem remover a informação do nó inserindo na lista colheita apenas as hortaliças*/
-    ColheElementos(All, Entidades, Afetados, Colheita, Xinicio, Yinicio, Xfim, Yfim);
+    ColheElementos(All, Entidades, Afetados, Colheita, log, Xinicio, Yinicio, Xfim, Yfim);
 
     /* Contabiliza a colheita e reporta */
     fprintf(log, "Contabilidade Parcial da Colheita\n");
@@ -866,7 +866,7 @@ void fechaQry(ArqQry fqry)
     }
 }
 
-void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, double Xinicio, double Yinicio, double Xfim, double Yfim)
+void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, FILE *log, double Xinicio, double Yinicio, double Xfim, double Yfim)
 {
     Lista Colh = createLst(-1);
     ProcAfetado *Area = malloc(sizeof(ProcAfetado));
@@ -918,6 +918,7 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
             insertLst(Colheita, H);
             F->RefCount++; // Pois foi inserido na lista Colheita
             ReportaHortalica(*All, log, H);
+            fprintf(log, "\n");
         }
         else if (!IsEntity)
         {
@@ -937,7 +938,9 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
                     break;
                 }
             }
+            free(P);
             ReportaHortalica(*All, log, Hor);
+            fprintf(log, "\n");
         }
     }
     killLst(Colh);
@@ -1336,6 +1339,6 @@ void MostraID(ArqSvg fsvg, Item info)
 void ReportaHortalica(RadialTree All, FILE *log, void *Hor)
 {
     Hortalica *H = Hor;
-    DadosI(H->ID,All,log);
+    DadosI(H->ID, All, log);
     fprintf(log, "Dano: %.2lf %%\n", H->Dano * 100);
 }
