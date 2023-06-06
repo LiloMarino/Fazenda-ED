@@ -1063,9 +1063,12 @@ bool VerificaAtingido(Info i, void *aux)
     else if (F->Tipo == 'L')
     {
         Linha *l = F->Figura;
-        return VerificaPonto(Atinge->x, l->x1, Atinge->x + Atinge->larg, Atinge->y, l->y1, Atinge->y + Atinge->alt) ||
-               VerificaPonto(Atinge->x, l->x2, Atinge->x + Atinge->larg, Atinge->y, l->y2, Atinge->y + Atinge->alt);
+        return (VerificaIntervalo(Atinge->x,l->x1,Atinge->x + Atinge->larg) &&
+                VerificaIntervalo(Atinge->x,l->x2,Atinge->x + Atinge->larg) &&
+                VerificaIntervalo(Atinge->y,l->y1,Atinge->y + Atinge->alt) &&
+                VerificaIntervalo(Atinge->y,l->y2,Atinge->y + Atinge->alt));
     }
+    
     else
     {
         printf("Erro ao verificar forma da figura atingida!\n");
