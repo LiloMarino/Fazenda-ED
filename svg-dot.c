@@ -31,22 +31,38 @@ void OperaSVG(char nome[], RadialTree All)
     Iterador R = createIterador(Ret, false);
 
     while (!isIteratorEmpty(Ret, R))
-        CriaRetanguloSvg(B, getInfoRadialT(All, getIteratorNext(Ret, R)));
+    {
+        Info i = getInfoRadialT(All, getIteratorNext(Ret, R));
+        CriaRetanguloSvg(B, i);
+        MostraID(B, i);
+    }
 
     Iterador L = createIterador(Lin, false);
 
     while (!isIteratorEmpty(Lin, L))
-        CriaLinhaSvg(B, getInfoRadialT(All, getIteratorNext(Lin, L)));
+    {
+        Info i = getInfoRadialT(All, getIteratorNext(Lin, L));
+        CriaLinhaSvg(B, i);
+        MostraID(B, i);
+    }
 
     Iterador C = createIterador(Circ, false);
 
     while (!isIteratorEmpty(Circ, C))
-        CriaCirculoSvg(B, getInfoRadialT(All, getIteratorNext(Circ, C)));
+    {
+        Info i = getInfoRadialT(All, getIteratorNext(Circ, C));
+        CriaCirculoSvg(B, i);
+        MostraID(B, i);
+    }
 
     Iterador T = createIterador(Tex, false);
 
     while (!isIteratorEmpty(Tex, T))
-        CriaTextoSvg(B, getInfoRadialT(All, getIteratorNext(Tex, T)));
+    {
+        Info i = getInfoRadialT(All, getIteratorNext(Tex, T));
+        CriaTextoSvg(B, i);
+        MostraID(B, i);
+    }
 
     killIterator(R);
     killIterator(L);

@@ -97,4 +97,7 @@ bool GetTexto(Info figura, double x1, double y1, double x2, double y2);
  */
 void FreeFigura(Info figura);
 
+//APENAS PARA DEPURAÇÃO
+void MostraID(ArqSvg fsvg, Item info);
+
 #endif
