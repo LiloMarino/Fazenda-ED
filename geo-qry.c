@@ -753,12 +753,14 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
             H->ID = F->ID;
             H->Fig = F;
             H->Mult = 1;
-            H->Mult -= CalculaAreaAfetada(H->Fig, A);
+            double AreaAfetada = CalculaAreaAfetada(H->Fig, A);
+            H->Mult -= AreaAfetada;
             insertLst(Afetados, H);
         }
         else if (!IsEntity)
         {
-            Hor->Mult -= CalculaAreaAfetada(Hor->Fig, A);
+            double AreaAfetada = CalculaAreaAfetada(Hor->Fig, A);
+            Hor->Mult -= AreaAfetada;
         }
     }
     killLst(Atingido);
@@ -1052,7 +1054,7 @@ bool VerificaAtingido(Info i, void *aux)
     {
         Circulo *c = F->Figura;
         return (c->x + c->raio >= Atinge->x && c->x - c->raio <= Atinge->x + Atinge->larg &&
-        c->y + c->raio >= Atinge->y && c->y - c->raio <= Atinge->y + Atinge->alt);
+                c->y + c->raio >= Atinge->y && c->y - c->raio <= Atinge->y + Atinge->alt);
     }
     else if (F->Tipo == 'R')
     {
@@ -1063,12 +1065,12 @@ bool VerificaAtingido(Info i, void *aux)
     else if (F->Tipo == 'L')
     {
         Linha *l = F->Figura;
-        return (VerificaIntervalo(Atinge->x,l->x1,Atinge->x + Atinge->larg) &&
-                VerificaIntervalo(Atinge->x,l->x2,Atinge->x + Atinge->larg) &&
-                VerificaIntervalo(Atinge->y,l->y1,Atinge->y + Atinge->alt) &&
-                VerificaIntervalo(Atinge->y,l->y2,Atinge->y + Atinge->alt));
+        return (VerificaIntervalo(Atinge->x, l->x1, Atinge->x + Atinge->larg) &&
+                VerificaIntervalo(Atinge->x, l->x2, Atinge->x + Atinge->larg) &&
+                VerificaIntervalo(Atinge->y, l->y1, Atinge->y + Atinge->alt) &&
+                VerificaIntervalo(Atinge->y, l->y2, Atinge->y + Atinge->alt));
     }
-    
+
     else
     {
         printf("Erro ao verificar forma da figura atingida!\n");
@@ -1079,6 +1081,7 @@ bool VerificaAtingido(Info i, void *aux)
 double CalculaAreaAfetada(void *Fig, void *Afeta)
 {
     Figura *F = Fig;
+    double tolerancia = 0.000001; // Tolerância para lidar com imprecisões numéricas
     if (F->Tipo == 'T')
     {
         return 0.1; // Proporção fixa em 10%
@@ -1088,14 +1091,30 @@ double CalculaAreaAfetada(void *Fig, void *Afeta)
         Circulo *c = F->Figura;
         double AreaIntersecao = CalculaAreaIntersecaoCirculoRetangulo(F->Figura, Afeta);
         double AreaCirculo = PI * c->raio * c->raio;
-        return AreaIntersecao / AreaCirculo * 100.0;
+        double diferenca = fabs(1 - AreaIntersecao / AreaCirculo);
+        if (diferenca < tolerancia)
+        {
+            return 1.0;
+        }
+        else
+        {
+            return AreaIntersecao / AreaCirculo;
+        }
     }
     else if (F->Tipo == 'R')
     {
         Retangulo *r = F->Figura;
         double AreaIntersecao = CalculaAreaIntersecaoRetanguloRetangulo(F->Figura, Afeta);
         double AreaRetangulo = r->larg * r->alt;
-        return AreaIntersecao / AreaRetangulo * 100.0;
+        double diferenca = fabs(1 - AreaIntersecao / AreaRetangulo);
+        if (diferenca < tolerancia)
+        {
+            return 1.0;
+        }
+        else
+        {
+            return AreaIntersecao / AreaRetangulo;
+        }
     }
     else if (F->Tipo == 'L')
     {
@@ -1123,37 +1142,50 @@ double CalculaAreaIntersecaoCirculoRetangulo(void *Circ, void *Afeta)
 {
     Circulo *c = Circ;
     ProcAfetado *Af = Afeta;
-    double circuloX = c->x;
-    double circuloY = c->y;
-    double retanguloX = Af->x;
-    double retanguloY = Af->y;
-
-    if (circuloX < retanguloX)
+    // Verifica se não há sobreposição
+    if (cx + raio < rx || cx - raio > rx + largura || cy + raio < ry || cy - raio > ry + altura)
     {
-        circuloX = retanguloX;
-    }
-    else if (circuloX > retanguloX + Af->larg)
-    {
-        circuloX = retanguloX + Af->larg;
+        return 0.0;
     }
 
-    if (circuloY < retanguloY)
+    // Verifica se o retângulo está completamente dentro do círculo
+    if (cx - raio < rx && cx + raio > rx + largura && cy - raio < ry && cy + raio > ry + altura)
     {
-        circuloY = retanguloY;
-    }
-    else if (circuloY > retanguloY + Af->alt)
-    {
-        circuloY = retanguloY + Af->alt;
+        return largura * altura;
     }
 
-    double distanciaX = circuloX - c->x;
-    double distanciaY = circuloY - c->y;
-    double distancia = sqrt(distanciaX * distanciaX + distanciaY * distanciaY);
-    double theta = acos(distancia / c->raio);
-    double setorCircular = (0.5 * c->raio * c->raio * theta) - (0.5 * c->raio * c->raio * sin(theta));
-    double retanguloIntersecao = distanciaX * distanciaY;
+    // Verifica se o círculo está completamente dentro do retângulo
+    if (rx <= cx - raio && cx + raio <= rx + largura && ry <= cy - raio && cy + raio <= ry + altura)
+    {
+        return PI * raio * raio;
+    }
 
-    return setorCircular + retanguloIntersecao;
+    // Cálculo da área de interseção mais precisa
+    double dx = fabs(cx - rx - largura / 2.0);
+    double dy = fabs(cy - ry - altura / 2.0);
+
+    if (dx > (largura / 2.0 + raio) || dy > (altura / 2.0 + raio))
+    {
+        return 0.0;
+    }
+
+    if (dx <= largura / 2.0 && dy <= altura / 2.0)
+    {
+        double dist = sqrt(dx * dx + dy * dy);
+        return raio * raio * acos(dx / raio) - dx * sqrt(raio * raio - dx * dx) + raio * raio * acos(dy / raio) - dy * sqrt(raio * raio - dy * dy);
+    }
+
+    if (dx <= largura / 2.0)
+    {
+        return raio * raio * acos(dx / raio) - dx * sqrt(raio * raio - dx * dx);
+    }
+
+    if (dy <= altura / 2.0)
+    {
+        return raio * raio * acos(dy / raio) - dy * sqrt(raio * raio - dy * dy);
+    }
+
+    return 0.0;
 }
 
 void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[])
