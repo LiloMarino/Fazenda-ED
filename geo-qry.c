@@ -927,7 +927,6 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
             Posic Del = getFirstLst(Afetados);
             while (Del != NULL)
             {
-                Del = getNextLst(Afetados, Del);
                 if (Del != NULL && ((Hortalica *)getLst(Del))->ID == Hor->ID)
                 {
                     removeLst(Afetados, Del);
@@ -937,6 +936,7 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
                     F->RefCount++; // Pois foi inserido na lista Colheita
                     break;
                 }
+                Del = getNextLst(Afetados, Del);
             }
             free(P);
             ReportaHortalica(*All, log, Hor);
@@ -1245,12 +1245,12 @@ void ReplaceWithRedX(RadialTree *All, Lista Entidades, Lista Afetados, void *Hor
     bool Encontrado = false;
     while (Del != NULL)
     {
-        Del = getNextLst(Afetados, Del);
         if (Del != NULL && ((Hortalica *)getLst(Del))->ID == H->ID)
         {
             Encontrado = true;
             break;
         }
+        Del = getNextLst(Afetados, Del);
     }
     if (Encontrado)
     {
