@@ -182,6 +182,6 @@ void ReplaceWithRedX(RadialTree *All, Lista Entidades, Lista Afetados, void *Hor
 
 void CriaXVermelho(RadialTree All, Lista Entidades, double x, double y);
 
-void FiltraHortalicas(RadialTree *All, Lista Entidades, Lista ParaFiltrar, Lista Filtrada, void *AreaAtingida, FILE *log);
+void ReportaHortalica(RadialTree All, FILE *log, void *Hor);
 
 #endif

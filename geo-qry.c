@@ -626,7 +626,7 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     ColheElementos(All, Entidades, Afetados, Colheita, Xinicio, Yinicio, Xfim, Yfim);
 
     /* Contabiliza a colheita e reporta */
-    fprintf(log, "Contabilidade da Colheita\n");
+    fprintf(log, "Contabilidade Parcial da Colheita\n");
     ContabilizaColheita(Colheita, log);
 
     /* Realiza o movimento da colheitadeira e marca a área colhida para o svg */
@@ -755,8 +755,7 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
             H->Dano = 0;
             double AreaAfetada = CalculaAreaAfetada(H->Fig, Area);
             H->Dano += AreaAfetada;
-            DadosI(H->ID, *All, log);
-            fprintf(log, "Dano: %.2lf %%\n", H->Dano * 100);
+            ReportaHortalica(*All, log, H);
             if (H->Dano > 0.75)
             {
                 fprintf(log, "Eliminada!\n");
@@ -774,8 +773,7 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
             /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
             double AreaAfetada = CalculaAreaAfetada(Hor->Fig, Area);
             Hor->Dano += AreaAfetada;
-            DadosI(Hor->ID, *All, log);
-            fprintf(log, "Dano: %.2lf %%\n", Hor->Dano * 100);
+            ReportaHortalica(*All, log, Hor);
             if (Hor->Dano > 0.75)
             {
                 fprintf(log, "Eliminada!\n");
@@ -919,6 +917,7 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
             H->Dano = 0;
             insertLst(Colheita, H);
             F->RefCount++; // Pois foi inserido na lista Colheita
+            ReportaHortalica(*All, log, H);
         }
         else if (!IsEntity)
         {
@@ -938,6 +937,7 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
                     break;
                 }
             }
+            ReportaHortalica(*All, log, Hor);
         }
     }
     killLst(Colh);
@@ -1336,5 +1336,6 @@ void MostraID(ArqSvg fsvg, Item info)
 void ReportaHortalica(RadialTree All, FILE *log, void *Hor)
 {
     Hortalica *H = Hor;
-    DadosI()
+    DadosI(H->ID,All,log);
+    fprintf(log, "Dano: %.2lf %%\n", H->Dano * 100);
 }
