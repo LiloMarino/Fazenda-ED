@@ -1155,61 +1155,6 @@ double CalculaAreaIntersecaoCirculoRetangulo(void *Circ, void *Afeta)
 {
     Circulo *c = Circ;
     ProcAfetado *Af = Afeta;
-    // Verifica se não há sobreposição
-    if (c->x + c->raio < Af->x || c->x - c->raio > Af->x + Af->larg || c->y + c->raio < Af->y || c->y - c->raio > Af->y + Af->alt)
-    {
-        return 0.0;
-    }
-
-    // Verifica se o retângulo está completamente dentro do círculo
-    if (c->x - c->raio < Af->x && c->x + c->raio > Af->x + Af->larg && c->y - c->raio < Af->y && c->y + c->raio > Af->y + Af->alt)
-    {
-        return Af->larg * Af->alt;
-    }
-
-    // Verifica se o círculo está completamente dentro do retângulo
-    if (Af->x <= c->x - c->raio && c->x + c->raio <= Af->x + Af->larg && Af->y <= c->y - c->raio && c->y + c->raio <= Af->y + Af->alt)
-    {
-        return PI * c->raio * c->raio;
-    }
-
-    // Cálculo da área de interseção mais precisa
-    double dx = fabs(c->x - Af->x - Af->larg / 2.0);
-    double dy = fabs(c->y - Af->y - Af->alt / 2.0);
-
-    if (dx > (Af->larg / 2.0 + c->raio) || dy > (Af->alt / 2.0 + c->raio))
-    {
-        return 0.0;
-    }
-
-    if (dx <= Af->larg / 2.0 && dy <= Af->alt / 2.0)
-    {
-        double dist = sqrt(dx * dx + dy * dy);
-        double angle1 = acos(dx / c->raio);
-        double angle2 = acos(dy / c->raio);
-        double sectorArea1 = angle1 * c->raio * c->raio;
-        double triangleArea1 = dx * sqrt(c->raio * c->raio - dx * dx);
-        double sectorArea2 = angle2 * c->raio * c->raio;
-        double triangleArea2 = dy * sqrt(c->raio * c->raio - dy * dy);
-        return sectorArea1 - triangleArea1 + sectorArea2 - triangleArea2;
-    }
-
-    if (dx <= Af->larg / 2.0)
-    {
-        double angle = acos(dx / c->raio);
-        double sectorArea = angle * c->raio * c->raio;
-        double triangleArea = dx * sqrt(c->raio * c->raio - dx * dx);
-        return sectorArea - triangleArea;
-    }
-
-    if (dy <= Af->alt / 2.0)
-    {
-        double angle = acos(dy / c->raio);
-        double sectorArea = angle * c->raio * c->raio;
-        double triangleArea = dy * sqrt(c->raio * c->raio - dy * dy);
-        return sectorArea - triangleArea;
-    }
-
     return 0.0;
 }
 
@@ -1243,10 +1188,10 @@ void ReplaceWithRedX(RadialTree *All, Lista Entidades, Lista Afetados, void *Hor
     ProcID *P = ProcuraID(H->ID, *All);
     Posic Del = getFirstLst(Afetados);
     bool Encontrado = false;
-    while (((Hortalica *)getLst(Del))->ID != H->ID)
+    while (Del != NULL)
     {
         Del = getNextLst(Afetados, Del);
-        if (Del == NULL)
+        if (Del != NULL && ((Hortalica *)getLst(Del))->ID == H->ID)
         {
             Encontrado = true;
             break;
@@ -1273,14 +1218,14 @@ void CriaXVermelho(RadialTree All, Lista Entidades, double x, double y)
     strcpy(t->a, "m");
     t->rotacao[0] = '\0';
     t->corb[0] = '\0';
-    t->corp[0] = '\0';
+    strcpy(t->corp,"red");
     t->fFamily[0] = '\0';
     strcpy(t->fWeight, "b+");
-    strcpy(t->fSize, "20");
+    strcpy(t->fSize, "25");
     t->ID = GetIDUnico(Entidades, 9999);
     Figura *f = malloc(sizeof(Figura));
     f->ID = t->ID;
-    f->Tipo = 'R';
+    f->Tipo = 'T';
     f->Figura = t;
     Entidade *e = malloc(sizeof(Entidade));
     e->ID = t->ID;
