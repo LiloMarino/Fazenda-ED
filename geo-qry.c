@@ -101,7 +101,7 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
             f->Tipo = 'C';
             f->Figura = c;
             insertRadialT(All, c->x, c->y, f);
-            f->RefCount = 1;
+            f->RefCount = 1; // Pois foi inserido apenas na árvore
         }
         else if (strcmp(comando, "r") == 0)
         {
@@ -119,7 +119,7 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
             f->Tipo = 'R';
             f->Figura = r;
             insertRadialT(All, r->x, r->y, f);
-            f->RefCount = 1;
+            f->RefCount = 1; // Pois foi inserido apenas na árvore
         }
         else if (strcmp(comando, "l") == 0)
         {
@@ -133,7 +133,7 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
             f->Tipo = 'L';
             f->Figura = l;
             insertRadialT(All, l->x1, l->y1, f);
-            f->RefCount = 1;
+            f->RefCount = 1; // Pois foi inserido apenas na árvore
         }
         else if (strcmp(comando, "ts") == 0)
         {
@@ -187,7 +187,7 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
             f->Tipo = 'T';
             f->Figura = t;
             insertRadialT(All, t->x, t->y, f);
-            f->RefCount = 1;
+            f->RefCount = 1; // Pois foi inserido apenas na árvore
         }
         else
         {
@@ -476,7 +476,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
             C->Fig = I->NoInfo;
             C->IsColheita = true;
             insertLst(Entidades, C);
-            ((Figura *)I->NoInfo)->RefCount++;
+            ((Figura *)I->NoInfo)->RefCount++; // Pois foi inserido na lista Entidades
             free(I);
         }
         else if (strcmp(comando, "hvt") == 0)
@@ -693,7 +693,7 @@ void Move(int ID, double dx, double dy, FILE *log, RadialTree *All)
             fprintf(log, "X1:%f\nY1:%f\nX2:%f\nY2:%f\n", l->x1, l->y1, l->x2, l->y2);
         }
         insertRadialT(*All, I->Nox + dx, I->Noy + dy, I->NoInfo);
-        ((Figura *)I->NoInfo)->RefCount++;
+        ((Figura *)I->NoInfo)->RefCount++; // Pois foi inserido novamente na árvore
         removeNoRadialT(All, getNodeRadialT(*All, I->Nox, I->Noy, EPSILON_PADRAO));
     }
     else
@@ -884,11 +884,11 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Colheita, double Xin
         killIterator(E);
         if (!IsEntity)
         {
-            F->RefCount++; // Para não ser eliminado pelo removeNoRadialT()
             Hortalica *H = malloc(sizeof(Hortalica));
             H->ID = F->ID;
             H->Fig = F;
             insertLst(Colheita, H);
+            F->RefCount++; // Pois foi inserido na lista Colheita
         }
     }
     killLst(Nos);
@@ -1256,7 +1256,7 @@ void ReplaceWithRedX(RadialTree *All, Lista Entidades, Lista Afetados, void *Hor
     {
         removeLst(Afetados, Del);
         Figura *F = H->Fig;
-        F->RefCount--;
+        F->RefCount--; // Pois foi removido da lista Afetados
     }
     removeNoRadialT(All, getNodeRadialT(*All, P->Nox, P->Noy, EPSILON_PADRAO));
     CriaXVermelho(*All, Entidades, P->Nox, P->Noy);
