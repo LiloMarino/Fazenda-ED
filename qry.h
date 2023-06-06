@@ -40,8 +40,10 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput);
  * @param log Ponteiro para o arquivo de registro
  * @param Entidades Lista que contém todas as informações de todas as colheitadeiras
  * @param All Endereço para a árvore radial com todos os elementos
+ * @param Colheita Lista contendo todos as hortaliças colhidas
+ * @param Afetados Lista contendo todos as hortaliças afetadas
  */
-void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, RadialTree *All, Lista Colheita);
+void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, RadialTree *All, Lista Colheita, Lista Afetados);
 
 /**
  * @brief Move uma figura identificada por ID
@@ -103,13 +105,14 @@ Info ProcuraID(int ID, RadialTree All);
  * @brief Colhe os elementos na área e remove os nós da árvore sem remover a informação do nó e insere na lista colheita apenas as hortaliças
  * @param All Endereço para a árvore radial com todos os elementos
  * @param Entidades Lista contendo todas as entidades
- * @param Colheita Lista contendo todos os objetos colhidos
+ * @param Afetados Lista contendo todos as hortaliças afetados
+ * @param Colheita Lista contendo todos as hortaliças colhidos
  * @param Xinicio Coordenada de início da área de colheita
  * @param Yinicio Coordenada de início da área de colheita
  * @param Xfim Coordenada de fim da área de colheita
  * @param Yfim Coordenada de fim da área de colheita
  */
-void ColheElementos(RadialTree *All, Lista Entidades, Lista Colheita, double Xinicio, double Yinicio, double Xfim, double Yfim);
+void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, double Xinicio, double Yinicio, double Xfim, double Yfim);
 
 /**
  * @brief Contabiliza os elementos colhidos com base na Lista Colheita e os reporta no arquivo log

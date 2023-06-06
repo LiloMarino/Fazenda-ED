@@ -485,7 +485,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
             char Direcao;
             sscanf(linha, "%s %d %d %c", comando, &ID, &Passos, &Direcao);
             fprintf(log, "\n[*] %s %d %d %c\n", comando, ID, Passos, Direcao);
-            Harvest(ID, Passos, Direcao, log, Entidades, All, Colheita);
+            Harvest(ID, Passos, Direcao, log, Entidades, All, Colheita, Afetados);
         }
         else if (strcmp(comando, "mv") == 0)
         {
@@ -552,7 +552,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
     killLst(Afetados);
 }
 
-void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, RadialTree *All, Lista Colheita)
+void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, RadialTree *All, Lista Colheita, Lista Afetados)
 {
     /* Procura a Colheitadeira ID */
     Entidade *C;
@@ -623,7 +623,7 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     fprintf(log, "Y: %lf\n\n", R->y + dy);
 
     /* Colhe os elementos na área e remove os nós da árvore sem remover a informação do nó inserindo na lista colheita apenas as hortaliças*/
-    ColheElementos(All, Entidades, Colheita, Xinicio, Yinicio, Xfim, Yfim);
+    ColheElementos(All, Entidades, Afetados, Colheita, Xinicio, Yinicio, Xfim, Yfim);
 
     /* Contabiliza a colheita e reporta */
     fprintf(log, "Contabilidade da Colheita\n");
@@ -707,13 +707,13 @@ void Move(int ID, double dx, double dy, FILE *log, RadialTree *All)
 void Praga(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log)
 {
     Lista Atingido = createLst(-1);
-    ProcAfetado *A = malloc(sizeof(ProcAfetado));
-    A->Atingido = Atingido;
-    A->x = x;
-    A->y = y;
-    A->larg = largura;
-    A->alt = altura;
-    visitaLarguraRadialT(*All, ObjetoAtingido, A);
+    ProcAfetado *Area = malloc(sizeof(ProcAfetado));
+    Area->Atingido = Atingido;
+    Area->x = x;
+    Area->y = y;
+    Area->larg = largura;
+    Area->alt = altura;
+    visitaLarguraRadialT(*All, ObjetoAtingido, Area);
 
     /* Insere na lista Afetados apenas os itens que não são entidades e foram atingidos e caso já tenha sido atingida não as insere novamente */
     while (!isEmptyLst(Atingido))
@@ -753,7 +753,7 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
             H->ID = F->ID;
             H->Fig = F;
             H->Dano = 0;
-            double AreaAfetada = CalculaAreaAfetada(H->Fig, A);
+            double AreaAfetada = CalculaAreaAfetada(H->Fig, Area);
             H->Dano += AreaAfetada;
             DadosI(H->ID, *All, log);
             fprintf(log, "Dano: %.2lf %%\n", H->Dano * 100);
@@ -767,26 +767,25 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
                 insertLst(Afetados, H);
                 F->RefCount++; // Pois foi inserido na lista Afetados
             }
-            fprintf(log,"\n");
+            fprintf(log, "\n");
         }
         else if (!IsEntity)
         {
             /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
-            double AreaAfetada = CalculaAreaAfetada(Hor->Fig, A);
+            double AreaAfetada = CalculaAreaAfetada(Hor->Fig, Area);
             Hor->Dano += AreaAfetada;
             DadosI(Hor->ID, *All, log);
-            fprintf(log, "Dano: %.2lf %%\n", Hor->Dano  * 100);
+            fprintf(log, "Dano: %.2lf %%\n", Hor->Dano * 100);
             if (Hor->Dano > 0.75)
             {
                 fprintf(log, "Eliminada!\n");
                 ReplaceWithRedX(All, Entidades, Afetados, Hor);
             }
-            fprintf(log,"\n");
+            fprintf(log, "\n");
         }
-        
     }
     killLst(Atingido);
-    free(A);
+    free(Area);
 
     /*Marca a área afetada para o svg e marca o círculo vermelho em (x,y)*/
     CriaArea(*All, Entidades, x, y, x + largura, y + altura);
@@ -869,22 +868,24 @@ void fechaQry(ArqQry fqry)
     }
 }
 
-void ColheElementos(RadialTree *All, Lista Entidades, Lista Colheita, double Xinicio, double Yinicio, double Xfim, double Yfim)
+void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, double Xinicio, double Yinicio, double Xfim, double Yfim)
 {
     Lista Colh = createLst(-1);
-    ProcAfetado *A = malloc(sizeof(ProcAfetado));
-    A->Atingido = Colh;
-    A->x = Xinicio;
-    A->y = Yinicio;
-    A->larg = Xfim - Xinicio;
-    A->alt = Yfim - Yinicio;
-    visitaLarguraRadialT(*All, ObjetoAtingido, A);
+    ProcAfetado *Area = malloc(sizeof(ProcAfetado));
+    Area->Atingido = Colh;
+    Area->x = Xinicio;
+    Area->y = Yinicio;
+    Area->larg = Xfim - Xinicio;
+    Area->alt = Yfim - Yinicio;
+    visitaLarguraRadialT(*All, ObjetoAtingido, Area);
 
     /* Insere na lista Colheita apenas os itens que não são entidades e estão na área */
     while (!isEmptyLst(Colh))
     {
         bool IsEntity = false;
+        bool IsAtingido = false;
         Figura *F = popLst(Colh);
+        /* Verifica se não é uma entidade conhecida */
         Iterador E = createIterador(Entidades, false);
         while (!isIteratorEmpty(Entidades, E))
         {
@@ -896,16 +897,51 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Colheita, double Xin
             }
         }
         killIterator(E);
-        if (!IsEntity)
+        /* Verifica se foi atingida */
+        Iterador A = createIterador(Afetados, false);
+        Hortalica *Hor;
+        while (!isIteratorEmpty(Afetados, A))
         {
+            Hor = getIteratorNext(Afetados, A);
+            if (F->ID == Hor->ID)
+            {
+                IsAtingido = true;
+                break;
+            }
+        }
+        killIterator(A);
+        if (!IsEntity && !IsAtingido)
+        {
+            /*A hortaliça nunca foi atingida e não é uma entidade*/
             Hortalica *H = malloc(sizeof(Hortalica));
             H->ID = F->ID;
             H->Fig = F;
+            H->Dano = 0;
             insertLst(Colheita, H);
             F->RefCount++; // Pois foi inserido na lista Colheita
         }
+        else if (!IsEntity)
+        {
+            /*A hortaliça já foi atingida e não é uma entidade*/
+            ProcID *P = ProcuraID(Hor->ID, *All);
+            Posic Del = getFirstLst(Afetados);
+            while (Del != NULL)
+            {
+                Del = getNextLst(Afetados, Del);
+                if (Del != NULL && ((Hortalica *)getLst(Del))->ID == Hor->ID)
+                {
+                    removeLst(Afetados, Del);
+                    Figura *F = Hor->Fig;
+                    F->RefCount--; // Pois foi removido da lista Afetados
+                    insertLst(Colheita, Hor);
+                    F->RefCount++; // Pois foi inserido na lista Colheita
+                    break;
+                }
+            }
+        }
     }
     killLst(Colh);
+    free(Area);
 
     /* Remove os itens que foram colhidos */
     Iterador Del = createIterador(Colheita, false);
@@ -917,7 +953,6 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Colheita, double Xin
         free(I);
     }
     killIterator(Del);
-    free(A);
 }
 
 void ContabilizaColheita(Lista Colheita, FILE *log)
@@ -928,6 +963,8 @@ void ContabilizaColheita(Lista Colheita, FILE *log)
     {
         Hortalica *H = getIteratorNext(Colheita, Col);
         Figura *F = H->Fig;
+        double Modificador = 1;
+        Modificador -= H->Dano;
         char Forma = F->Tipo;
         if (Forma == 'T')
         {
@@ -935,36 +972,36 @@ void ContabilizaColheita(Lista Colheita, FILE *log)
             Texto *t = F->Figura;
             if (strncmp(t->txto, "@", 1) == 0)
             {
-                CONT.cebola += 200; // 200g
+                CONT.cebola += 200 * Modificador; // 200g
             }
             else if (strncmp(t->txto, "*", 1) == 0)
             {
-                CONT.morango += 20; // 20g
+                CONT.morango += 20 * Modificador; // 20g
             }
             else if (strncmp(t->txto, "%", 1) == 0)
             {
-                CONT.cenoura += 70; // 70g
+                CONT.cenoura += 70 * Modificador; // 70g
             }
             else
             {
-                CONT.mato_texto += 15; // 15g
+                CONT.mato_texto += 15 * Modificador; // 15g
             }
         }
         else if (Forma == 'C')
         {
             /*Abóbora*/
-            CONT.abobora += 2000; // 2kg
+            CONT.abobora += 2000 * Modificador; // 2kg
         }
         else if (Forma == 'R')
         {
             /*Repolho*/
-            CONT.repolho += 1000; // 1kg
+            CONT.repolho += 1000 * Modificador; // 1kg
         }
         else if (Forma == 'L')
         {
             /*Mato*/
             Linha *l = F->Figura;
-            CONT.mato_linha += Distancia2Pontos(l->x1, l->y1, l->x2, l->y2) * 10; // 10g * Comprimento
+            CONT.mato_linha += Distancia2Pontos(l->x1, l->y1, l->x2, l->y2) * 10 * Modificador; // 10g * Comprimento
         }
     }
     killIterator(Col);
@@ -1294,4 +1331,10 @@ void MostraID(ArqSvg fsvg, Item info)
     {
         free(deco);
     }
+}
+
+void ReportaHortalica(RadialTree All, FILE *log, void *Hor)
+{
+    Hortalica *H = Hor;
+    DadosI()
 }
