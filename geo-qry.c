@@ -500,7 +500,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
             double x, y, larg, alt, raio;
             sscanf(linha, "%s %lf %lf %lf %lf %lf", comando, &x, &y, &larg, &alt, &raio);
             fprintf(log, "\n[*] %s %lf %lf %lf %lf %lf\n", comando, x, y, larg, alt, raio);
-            Praga(x, y, larg, alt, raio, Afetados, Entidades, All);
+            Praga(x, y, larg, alt, raio, Afetados, Entidades, All, log);
         }
         else if (strcmp(comando, "cr") == 0)
         {
@@ -704,7 +704,7 @@ void Move(int ID, double dx, double dy, FILE *log, RadialTree *All)
     free(I);
 }
 
-void Praga(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All)
+void Praga(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log)
 {
     Lista Atingido = createLst(-1);
     ProcAfetado *A = malloc(sizeof(ProcAfetado));
@@ -755,26 +755,35 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
             H->Dano = 0;
             double AreaAfetada = CalculaAreaAfetada(H->Fig, A);
             H->Dano += AreaAfetada;
+            DadosI(H->ID, *All, log);
+            fprintf(log, "Dano: %.2lf %%\n", H->Dano * 100);
             if (H->Dano > 0.75)
             {
-                ReplaceWithRedX(All,Entidades,Afetados,H);
+                fprintf(log, "Eliminada!\n");
+                ReplaceWithRedX(All, Entidades, Afetados, H);
             }
             else
             {
                 insertLst(Afetados, H);
                 F->RefCount++; // Pois foi inserido na lista Afetados
             }
+            fprintf(log,"\n");
         }
         else if (!IsEntity)
         {
             /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
             double AreaAfetada = CalculaAreaAfetada(Hor->Fig, A);
             Hor->Dano += AreaAfetada;
+            DadosI(Hor->ID, *All, log);
+            fprintf(log, "Dano: %.2lf %%\n", Hor->Dano  * 100);
             if (Hor->Dano > 0.75)
             {
-                ReplaceWithRedX(All,Entidades,Afetados,Hor);
+                fprintf(log, "Eliminada!\n");
+                ReplaceWithRedX(All, Entidades, Afetados, Hor);
             }
+            fprintf(log,"\n");
         }
+        
     }
     killLst(Atingido);
     free(A);
@@ -1218,7 +1227,7 @@ void CriaXVermelho(RadialTree All, Lista Entidades, double x, double y)
     strcpy(t->a, "m");
     t->rotacao[0] = '\0';
     t->corb[0] = '\0';
-    strcpy(t->corp,"red");
+    strcpy(t->corp, "red");
     t->fFamily[0] = '\0';
     strcpy(t->fWeight, "b+");
     strcpy(t->fSize, "25");
