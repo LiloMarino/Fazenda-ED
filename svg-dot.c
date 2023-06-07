@@ -90,15 +90,13 @@ void TerminaDot(ArqDot fdot)
     }
 }
 
-void CriaPngDot(char nome[])
+void CriaPngDot(const char nome[])
 {
-    const char ext[] = "dot";
-    char *nome_sem_ext = RemoveExtensao(nome);
-    char nomearq[strlen(nome_sem_ext) + strlen(ext) + 2];
+    char ext[] = "dot";
+    char nomearq[strlen(nome) + strlen(ext) + 2];
 
     int n = 1;
-    sprintf(nomearq, "%s.%s", nome_sem_ext, ext);
-    free(nome_sem_ext);
+    sprintf(nomearq, "%s.%s", nome, ext);
 
     // Verifica se o arquivo já existe
     FILE *vrfy = fopen(nomearq, "r");
@@ -106,7 +104,7 @@ void CriaPngDot(char nome[])
     {
         fclose(vrfy);
         char command[2*strlen(nomearq) + 30];
-        sprintf(command, "dot -Tpng %s -o %s.png", nomearq, nomearq);
+        sprintf(command, "dot -Tpng %s -o %s.png", nomearq, nome);
         system(command);
         n++;
         sprintf(nomearq, "%s-%d.%s", nome, n, ext);

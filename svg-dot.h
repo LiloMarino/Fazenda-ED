@@ -48,6 +48,6 @@ void LigaNo(ArqDot fdot, RadialTree All, Node pai, Node filho);
  */
 void MarcaNoRemovido(ArqDot fdot, RadialTree All, Node removido);
 
-void CriaPngDot(char nome[]);
+void CriaPngDot(const char nome[]);
 
 #endif
