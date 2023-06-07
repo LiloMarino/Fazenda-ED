@@ -2,7 +2,7 @@
 PROJETO = ted
 
 # Arquivos fonte
-FONTES = main.c radialtree.c geo-qry.c svg-dot.c Bibliotecas/utilities.c Bibliotecas/listadupla.c Bibliotecas/arqsvg.c Bibliotecas/learquivo.c Bibliotecas/geradores.c
+FONTES = main.c radialtree.c geo-qry.c svg-dot.c Bibliotecas/path.c Bibliotecas/utilities.c Bibliotecas/listadupla.c Bibliotecas/arqsvg.c Bibliotecas/learquivo.c Bibliotecas/geradores.c
 
 # Pasta de saída
 OUTPUT = output/
@@ -40,6 +40,12 @@ clean:
 
 # Regra para executar o programa com o Valgrind
 run:
-	cd $(OUTPUT) && valgrind --leak-check=full --show-leak-kinds=all ./$(PROJETO)
+	cd $(OUTPUT) && valgrind --leak-check=full --show-leak-kinds=all ./$(PROJETO) \
+		-e "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED" \
+		-f "arq.geo" \
+		-o "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/logs" \
+		-q "arqcons.qry" \
+		-ns "8"
+
 
 .PHONY: all run clean

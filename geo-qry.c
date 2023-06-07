@@ -455,8 +455,6 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
 {
     char comando[3];
     char *linha = NULL;
-    char nome[25]; // Remover depois
-    int num = 0;   // Remover depois
     Lista Entidades = createLst(-1);
     Lista Colheita = createLst(-1);
     Lista Afetados = createLst(-1);
@@ -527,9 +525,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
         {
             printf("Comando desconhecido: %s\n", comando);
         }
-        sprintf(nome, "%d-caso-de-teste.qry", num); // Remover depois
-        num++;                                      // Remover depois
-        OperaSVG(nome, *All);                       // Remover depois
+        OperaSVG(PathOutput, *All);                       // Remover depois
     }
     if (linha != NULL)
     {

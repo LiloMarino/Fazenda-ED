@@ -3,6 +3,7 @@
 #include "radialtree.h"
 #include "geo.h"
 #include "Bibliotecas/arqsvg.h"
+#include "Bibliotecas/path.h"
 #include "def.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,11 +11,7 @@
 
 void OperaSVG(char nome[], RadialTree All)
 {
-    /*Nomeia e abre o arquivo SVG*/
-    char nomeSVG[strlen(nome) + 10];
-    strcpy(nomeSVG, nome);
-    strcat(nomeSVG, ".svg");
-    ArqSvg B = abreEscritaSvg(nomeSVG);
+    ArqSvg B = abreEscritaSvg(nome);
 
     /*Cria as listas e separa as figuras por tipo e as insere nas listas*/
     Lista Ret = createLst(-1);
@@ -95,19 +92,20 @@ void TerminaDot(ArqDot fdot)
 
 void CriaPngDot(char nome[])
 {
-    char ext[] = "dot";
-    // Aloca memória para o nome do arquivo
-    char nomearq[strlen(nome) + 10 + strlen(ext)];
+    const char ext[] = "dot";
+    char *nome_sem_ext = RemoveExtensao(nome);
+    char nomearq[strlen(nome_sem_ext) + strlen(ext) + 2];
 
     int n = 1;
-    sprintf(nomearq, "%s.%s", nome, ext);
+    sprintf(nomearq, "%s.%s", nome_sem_ext, ext);
+    free(nome_sem_ext);
 
     // Verifica se o arquivo já existe
     FILE *vrfy = fopen(nomearq, "r");
     while (vrfy != NULL)
     {
         fclose(vrfy);
-        char command[strlen(nomearq) + 30];
+        char command[2*strlen(nomearq) + 30];
         sprintf(command, "dot -Tpng %s -o %s.png", nomearq, nomearq);
         system(command);
         n++;

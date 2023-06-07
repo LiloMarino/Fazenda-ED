@@ -19,7 +19,9 @@
         "memory": "c",
         "functional": "c",
         "tuple": "c",
-        "utility": "c"
+        "utility": "c",
+        "def.h": "c",
+        "path.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
@@ -30,7 +32,18 @@
         {
             "cwd": "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/output",
             "binaryPath": "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/output/ted",
-            "binaryArgs": []
+            "binaryArgs": [
+                "-e",
+                "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED",
+                "-f",
+                "arq.geo",
+                "-o",
+                "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/logs",
+                "-q",
+                "arqcons.qry",
+                "-ns",
+                "8",
+            ]
         }
     ]
 }
