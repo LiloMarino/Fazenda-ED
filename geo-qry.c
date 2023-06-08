@@ -455,6 +455,8 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
 {
     char comando[3];
     char *linha = NULL;
+    char nome[25]; // Remover depois
+    int num = 0;   // Remover depois
     Lista Entidades = createLst(-1);
     Lista Colheita = createLst(-1);
     Lista Afetados = createLst(-1);
@@ -525,7 +527,9 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
         {
             printf("Comando desconhecido: %s\n", comando);
         }
-        OperaSVG(PathOutput, *All);                       // Remover depois
+        sprintf(nome, "%d-caso-de-teste.qry", num); // Remover depois
+        num++;                                      // Remover depois
+        OperaSVG(nome, *All);                       // Remover depois
     }
     if (linha != NULL)
     {
@@ -1206,7 +1210,36 @@ double CalculaAreaIntersecaoCirculoRetangulo(void *Circ, void *Afeta)
 {
     Circulo *c = Circ;
     ProcAfetado *Af = Afeta;
-    return 0.0;
+    // Verificar se não há interseção entre o círculo e o retângulo
+    if (c->x - c->raio > (Af->x + Af->larg) ||
+        c->x + c->raio < Af->x ||
+        c->y - c->raio > (Af->y + Af->alt) ||
+        c->y + c->raio < Af->y)
+    {
+        return 0;
+    }
+
+    // Reduzir o retângulo para limitar à interseção
+    double intersectionLeft = fmax(Af->x, c->x - c->raio);
+    double intersectionTop = fmax(Af->y, c->y - c->raio);
+    double intersectionRight = fmin((Af->x + Af->larg), c->x + c->raio);
+    double intersectionBottom = fmin((Af->y + Af->alt), c->y + c->raio);
+
+    // Calcular a área de interseção
+    double intersectionWidth = intersectionRight - intersectionLeft;
+    double intersectionHeight = intersectionBottom - intersectionTop;
+    double intersectionArea = intersectionWidth * intersectionHeight;
+
+    // Calcular a área do setor circular que está dentro da interseção
+    double circleX = c->x - intersectionLeft;
+    double circleY = c->y - intersectionTop;
+    double circleAngle = atan2(circleY, circleX);
+    double circleSectorArea = 0.5 * circleAngle * c->raio * c->raio;
+
+    // Calcular a área de interseção final
+    double finalIntersectionArea = intersectionArea - circleSectorArea;
+
+    return finalIntersectionArea;
 }
 
 void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[])
