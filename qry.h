@@ -184,4 +184,8 @@ void CriaXVermelho(RadialTree All, Lista Entidades, double x, double y);
 
 void ReportaHortalica(RadialTree All, FILE *log, void *Hor);
 
+void ObjetoTotalAtingido(Info i, double x, double y, void *aux);
+
+bool VerificaTotalAtingido(Info i, void *aux);
+
 #endif

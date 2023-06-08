@@ -612,7 +612,12 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
         Xfim = R->x + R->larg;
         Yfim = R->y + R->alt;
     }
-
+    else
+    {
+        printf("Direção Inválida!\n");
+        return;
+    }
+    
     /* Reporta os atributos de ID e suas posições */
     DadosI(ID, *All, log);
     fprintf(log, "\nPosicao Original:\n");
@@ -875,7 +880,7 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
     Area->y = Yinicio;
     Area->larg = Xfim - Xinicio;
     Area->alt = Yfim - Yinicio;
-    visitaLarguraRadialT(*All, ObjetoAtingido, Area);
+    visitaLarguraRadialT(*All, ObjetoTotalAtingido, Area);
 
     /* Insere na lista Colheita apenas os itens que não são entidades e estão na área */
     while (!isEmptyLst(Colh))
@@ -946,7 +951,7 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
     killLst(Colh);
     free(Area);
 
-    /* Remove os itens que foram colhidos */
+    /* Remove os itens que foram colhidos da árvore */
     Iterador Del = createIterador(Colheita, false);
     while (!isIteratorEmpty(Colheita, Del))
     {
@@ -1142,6 +1147,52 @@ bool VerificaAtingido(Info i, void *aux)
     else
     {
         printf("Erro ao verificar forma da figura atingida!\n");
+        return false;
+    }
+}
+
+void ObjetoTotalAtingido(Info i, double x, double y, void *aux)
+{
+    ProcAfetado *A = aux;
+    Lista Atingido = A->Atingido;
+    if (VerificaTotalAtingido(i, aux))
+    {
+        insertLst(Atingido, i);
+    }
+}
+
+bool VerificaTotalAtingido(Info i, void *aux)
+{
+    ProcAfetado *Atinge = aux;
+    Figura *F = i;
+    if (F->Tipo == 'T')
+    {
+        Texto *t = F->Figura;
+        return VerificaPonto(Atinge->x, t->x, Atinge->x + Atinge->larg, Atinge->y + Atinge->alt, t->y, Atinge->y);
+    }
+    else if (F->Tipo == 'C')
+    {
+        Circulo *c = F->Figura;
+        return (c->x - c->raio >= Atinge->x && c->x + c->raio <= Atinge->x + Atinge->larg &&
+                c->y - c->raio >= Atinge->y && c->y + c->raio <= Atinge->y + Atinge->alt);
+    }
+    else if (F->Tipo == 'R')
+    {
+        Retangulo *r = F->Figura;
+        return (r->x >= Atinge->x && r->x + r->larg <= Atinge->x + Atinge->larg &&
+                r->y >= Atinge->y && r->y + r->alt <= Atinge->y + Atinge->alt);
+    }
+    else if (F->Tipo == 'L')
+    {
+        Linha *l = F->Figura;
+        return (l->x1 >= Atinge->x && l->x1 <= Atinge->x + Atinge->larg &&
+                l->x2 >= Atinge->x && l->x2 <= Atinge->x + Atinge->larg &&
+                l->y1 >= Atinge->y && l->y1 <= Atinge->y + Atinge->alt &&
+                l->y2 >= Atinge->y && l->y2 <= Atinge->y + Atinge->alt);
+    }
+    else
+    {
+        printf("Erro ao verificar forma do objeto!\n");
         return false;
     }
 }
@@ -1357,6 +1408,11 @@ void MostraID(ArqSvg fsvg, Item info)
         Linha *l = F->Figura;
         x = l->x1;
         y = l->y1;
+    }
+    else
+    {
+        free(deco);
+        return;
     }
     escreveTextoSvg(fsvg, x, y, txto, deco);
     if (deco != NULL)
