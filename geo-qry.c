@@ -1374,7 +1374,7 @@ void Paste(int j, double dx, double dy, int proporcao, RadialTree All, Lista Nos
 {
     Lista TempEnt = createLst(-1);
     /* Filtra a Lista dos Nós copiando apenas os nós que não são entidades*/
-    fprintf(log,"Figuras:\n\n");
+    fprintf(log, "Figuras:\n\n");
     while (!isEmptyLst(Nos))
     {
         bool IsEntity = false;
@@ -1399,7 +1399,7 @@ void Paste(int j, double dx, double dy, int proporcao, RadialTree All, Lista Nos
     killLst(Nos);
 
     /*Coloca na árvore as figuras copiadas*/
-    fprintf(log,"Figuras Clonadas:\n\n");
+    fprintf(log, "Figuras Clonadas:\n\n");
     while (!isEmptyLst(TempEnt))
     {
         Entidade *Ent = popLst(TempEnt);
@@ -1440,6 +1440,13 @@ void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt)
             F2->Figura = t2;
             Ent->Nox = t2->x;
             Ent->Noy = t2->y;
+            if (i > 0)
+            {
+                Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                t2->x = Ent->Nox;
+                t2->y = Ent->Noy;
+            }
         }
         else if (F->Tipo == 'C')
         {
@@ -1454,6 +1461,13 @@ void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt)
             F2->Figura = c2;
             Ent->Nox = c2->x;
             Ent->Noy = c2->y;
+            if (i > 0)
+            {
+                Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                c2->x = Ent->Nox;
+                c2->y = Ent->Noy;
+            }
         }
         else if (F->Tipo == 'R')
         {
@@ -1470,6 +1484,13 @@ void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt)
             F2->Figura = r2;
             Ent->Nox = r2->x;
             Ent->Noy = r2->y;
+            if (i > 0)
+            {
+                Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                r2->x = Ent->Nox;
+                r2->y = Ent->Noy;
+            }
         }
         else if (F->Tipo == 'L')
         {
@@ -1484,6 +1505,13 @@ void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt)
             F2->Figura = l2;
             Ent->Nox = l2->x1;
             Ent->Noy = l2->y1;
+            if (i > 0)
+            {
+                Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                l2->x1 = Ent->Nox;
+                l2->y1 = Ent->Noy;
+            }
         }
         else
         {
@@ -1496,11 +1524,6 @@ void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt)
         Ent->Fig = F2;
         Ent->ID = F2->ID;
         Ent->IsColheita = false;
-        if (i > 0)
-        {
-            Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
-            Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
-        }
         insertLst(TempEnt, Ent);
     }
 }
