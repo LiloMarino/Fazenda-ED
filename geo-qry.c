@@ -505,6 +505,10 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
         }
         else if (strcmp(comando, "cr") == 0)
         {
+            double x, y, larg, alt, raio;
+            sscanf(linha, "%s %lf %lf %lf %lf %lf", comando, &x, &y, &larg, &alt, &raio);
+            fprintf(log, "\n[*] %s %lf %lf %lf %lf %lf\n", comando, x, y, larg, alt, raio);
+            Cura(x, y, larg, alt, raio, Afetados, Entidades, All, log);
         }
         else if (strcmp(comando, "ad") == 0)
         {
@@ -799,6 +803,72 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
     /*Marca a área afetada para o svg e marca o círculo vermelho em (x,y)*/
     CriaArea(*All, Entidades, x, y, x + largura, y + altura);
     CriaMarcacaoCircular(*All, Entidades, x, y, raio, "red");
+}
+
+void Cura(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log)
+{
+    Lista Atingido = createLst(-1);
+    ProcAfetado *Area = malloc(sizeof(ProcAfetado));
+    Area->Atingido = Atingido;
+    Area->x = x;
+    Area->y = y;
+    Area->larg = largura;
+    Area->alt = altura;
+    visitaLarguraRadialT(*All, ObjetoAtingido, Area);
+
+    /* Insere na lista Afetados apenas os itens que não são entidades e foram atingidos e caso já tenha sido atingida não as insere novamente */
+    while (!isEmptyLst(Atingido))
+    {
+        bool IsEntity = false;
+        bool IsAtingido = false;
+        Figura *F = popLst(Atingido);
+        /* Verifica se não é uma entidade conhecida */
+        Iterador E = createIterador(Entidades, false);
+        while (!isIteratorEmpty(Entidades, E))
+        {
+            Entidade *Ent = getIteratorNext(Entidades, E);
+            if (F->ID == Ent->ID)
+            {
+                IsEntity = true;
+                break;
+            }
+        }
+        killIterator(E);
+        /* Verifica se já não foi inserida */
+        Iterador HI = createIterador(Afetados, false);
+        Hortalica *Hor;
+        while (!isIteratorEmpty(Afetados, HI))
+        {
+            Hor = getIteratorNext(Afetados, HI);
+            if (F->ID == Hor->ID)
+            {
+                IsAtingido = true;
+                break;
+            }
+        }
+        killIterator(HI);
+        if (!IsEntity && IsAtingido)
+        {
+            /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
+            ReportaHortalica(*All, log, Hor);
+            if (Hor->Dano > 0)
+            {
+                double AreaAfetada = CalculaAreaAfetada(Hor->Fig, Area);
+                Hor->Dano -= AreaAfetada;
+                if (Hor->Dano < 0)
+                {
+                    Hor->Dano = 0;
+                }
+            }
+            fprintf(log, "\n");
+        }
+    }
+    killLst(Atingido);
+    free(Area);
+
+    /*Marca a área afetada para o svg e marca o círculo verde em (x,y)*/
+    CriaArea(*All, Entidades, x, y, x + largura, y + altura);
+    CriaMarcacaoCircular(*All, Entidades, x, y, raio, "yellow");
 }
 
 void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log)
