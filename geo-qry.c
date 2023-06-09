@@ -948,10 +948,20 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
 
 void Semeia(double x, double y, double largura, double altura, double fator, double dx, double dy, int ID, Lista Entidades, RadialTree *All, FILE *log)
 {
-    
-    /*Marca a área afetada para o svg e marca o círculo vermelho em (x,y)*/
+    /* "Copia" os nós dentro da área */
+    Lista Nos = createLst(-1);
+    getNodesDentroRegiaoRadialT(*All, x, y, x + largura, y + altura, Nos);
+
+    /* "Cola" os nós na área movida por dx e dy */
+    Paste();
+
+    /*Marca a área copiada para o svg e marca o círculo vermelho em (x,y)*/
     CriaArea(*All, Entidades, x, y, x + largura, y + altura);
     CriaMarcacaoCircular(*All, Entidades, x, y, RAIO_BASE, "#ffffff00", "red");
+
+    /*Marca a área colada para o svg e marca o círculo vermelho em (x,y)*/
+    CriaArea(*All, Entidades, dx + x, dy + y, dx + x + largura, dy + y + altura);
+    CriaMarcacaoCircular(*All, Entidades, dx + x, dy + y, RAIO_BASE, "#ffffff00", "red");
 }
 
 void DadosI(int ID, RadialTree All, FILE *log)
@@ -1355,6 +1365,72 @@ bool VerificaTotalAtingido(Info i, void *aux)
     {
         printf("Erro ao verificar forma do objeto!\n");
         return false;
+    }
+}
+
+void Paste(int j, double dx, double dy, double proporcao, RadialTree All, Lista Nos, Lista Entidades)
+{
+    Lista Temp = createLst(-1);
+    /* Filtra a Lista dos Nós copiando apenas os nós que não são entidades*/
+    while (!isEmptyLst(Nos))
+    {
+        bool IsEntity = false;
+        Node N = popLst(Nos);
+        Figura *F = getInfoRadialT(All, N);
+        Iterador E = createIterador(Entidades, false);
+        while (!isIteratorEmpty(Entidades, E))
+        {
+            Entidade *Ent = getIteratorNext(Entidades, E);
+            if (F->ID == Ent->ID)
+            {
+                IsEntity = true;
+            }
+        }
+        killIterator(E);
+        if (!IsEntity)
+        {
+            Copy(F, dx, dy, proporcao, Temp);
+        }
+    }
+    killLst(Nos);
+
+    /*Coloca na árvore as figuras copiadas*/
+}
+
+void Copy(void *Fig, int j, double dx, double dy, double proporcao, Lista Entidades, Lista Temp)
+{
+    Figura *F = (Figura *)Fig;
+    Figura *F2 = malloc(sizeof(Figura));
+    F2->ID = GetIDUnico(Entidades, j);
+    F2->RefCount = 0; // Pois não foi inserido em nada ainda
+    F2->Tipo = F->Tipo;
+    if (F->Tipo == 'T')
+    {
+        Texto *t = F->Figura;
+        Texto *t2 = malloc(sizeof(Texto));
+        strcpy(t2->a,t->a);
+    }
+    else if (F->Tipo == 'C')
+    {
+        Circulo *c = F->Figura;
+        Circulo *c2 = malloc(sizeof(Circulo));
+    }
+    else if (F->Tipo == 'R')
+    {
+        Retangulo *r = F->Figura;
+        Retangulo *r2 = malloc(sizeof(Retangulo));
+    }
+    else if (F->Tipo == 'L')
+    {
+        Linha *l = F->Figura;
+        Linha *l2 = malloc(sizeof(Linha));
+
+    }
+    else
+    {
+        printf("Erro ao verificar forma da figura ao copiar!\n");
+        free(F2);
+        return;
     }
 }
 

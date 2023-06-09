@@ -188,4 +188,8 @@ void ObjetoTotalAtingido(Info i, double x, double y, void *aux);
 
 bool VerificaTotalAtingido(Info i, void *aux);
 
+void Paste(int j, double dx, double dy, RadialTree All, Lista Nos, Lista Entidades);
+
+void Copy();
+
 #endif

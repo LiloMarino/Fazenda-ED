@@ -21,7 +21,8 @@
         "tuple": "c",
         "utility": "c",
         "def.h": "c",
-        "path.h": "c"
+        "path.h": "c",
+        "random": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
