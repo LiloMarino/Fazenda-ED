@@ -519,6 +519,10 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
         }
         else if (strcmp(comando, "st") == 0)
         {
+            double x, y, larg, alt, fator, dx, dy, j;
+            sscanf(linha, "%s %lf %lf %lf %lf %lf", comando, &x, &y, &larg, &alt, &fator, &dx, &dy, &j);
+            fprintf(log, "\n[*] %s %lf %lf %lf %lf %lf\n", comando, x, y, larg, alt, fator, dx, dy, j);
+            Semeia(x, y, larg, alt, fator, dx, dy, j, Entidades, All, log);
         }
         else if (strcmp(comando, "d?") == 0)
         {
@@ -866,7 +870,7 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
     killLst(Atingido);
     free(Area);
 
-    /*Marca a área afetada para o svg e marca o círculo verde em (x,y)*/
+    /*Marca a área afetada para o svg e marca o círculo amarelo em (x,y)*/
     CriaArea(*All, Entidades, x, y, x + largura, y + altura);
     CriaMarcacaoCircular(*All, Entidades, x, y, raio, "yellow", "#ffffff00");
 }
@@ -940,6 +944,14 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
     /*Marca a área afetada para o svg e marca o círculo verde em (x,y)*/
     CriaArea(*All, Entidades, x, y, x + largura, y + altura);
     CriaMarcacaoCircular(*All, Entidades, x, y, raio, "green", "#ffffff00");
+}
+
+void Semeia(double x, double y, double largura, double altura, double fator, double dx, double dy, int ID, Lista Entidades, RadialTree *All, FILE *log)
+{
+    
+    /*Marca a área afetada para o svg e marca o círculo vermelho em (x,y)*/
+    CriaArea(*All, Entidades, x, y, x + largura, y + altura);
+    CriaMarcacaoCircular(*All, Entidades, x, y, RAIO_BASE, "#ffffff00", "red");
 }
 
 void DadosI(int ID, RadialTree All, FILE *log)
