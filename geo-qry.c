@@ -524,7 +524,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
             double x, y, larg, alt, dx, dy;
             sscanf(linha, "%s %lf %lf %lf %lf %d %lf %lf %d", comando, &x, &y, &larg, &alt, &fator, &dx, &dy, &j);
             fprintf(log, "\n[*] %s %lf %lf %lf %lf %d %lf %lf %d\n", comando, x, y, larg, alt, fator, dx, dy, j);
-            Semeia(x, y, larg, alt, fator, dx, dy, j, Entidades, All, log);
+            Semeia(x, y, larg, alt, fator, dx, dy, j, Entidades, *All, log);
         }
         else if (strcmp(comando, "d?") == 0)
         {
@@ -948,22 +948,22 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
     CriaMarcacaoCircular(*All, Entidades, x, y, raio, "green", "#ffffff00");
 }
 
-void Semeia(double x, double y, double largura, double altura, int fator, double dx, double dy, int ID, Lista Entidades, RadialTree *All, FILE *log)
+void Semeia(double x, double y, double largura, double altura, int fator, double dx, double dy, int ID, Lista Entidades, RadialTree All, FILE *log)
 {
     /* "Copia" os nós dentro da área */
     Lista Nos = createLst(-1);
-    getNodesDentroRegiaoRadialT(*All, x, y, x + largura, y + altura, Nos);
+    getNodesDentroRegiaoRadialT(All, x, y, x + largura, y + altura, Nos);
 
     /* "Cola" os nós na área movida por dx e dy */
-    Paste(ID, dx, dy, fator, *All, Nos, Entidades, log);
+    Paste(ID, dx, dy, fator, All, Nos, Entidades, log);
 
     /*Marca a área copiada para o svg e marca o círculo vermelho em (x,y)*/
-    CriaArea(*All, Entidades, x, y, x + largura, y + altura);
-    CriaMarcacaoCircular(*All, Entidades, x, y, RAIO_BASE, "#ffffff00", "red");
+    CriaArea(All, Entidades, x, y, x + largura, y + altura);
+    CriaMarcacaoCircular(All, Entidades, x, y, RAIO_BASE, "#ffffff00", "red");
 
     /*Marca a área colada para o svg e marca o círculo vermelho em (x,y)*/
-    CriaArea(*All, Entidades, dx + x, dy + y, dx + x + largura, dy + y + altura);
-    CriaMarcacaoCircular(*All, Entidades, dx + x, dy + y, RAIO_BASE, "#ffffff00", "red");
+    CriaArea(All, Entidades, dx + x, dy + y, dx + x + largura, dy + y + altura);
+    CriaMarcacaoCircular(All, Entidades, dx + x, dy + y, RAIO_BASE, "#ffffff00", "red");
 }
 
 void DadosI(int ID, RadialTree All, FILE *log)
@@ -1404,7 +1404,7 @@ void Paste(int j, double dx, double dy, int proporcao, RadialTree All, Lista Nos
     {
         Entidade *Ent = popLst(TempEnt);
         Figura *F = Ent->Fig;
-        insertRadialT(All, Ent->Nox + dx, Ent->Noy + dy, Ent->Fig);
+        insertRadialT(All, Ent->Nox, Ent->Noy, Ent->Fig);
         DadosI(F->ID, All, log);
         F->RefCount++; // Pois foi inserida na árvore
         free(Ent);
@@ -1433,9 +1433,11 @@ void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt)
             strcpy(t2->fWeight, t->fWeight);
             strcpy(t2->fSize, t->fSize);
             strcpy(t2->rotacao, t->rotacao);
+            strcpy(t2->txto, t->txto);
             t2->x = t->x + dx;
             t2->y = t->y + dy;
             t2->ID = F2->ID;
+            F2->Figura = t2;
             Ent->Nox = t2->x;
             Ent->Noy = t2->y;
         }
@@ -1449,6 +1451,7 @@ void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt)
             c2->ID = F2->ID;
             c2->x = c->x + dx;
             c2->y = c->y + dy;
+            F2->Figura = c2;
             Ent->Nox = c2->x;
             Ent->Noy = c2->y;
         }
@@ -1464,6 +1467,7 @@ void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt)
             r2->ID = F2->ID;
             r2->x = r->x + dx;
             r2->y = r->y + dy;
+            F2->Figura = r2;
             Ent->Nox = r2->x;
             Ent->Noy = r2->y;
         }
@@ -1477,6 +1481,7 @@ void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt)
             l2->y1 = l->y1 + dy;
             l2->x2 = l->x2 + dx;
             l2->y2 = l->y2 + dy;
+            F2->Figura = l2;
             Ent->Nox = l2->x1;
             Ent->Noy = l2->y1;
         }

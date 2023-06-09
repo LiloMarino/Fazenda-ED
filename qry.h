@@ -61,7 +61,7 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
 
 void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log);
 
-void Semeia(double x, double y, double largura, double altura, int fator, double dx, double dy, int ID, Lista Entidades, RadialTree *All, FILE *log);
+void Semeia(double x, double y, double largura, double altura, int fator, double dx, double dy, int ID, Lista Entidades, RadialTree All, FILE *log);
 
 /**
  * @brief Reporta os dados da figura identificado por ID no arquivo de registro
