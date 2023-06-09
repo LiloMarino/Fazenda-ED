@@ -61,7 +61,7 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
 
 void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log);
 
-void Semeia(double x, double y, double largura, double altura, double fator, double dx, double dy, int ID);
+void Semeia(double x, double y, double largura, double altura, int fator, double dx, double dy, int ID, Lista Entidades, RadialTree All, FILE *log);
 
 /**
  * @brief Reporta os dados da figura identificado por ID no arquivo de registro
@@ -176,7 +176,7 @@ double CalculaAreaIntersecaoRetanguloRetangulo(void *Ret, void *Afeta);
 
 double CalculaAreaIntersecaoCirculoRetangulo(void *Circ, void *Afeta);
 
-void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[]);
+void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[], char corp[]);
 
 void ReplaceWithRedX(RadialTree *All, Lista Entidades, Lista Afetados, void *Hor);
 
@@ -187,5 +187,9 @@ void ReportaHortalica(RadialTree All, FILE *log, void *Hor);
 void ObjetoTotalAtingido(Info i, double x, double y, void *aux);
 
 bool VerificaTotalAtingido(Info i, void *aux);
+
+void Paste(int j, double dx, double dy, int proporcao, RadialTree All, Lista Nos, Lista Entidades, FILE *log);
+
+void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt);
 
 #endif
