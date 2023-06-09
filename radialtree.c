@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <float.h>
 
 struct StNodeTree
 {
@@ -151,7 +152,7 @@ Lista VerificaArvore(RadialTree t)
     Lista Removidos = createLst(-1);
     insertLst(Stack, raiz);
     bool first = true;
-    double xmin, xmax, ymin, ymax;
+    double xmin = DBL_MAX, xmax = -DBL_MAX, ymin = DBL_MAX, ymax = -DBL_MAX;
 
     while (!isEmptyLst(Stack))
     {
