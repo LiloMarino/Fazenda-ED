@@ -59,7 +59,7 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
 
 void Cura(double x, double y, double largura, double altura, double raio, Lista Afetados);
 
-void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados);
+void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log);
 
 void Semeia(double x, double y, double largura, double altura, double fator, double dx, double dy, int ID);
 
@@ -176,7 +176,7 @@ double CalculaAreaIntersecaoRetanguloRetangulo(void *Ret, void *Afeta);
 
 double CalculaAreaIntersecaoCirculoRetangulo(void *Circ, void *Afeta);
 
-void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb []);
+void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[]);
 
 void ReplaceWithRedX(RadialTree *All, Lista Entidades, Lista Afetados, void *Hor);
 

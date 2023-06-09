@@ -419,6 +419,7 @@ struct StHortalica
     int ID;
     Info Fig;
     double Dano;
+    double Prod;
 };
 
 struct StContabiliza
@@ -507,6 +508,10 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
         }
         else if (strcmp(comando, "ad") == 0)
         {
+            double x, y, larg, alt, raio;
+            sscanf(linha, "%s %lf %lf %lf %lf %lf", comando, &x, &y, &larg, &alt, &raio);
+            fprintf(log, "\n[*] %s %lf %lf %lf %lf %lf\n", comando, x, y, larg, alt, raio);
+            Aduba(x, y, larg, alt, raio, Afetados, Entidades, All, log);
         }
         else if (strcmp(comando, "st") == 0)
         {
@@ -617,7 +622,7 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
         printf("Direção Inválida!\n");
         return;
     }
-    
+
     /* Reporta os atributos de ID e suas posições */
     DadosI(ID, *All, log);
     fprintf(log, "\nPosicao Original:\n");
@@ -758,6 +763,7 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
             H->ID = F->ID;
             H->Fig = F;
             H->Dano = 0;
+            H->Prod = 0;
             double AreaAfetada = CalculaAreaAfetada(H->Fig, Area);
             H->Dano += AreaAfetada;
             ReportaHortalica(*All, log, H);
@@ -793,6 +799,77 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
     /*Marca a área afetada para o svg e marca o círculo vermelho em (x,y)*/
     CriaArea(*All, Entidades, x, y, x + largura, y + altura);
     CriaMarcacaoCircular(*All, Entidades, x, y, raio, "red");
+}
+
+void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log)
+{
+    Lista Atingido = createLst(-1);
+    ProcAfetado *Area = malloc(sizeof(ProcAfetado));
+    Area->Atingido = Atingido;
+    Area->x = x;
+    Area->y = y;
+    Area->larg = largura;
+    Area->alt = altura;
+    visitaLarguraRadialT(*All, ObjetoTotalAtingido, Area);
+
+    /* Insere na lista Afetados apenas os itens que não são entidades e foram atingidos e caso já tenha sido atingida não as insere novamente */
+    while (!isEmptyLst(Atingido))
+    {
+        bool IsEntity = false;
+        bool IsAtingido = false;
+        Figura *F = popLst(Atingido);
+        /* Verifica se não é uma entidade conhecida */
+        Iterador E = createIterador(Entidades, false);
+        while (!isIteratorEmpty(Entidades, E))
+        {
+            Entidade *Ent = getIteratorNext(Entidades, E);
+            if (F->ID == Ent->ID)
+            {
+                IsEntity = true;
+                break;
+            }
+        }
+        killIterator(E);
+        /* Verifica se já não foi inserida */
+        Iterador HI = createIterador(Afetados, false);
+        Hortalica *Hor;
+        while (!isIteratorEmpty(Afetados, HI))
+        {
+            Hor = getIteratorNext(Afetados, HI);
+            if (F->ID == Hor->ID)
+            {
+                IsAtingido = true;
+                break;
+            }
+        }
+        killIterator(HI);
+        if (!IsEntity && !IsAtingido)
+        {
+            /*A hortaliça não havia sido afetada ainda*/
+            Hortalica *H = malloc(sizeof(Hortalica));
+            H->ID = F->ID;
+            H->Fig = F;
+            H->Dano = 0;
+            H->Prod = 0.1;
+            ReportaHortalica(*All, log, H);
+            insertLst(Afetados, H);
+            F->RefCount++; // Pois foi inserido na lista Afetados
+            fprintf(log, "\n");
+        }
+        else if (!IsEntity)
+        {
+            /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
+            Hor->Prod += 0.1;
+            ReportaHortalica(*All, log, Hor);
+            fprintf(log, "\n");
+        }
+    }
+    killLst(Atingido);
+    free(Area);
+
+    /*Marca a área afetada para o svg e marca o círculo verde em (x,y)*/
+    CriaArea(*All, Entidades, x, y, x + largura, y + altura);
+    CriaMarcacaoCircular(*All, Entidades, x, y, raio, "green");
 }
 
 void DadosI(int ID, RadialTree All, FILE *log)
@@ -920,6 +997,7 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
             H->ID = F->ID;
             H->Fig = F;
             H->Dano = 0;
+            H->Prod = 0;
             insertLst(Colheita, H);
             F->RefCount++; // Pois foi inserido na lista Colheita
             ReportaHortalica(*All, log, H);
@@ -973,6 +1051,7 @@ void ContabilizaColheita(Lista Colheita, FILE *log)
         Figura *F = H->Fig;
         double Modificador = 1;
         Modificador -= H->Dano;
+        Modificador += H->Prod;
         char Forma = F->Tipo;
         if (Forma == 'T')
         {
@@ -1426,4 +1505,5 @@ void ReportaHortalica(RadialTree All, FILE *log, void *Hor)
     Hortalica *H = Hor;
     DadosI(H->ID, All, log);
     fprintf(log, "Dano: %.2lf %%\n", H->Dano * 100);
+    fprintf(log, "Produtividade: %.2lf %%\n", H->Prod * 100);
 }
