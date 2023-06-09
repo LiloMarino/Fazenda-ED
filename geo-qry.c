@@ -802,7 +802,7 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
 
     /*Marca a área afetada para o svg e marca o círculo vermelho em (x,y)*/
     CriaArea(*All, Entidades, x, y, x + largura, y + altura);
-    CriaMarcacaoCircular(*All, Entidades, x, y, raio, "red");
+    CriaMarcacaoCircular(*All, Entidades, x, y, raio, "red", "#ffffff00");
 }
 
 void Cura(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log)
@@ -868,7 +868,7 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
 
     /*Marca a área afetada para o svg e marca o círculo verde em (x,y)*/
     CriaArea(*All, Entidades, x, y, x + largura, y + altura);
-    CriaMarcacaoCircular(*All, Entidades, x, y, raio, "yellow");
+    CriaMarcacaoCircular(*All, Entidades, x, y, raio, "yellow", "#ffffff00");
 }
 
 void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log)
@@ -939,7 +939,7 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
 
     /*Marca a área afetada para o svg e marca o círculo verde em (x,y)*/
     CriaArea(*All, Entidades, x, y, x + largura, y + altura);
-    CriaMarcacaoCircular(*All, Entidades, x, y, raio, "green");
+    CriaMarcacaoCircular(*All, Entidades, x, y, raio, "green", "#ffffff00");
 }
 
 void DadosI(int ID, RadialTree All, FILE *log)
@@ -1442,14 +1442,14 @@ double CalculaAreaIntersecaoCirculoRetangulo(void *Circ, void *Afeta)
     return finalIntersectionArea;
 }
 
-void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[])
+void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[], char corp[])
 {
     Circulo *c = malloc(sizeof(Circulo));
     c->x = x;
     c->y = y;
     c->raio = raio;
     c->ID = GetIDUnico(Entidades, 9999);
-    strcpy(c->corp, "#ffffff00"); // Branco Transparente via canal alpha 00
+    strcpy(c->corp, corp);
     strcpy(c->corb, corb);
     Figura *f = malloc(sizeof(Figura));
     f->ID = c->ID;

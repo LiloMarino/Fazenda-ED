@@ -176,7 +176,7 @@ double CalculaAreaIntersecaoRetanguloRetangulo(void *Ret, void *Afeta);
 
 double CalculaAreaIntersecaoCirculoRetangulo(void *Circ, void *Afeta);
 
-void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[]);
+void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[], char corp[]);
 
 void ReplaceWithRedX(RadialTree *All, Lista Entidades, Lista Afetados, void *Hor);
 
