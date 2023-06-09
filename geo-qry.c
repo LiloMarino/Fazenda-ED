@@ -461,6 +461,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
     Lista Entidades = createLst(-1);
     Lista Colheita = createLst(-1);
     Lista Afetados = createLst(-1);
+    InicializaRand();
     while (leLinha(fqry, &linha))
     {
         sscanf(linha, "%s ", comando);
@@ -519,9 +520,10 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
         }
         else if (strcmp(comando, "st") == 0)
         {
-            double x, y, larg, alt, fator, dx, dy, j;
-            sscanf(linha, "%s %lf %lf %lf %lf %lf", comando, &x, &y, &larg, &alt, &fator, &dx, &dy, &j);
-            fprintf(log, "\n[*] %s %lf %lf %lf %lf %lf\n", comando, x, y, larg, alt, fator, dx, dy, j);
+            int fator, j;
+            double x, y, larg, alt, dx, dy;
+            sscanf(linha, "%s %lf %lf %lf %lf %d %lf %lf %d", comando, &x, &y, &larg, &alt, &fator, &dx, &dy, &j);
+            fprintf(log, "\n[*] %s %lf %lf %lf %lf %d %lf %lf %d\n", comando, x, y, larg, alt, fator, dx, dy, j);
             Semeia(x, y, larg, alt, fator, dx, dy, j, Entidades, All, log);
         }
         else if (strcmp(comando, "d?") == 0)
@@ -946,14 +948,14 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
     CriaMarcacaoCircular(*All, Entidades, x, y, raio, "green", "#ffffff00");
 }
 
-void Semeia(double x, double y, double largura, double altura, double fator, double dx, double dy, int ID, Lista Entidades, RadialTree *All, FILE *log)
+void Semeia(double x, double y, double largura, double altura, int fator, double dx, double dy, int ID, Lista Entidades, RadialTree *All, FILE *log)
 {
     /* "Copia" os nós dentro da área */
     Lista Nos = createLst(-1);
     getNodesDentroRegiaoRadialT(*All, x, y, x + largura, y + altura, Nos);
 
     /* "Cola" os nós na área movida por dx e dy */
-    Paste();
+    Paste(ID, dx, dy, fator, *All, Nos, Entidades, log);
 
     /*Marca a área copiada para o svg e marca o círculo vermelho em (x,y)*/
     CriaArea(*All, Entidades, x, y, x + largura, y + altura);
@@ -1368,10 +1370,11 @@ bool VerificaTotalAtingido(Info i, void *aux)
     }
 }
 
-void Paste(int j, double dx, double dy, double proporcao, RadialTree All, Lista Nos, Lista Entidades)
+void Paste(int j, double dx, double dy, int proporcao, RadialTree All, Lista Nos, Lista Entidades, FILE *log)
 {
-    Lista Temp = createLst(-1);
+    Lista TempEnt = createLst(-1);
     /* Filtra a Lista dos Nós copiando apenas os nós que não são entidades*/
+    fprintf(log,"Figuras:\n\n");
     while (!isEmptyLst(Nos))
     {
         bool IsEntity = false;
@@ -1389,48 +1392,111 @@ void Paste(int j, double dx, double dy, double proporcao, RadialTree All, Lista 
         killIterator(E);
         if (!IsEntity)
         {
-            Copy(F, dx, dy, proporcao, Temp);
+            DadosI(F->ID, All, log);
+            Copy(F, j, dx, dy, proporcao, TempEnt);
         }
     }
     killLst(Nos);
 
     /*Coloca na árvore as figuras copiadas*/
+    fprintf(log,"Figuras Clonadas:\n\n");
+    while (!isEmptyLst(TempEnt))
+    {
+        Entidade *Ent = popLst(TempEnt);
+        Figura *F = Ent->Fig;
+        insertRadialT(All, Ent->Nox + dx, Ent->Noy + dy, Ent->Fig);
+        DadosI(F->ID, All, log);
+        F->RefCount++; // Pois foi inserida na árvore
+        free(Ent);
+    }
+    killLst(TempEnt);
 }
 
-void Copy(void *Fig, int j, double dx, double dy, double proporcao, Lista Entidades, Lista Temp)
+void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt)
 {
     Figura *F = (Figura *)Fig;
-    Figura *F2 = malloc(sizeof(Figura));
-    F2->ID = GetIDUnico(Entidades, j);
-    F2->RefCount = 0; // Pois não foi inserido em nada ainda
-    F2->Tipo = F->Tipo;
-    if (F->Tipo == 'T')
+    for (int i = 0; i < proporcao; i++)
     {
-        Texto *t = F->Figura;
-        Texto *t2 = malloc(sizeof(Texto));
-        strcpy(t2->a,t->a);
-    }
-    else if (F->Tipo == 'C')
-    {
-        Circulo *c = F->Figura;
-        Circulo *c2 = malloc(sizeof(Circulo));
-    }
-    else if (F->Tipo == 'R')
-    {
-        Retangulo *r = F->Figura;
-        Retangulo *r2 = malloc(sizeof(Retangulo));
-    }
-    else if (F->Tipo == 'L')
-    {
-        Linha *l = F->Figura;
-        Linha *l2 = malloc(sizeof(Linha));
+        Entidade *Ent = malloc(sizeof(Entidade));
+        Figura *F2 = malloc(sizeof(Figura));
+        F2->ID = GetIDUnico(TempEnt, j);
+        F2->RefCount = 0; // Pois não foi inserido em nada ainda
+        F2->Tipo = F->Tipo;
+        if (F->Tipo == 'T')
+        {
+            Texto *t = F->Figura;
+            Texto *t2 = malloc(sizeof(Texto));
+            strcpy(t2->a, t->a);
+            strcpy(t2->corb, t->corb);
+            strcpy(t2->corp, t->corp);
+            strcpy(t2->fFamily, t->fFamily);
+            strcpy(t2->fWeight, t->fWeight);
+            strcpy(t2->fSize, t->fSize);
+            strcpy(t2->rotacao, t->rotacao);
+            t2->x = t->x + dx;
+            t2->y = t->y + dy;
+            t2->ID = F2->ID;
+            Ent->Nox = t2->x;
+            Ent->Noy = t2->y;
+        }
+        else if (F->Tipo == 'C')
+        {
+            Circulo *c = F->Figura;
+            Circulo *c2 = malloc(sizeof(Circulo));
+            strcpy(c2->corb, c->corb);
+            strcpy(c2->corp, c->corp);
+            c2->raio = c->raio;
+            c2->ID = F2->ID;
+            c2->x = c->x + dx;
+            c2->y = c->y + dy;
+            Ent->Nox = c2->x;
+            Ent->Noy = c2->y;
+        }
+        else if (F->Tipo == 'R')
+        {
+            Retangulo *r = F->Figura;
+            Retangulo *r2 = malloc(sizeof(Retangulo));
+            strcpy(r2->corb, r->corb);
+            strcpy(r2->corp, r->corp);
+            r2->pont = r->pont;
+            r2->alt = r->alt;
+            r2->larg = r->larg;
+            r2->ID = F2->ID;
+            r2->x = r->x + dx;
+            r2->y = r->y + dy;
+            Ent->Nox = r2->x;
+            Ent->Noy = r2->y;
+        }
+        else if (F->Tipo == 'L')
+        {
+            Linha *l = F->Figura;
+            Linha *l2 = malloc(sizeof(Linha));
+            strcpy(l2->cor, l->cor);
+            l->ID = F2->ID;
+            l2->x1 = l->x1 + dx;
+            l2->y1 = l->y1 + dy;
+            l2->x2 = l->x2 + dx;
+            l2->y2 = l->y2 + dy;
+            Ent->Nox = l2->x1;
+            Ent->Noy = l2->y1;
+        }
+        else
+        {
+            printf("Erro ao verificar forma da figura ao copiar!\n");
+            free(F2);
+            return;
+        }
 
-    }
-    else
-    {
-        printf("Erro ao verificar forma da figura ao copiar!\n");
-        free(F2);
-        return;
+        /* Cria uma entidade temporária para a organização dos IDs */
+        Ent->Fig = F2;
+        Ent->ID = F2->ID;
+        Ent->IsColheita = false;
+        if (i > 0)
+        {
+            Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+            Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+        }
+        insertLst(TempEnt, Ent);
     }
 }
 

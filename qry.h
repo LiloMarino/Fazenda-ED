@@ -61,7 +61,7 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
 
 void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log);
 
-void Semeia(double x, double y, double largura, double altura, double fator, double dx, double dy, int ID, Lista Entidades, RadialTree *All, FILE *log);
+void Semeia(double x, double y, double largura, double altura, int fator, double dx, double dy, int ID, Lista Entidades, RadialTree *All, FILE *log);
 
 /**
  * @brief Reporta os dados da figura identificado por ID no arquivo de registro
@@ -188,8 +188,8 @@ void ObjetoTotalAtingido(Info i, double x, double y, void *aux);
 
 bool VerificaTotalAtingido(Info i, void *aux);
 
-void Paste(int j, double dx, double dy, RadialTree All, Lista Nos, Lista Entidades);
+void Paste(int j, double dx, double dy, int proporcao, RadialTree All, Lista Nos, Lista Entidades, FILE *log);
 
-void Copy();
+void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt);
 
 #endif
