@@ -57,7 +57,7 @@ void Move(int ID, double dx, double dy, FILE *log, RadialTree *All);
 
 void Praga(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log);
 
-void Cura(double x, double y, double largura, double altura, double raio, Lista Afetados);
+void Cura(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log);
 
 void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log);
 
