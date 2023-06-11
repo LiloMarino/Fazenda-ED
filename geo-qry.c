@@ -746,8 +746,8 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
 
     while (!isEmptyLst(NotAtingidoBefore))
     {
-        Figura *F = popLst(NotAtingidoBefore);
         /*A hortaliça não havia sido afetada ainda*/
+        Figura *F = popLst(NotAtingidoBefore);
         Hortalica *H = calloc(1, sizeof(Hortalica));
         H->ID = F->ID;
         H->Fig = F;
@@ -872,51 +872,33 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
     Area->alt = altura;
     visitaLarguraRadialT(*All, ObjetoTotalAtingido, Area);
 
-    /* Insere na lista Afetados apenas os itens que não são entidades e foram atingidos e caso já tenha sido atingida não as insere novamente */
-    while (!isEmptyLst(Atingido))
+    /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
+    Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
+
+    /*Insere na lista NotAtingidoBefore apenas as Hortaliças que nunca foram atingidas */
+    Lista NotAtingidoBefore = filter(NotEntity, FiltraAtingidos, Afetados);
+
+    /*Insere na lista AtingidoBefore as Hortaliças que já foram atingidas alguma vez, caso não tenha sido atingida é atribuído NULL*/
+    Lista AtingidoBefore = map(NotEntity, TransformaAtingidos, Afetados);
+
+    while (!isEmptyLst(NotAtingidoBefore))
     {
-        bool IsEntity = false;
-        bool IsAtingido = false;
-        Figura *F = popLst(Atingido);
-        /* Verifica se não é uma entidade conhecida */
-        Iterador E = createIterador(Entidades, false);
-        while (!isIteratorEmpty(Entidades, E))
-        {
-            Entidade *Ent = getIteratorNext(Entidades, E);
-            if (F->ID == Ent->ID)
-            {
-                IsEntity = true;
-                break;
-            }
-        }
-        killIterator(E);
-        /* Verifica se já não foi inserida */
-        Iterador HI = createIterador(Afetados, false);
-        Hortalica *Hor;
-        while (!isIteratorEmpty(Afetados, HI))
-        {
-            Hor = getIteratorNext(Afetados, HI);
-            if (F->ID == Hor->ID)
-            {
-                IsAtingido = true;
-                break;
-            }
-        }
-        killIterator(HI);
-        if (!IsEntity && !IsAtingido)
-        {
-            /*A hortaliça não havia sido afetada ainda*/
-            Hortalica *H = malloc(sizeof(Hortalica));
-            H->ID = F->ID;
-            H->Fig = F;
-            H->Dano = 0;
-            H->Prod = 0.1;
-            ReportaHortalica(*All, log, H);
-            insertLst(Afetados, H);
-            F->RefCount++; // Pois foi inserido na lista Afetados
-            fprintf(log, "\n");
-        }
-        else if (!IsEntity)
+        /*A hortaliça não havia sido afetada ainda*/
+        Figura *F = popLst(NotAtingidoBefore);
+        Hortalica *H = calloc(1, sizeof(Hortalica));
+        H->ID = F->ID;
+        H->Fig = F;
+        H->Prod = 0.1;
+        ReportaHortalica(*All, log, H);
+        insertLst(Afetados, H);
+        F->RefCount++; // Pois foi inserido na lista Afetados
+        fprintf(log, "\n");
+    }
+
+    while (!isEmptyLst(AtingidoBefore))
+    {
+        Hortalica *Hor = popLst(AtingidoBefore);
+        if (Hor != NULL)
         {
             /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
             Hor->Prod += 0.1;
@@ -924,7 +906,11 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
             fprintf(log, "\n");
         }
     }
+    
     killLst(Atingido);
+    killLst(NotEntity);
+    killLst(NotAtingidoBefore);
+    killLst(AtingidoBefore);
     free(Area);
 
     /*Marca a área afetada para o svg e marca o círculo verde em (x,y)*/
