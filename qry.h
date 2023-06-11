@@ -192,4 +192,10 @@ void Paste(int j, double dx, double dy, int proporcao, RadialTree All, Lista Nos
 
 void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt);
 
+bool FiltraAtingidos(Item item, void *aux);
+
+bool FiltraEntidades(Item item, void *aux);
+
+Item TransformaAtingidos(Item item, void *aux);
+
 #endif

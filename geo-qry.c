@@ -735,61 +735,43 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
     Area->alt = altura;
     visitaLarguraRadialT(*All, ObjetoAtingido, Area);
 
-    /* Insere na lista Afetados apenas os itens que não são entidades e foram atingidos e caso já tenha sido atingida não as insere novamente */
-    while (!isEmptyLst(Atingido))
+    /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
+    Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
+
+    /*Insere na lista NotAtingidoBefore apenas as Hortaliças que nunca foram atingidas */
+    Lista NotAtingidoBefore = filter(NotEntity, FiltraAtingidos, Afetados);
+
+    /*Insere na lista AtingidoBefore as Hortaliças que já foram atingidas alguma vez, caso não tenha sido atingida é atribuído NULL*/
+    Lista AtingidoBefore = map(NotEntity, TransformaAtingidos, Afetados);
+
+    while (!isEmptyLst(NotAtingidoBefore))
     {
-        bool IsEntity = false;
-        bool IsAtingido = false;
-        Figura *F = popLst(Atingido);
-        /* Verifica se não é uma entidade conhecida */
-        Iterador E = createIterador(Entidades, false);
-        while (!isIteratorEmpty(Entidades, E))
+        Figura *F = popLst(NotAtingidoBefore);
+        /*A hortaliça não havia sido afetada ainda*/
+        Hortalica *H = malloc(sizeof(Hortalica));
+        H->ID = F->ID;
+        H->Fig = F;
+        H->Dano = 0;
+        H->Prod = 0;
+        double AreaAfetada = CalculaAreaAfetada(H->Fig, Area);
+        H->Dano += AreaAfetada;
+        ReportaHortalica(*All, log, H);
+        if (H->Dano > 0.75)
         {
-            Entidade *Ent = getIteratorNext(Entidades, E);
-            if (F->ID == Ent->ID)
-            {
-                IsEntity = true;
-                break;
-            }
+            fprintf(log, "Eliminada!\n");
+            ReplaceWithRedX(All, Entidades, Afetados, H);
         }
-        killIterator(E);
-        /* Verifica se já não foi inserida */
-        Iterador HI = createIterador(Afetados, false);
-        Hortalica *Hor;
-        while (!isIteratorEmpty(Afetados, HI))
+        else
         {
-            Hor = getIteratorNext(Afetados, HI);
-            if (F->ID == Hor->ID)
-            {
-                IsAtingido = true;
-                break;
-            }
+            insertLst(Afetados, H);
+            F->RefCount++; // Pois foi inserido na lista Afetados
         }
-        killIterator(HI);
-        if (!IsEntity && !IsAtingido)
-        {
-            /*A hortaliça não havia sido afetada ainda*/
-            Hortalica *H = malloc(sizeof(Hortalica));
-            H->ID = F->ID;
-            H->Fig = F;
-            H->Dano = 0;
-            H->Prod = 0;
-            double AreaAfetada = CalculaAreaAfetada(H->Fig, Area);
-            H->Dano += AreaAfetada;
-            ReportaHortalica(*All, log, H);
-            if (H->Dano > 0.75)
-            {
-                fprintf(log, "Eliminada!\n");
-                ReplaceWithRedX(All, Entidades, Afetados, H);
-            }
-            else
-            {
-                insertLst(Afetados, H);
-                F->RefCount++; // Pois foi inserido na lista Afetados
-            }
-            fprintf(log, "\n");
-        }
-        else if (!IsEntity)
+        fprintf(log, "\n");
+    }
+    while (!isEmptyLst(AtingidoBefore))
+    {
+        Hortalica *Hor = popLst(AtingidoBefore);
+        if (Hor != NULL)
         {
             /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
             double AreaAfetada = CalculaAreaAfetada(Hor->Fig, Area);
@@ -804,6 +786,9 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
         }
     }
     killLst(Atingido);
+    killLst(NotEntity);
+    killLst(NotAtingidoBefore);
+    killLst(AtingidoBefore);
     free(Area);
 
     /*Marca a área afetada para o svg e marca o círculo vermelho em (x,y)*/
@@ -1758,4 +1743,61 @@ void ReportaHortalica(RadialTree All, FILE *log, void *Hor)
     DadosI(H->ID, All, log);
     fprintf(log, "Dano: %.2lf %%\n", H->Dano * 100);
     fprintf(log, "Produtividade: %.2lf %%\n", H->Prod * 100);
+}
+
+bool FiltraEntidades(Item item, void *aux)
+{
+    Figura *F = (Figura *)item;
+    Lista Entidades = (Lista)aux;
+
+    Iterador E = createIterador(Entidades, false);
+    while (!isIteratorEmpty(Entidades, E))
+    {
+        Entidade *Ent = getIteratorNext(Entidades, E);
+        if (F->ID == Ent->ID)
+        {
+            killIterator(E);
+            return false;
+        }
+    }
+    killIterator(E);
+    return true;
+}
+
+bool FiltraAtingidos(Item item, void *aux)
+{
+    Figura *F = (Figura *)item;
+    Lista Afetados = (Lista)aux;
+
+    Iterador A = createIterador(Afetados, false);
+    while (!isIteratorEmpty(Afetados, A))
+    {
+        Hortalica *Hor = getIteratorNext(Afetados, A);
+        if (F->ID == Hor->ID)
+        {
+            killIterator(A);
+            return false;
+        }
+    }
+    killIterator(A);
+    return true;
+}
+
+Item TransformaAtingidos(Item item, void *aux)
+{
+    Figura *F = (Figura *)item;
+    Lista Afetados = (Lista)aux;
+
+    Iterador A = createIterador(Afetados, false);
+    while (!isIteratorEmpty(Afetados, A))
+    {
+        Hortalica *Hor = getIteratorNext(Afetados, A);
+        if (F->ID == Hor->ID)
+        {
+            killIterator(A);
+            return Hor;
+        }
+    }
+    killIterator(A);
+    return NULL;
 }
