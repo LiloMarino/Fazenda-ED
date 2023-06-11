@@ -748,11 +748,9 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
     {
         Figura *F = popLst(NotAtingidoBefore);
         /*A hortaliça não havia sido afetada ainda*/
-        Hortalica *H = malloc(sizeof(Hortalica));
+        Hortalica *H = calloc(1, sizeof(Hortalica));
         H->ID = F->ID;
         H->Fig = F;
-        H->Dano = 0;
-        H->Prod = 0;
         double AreaAfetada = CalculaAreaAfetada(H->Fig, Area);
         H->Dano += AreaAfetada;
         ReportaHortalica(*All, log, H);
@@ -768,6 +766,7 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
         }
         fprintf(log, "\n");
     }
+
     while (!isEmptyLst(AtingidoBefore))
     {
         Hortalica *Hor = popLst(AtingidoBefore);
