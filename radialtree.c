@@ -1,7 +1,9 @@
 #include "radialtree.h"
 #include "geo.h"
-#include "svg-dot.h"
+#include "svg.h"
+#include "dot.h"
 #include "Bibliotecas/utilities.h"
+#include "Bibliotecas/geradores.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

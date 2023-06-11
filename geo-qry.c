@@ -1,4 +1,5 @@
-#include "svg-dot.h"
+#include "svg.h"
+#include "dot.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,6 +8,7 @@
 #include "Bibliotecas/arqsvg.h"
 #include "Bibliotecas/learquivo.h"
 #include "Bibliotecas/utilities.h"
+#include "Bibliotecas/geradores.h"
 #include "radialtree.h"
 #include "qry.h"
 #include "def.h"
@@ -509,14 +511,14 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
             double x, y, larg, alt, raio;
             sscanf(linha, "%s %lf %lf %lf %lf %lf", comando, &x, &y, &larg, &alt, &raio);
             fprintf(log, "\n[*] %s %lf %lf %lf %lf %lf\n", comando, x, y, larg, alt, raio);
-            Cura(x, y, larg, alt, raio, Afetados, Entidades, All, log);
+            Cura(x, y, larg, alt, raio, Afetados, Entidades, *All, log);
         }
         else if (strcmp(comando, "ad") == 0)
         {
             double x, y, larg, alt, raio;
             sscanf(linha, "%s %lf %lf %lf %lf %lf", comando, &x, &y, &larg, &alt, &raio);
             fprintf(log, "\n[*] %s %lf %lf %lf %lf %lf\n", comando, x, y, larg, alt, raio);
-            Aduba(x, y, larg, alt, raio, Afetados, Entidades, All, log);
+            Aduba(x, y, larg, alt, raio, Afetados, Entidades, *All, log);
         }
         else if (strcmp(comando, "st") == 0)
         {
@@ -795,7 +797,7 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
     CriaMarcacaoCircular(*All, Entidades, x, y, raio, "red", "#ffffff00");
 }
 
-void Cura(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log)
+void Cura(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree All, FILE *log)
 {
     Lista Atingido = createLst(-1);
     ProcAfetado *Area = malloc(sizeof(ProcAfetado));
@@ -804,7 +806,7 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
     Area->y = y;
     Area->larg = largura;
     Area->alt = altura;
-    visitaLarguraRadialT(*All, ObjetoAtingido, Area);
+    visitaLarguraRadialT(All, ObjetoAtingido, Area);
 
     /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
     Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
@@ -818,7 +820,7 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
         if (Hor != NULL)
         {
             /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
-            ReportaHortalica(*All, log, Hor);
+            ReportaHortalica(All, log, Hor);
             if (Hor->Dano > 0)
             {
                 double AreaAfetada = CalculaAreaAfetada(Hor->Fig, Area);
@@ -838,11 +840,11 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
     free(Area);
 
     /*Marca a área afetada para o svg e marca o círculo amarelo em (x,y)*/
-    CriaArea(*All, Entidades, x, y, x + largura, y + altura);
-    CriaMarcacaoCircular(*All, Entidades, x, y, raio, "yellow", "#ffffff00");
+    CriaArea(All, Entidades, x, y, x + largura, y + altura);
+    CriaMarcacaoCircular(All, Entidades, x, y, raio, "yellow", "#ffffff00");
 }
 
-void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log)
+void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree All, FILE *log)
 {
     Lista Atingido = createLst(-1);
     ProcAfetado *Area = malloc(sizeof(ProcAfetado));
@@ -851,7 +853,7 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
     Area->y = y;
     Area->larg = largura;
     Area->alt = altura;
-    visitaLarguraRadialT(*All, ObjetoTotalAtingido, Area);
+    visitaLarguraRadialT(All, ObjetoTotalAtingido, Area);
 
     /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
     Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
@@ -870,7 +872,7 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
         H->ID = F->ID;
         H->Fig = F;
         H->Prod = 0.1;
-        ReportaHortalica(*All, log, H);
+        ReportaHortalica(All, log, H);
         insertLst(Afetados, H);
         F->RefCount++; // Pois foi inserido na lista Afetados
         fprintf(log, "\n");
@@ -883,7 +885,7 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
         {
             /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
             Hor->Prod += 0.1;
-            ReportaHortalica(*All, log, Hor);
+            ReportaHortalica(All, log, Hor);
             fprintf(log, "\n");
         }
     }
@@ -895,18 +897,18 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
     free(Area);
 
     /*Marca a área afetada para o svg e marca o círculo verde em (x,y)*/
-    CriaArea(*All, Entidades, x, y, x + largura, y + altura);
-    CriaMarcacaoCircular(*All, Entidades, x, y, raio, "green", "#ffffff00");
+    CriaArea(All, Entidades, x, y, x + largura, y + altura);
+    CriaMarcacaoCircular(All, Entidades, x, y, raio, "green", "#ffffff00");
 }
 
-void Semeia(double x, double y, double largura, double altura, int fator, double dx, double dy, int ID, Lista Entidades, RadialTree All, FILE *log)
+void Semeia(double x, double y, double largura, double altura, int fator, double dx, double dy, int j, Lista Entidades, RadialTree All, FILE *log)
 {
     /* "Copia" os nós dentro da área */
     Lista Nos = createLst(-1);
     getNodesDentroRegiaoRadialT(All, x, y, x + largura, y + altura, Nos);
 
     /* "Cola" os nós na área movida por dx e dy */
-    Paste(ID, dx, dy, fator, All, Nos, Entidades, log);
+    Paste(j, dx, dy, fator, All, Nos, Entidades, log);
 
     /*Marca a área copiada para o svg e marca o círculo vermelho em (x,y)*/
     CriaArea(All, Entidades, x, y, x + largura, y + altura);

@@ -97,7 +97,12 @@ bool GetTexto(Info figura, double x1, double y1, double x2, double y2);
  */
 void FreeFigura(Info figura);
 
-//APENAS PARA DEPURAÇÃO
+/**
+ * @note Esta função é feita apenas para fins de depuração 
+ * @brief Ela analisa o tipo da figura e escreve um texto no svg mostrando o ID da figura junto com o seu tipo
+ * @param fsvg Ponteiro para o arquivo SVG
+ * @param info Ponteiro para a struct com a figura
+ */
 void MostraID(ArqSvg fsvg, Item info);
 
 #endif

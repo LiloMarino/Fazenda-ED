@@ -38,7 +38,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput);
  * @param Passos Número de passos a ser dado pela colheitadeira
  * @param Direcao Direção dos passos
  * @param log Ponteiro para o arquivo de registro
- * @param Entidades Lista que contém todas as informações de todas as colheitadeiras
+ * @param Entidades Lista que contém todas as entidades
  * @param All Endereço para a árvore radial com todos os elementos
  * @param Colheita Lista contendo todos as hortaliças colhidas
  * @param Afetados Lista contendo todos as hortaliças afetadas
@@ -55,13 +55,63 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
  */
 void Move(int ID, double dx, double dy, FILE *log, RadialTree *All);
 
+/**
+ * @brief Pragas de raio r são uniformemente distribuídas na região retangular
+ * @param x Coordenada x da região retangular
+ * @param y Coordenada y da região retangular
+ * @param largura Largura da região retangular
+ * @param altura Altura da região retangular
+ * @param raio Raio dos círculos uniformemente distribuídos
+ * @param Afetados Lista contendo todos as hortaliças afetadas
+ * @param Entidades Lista que contém todas as entidades
+ * @param All Endereço para a árvore radial com todos os elementos
+ * @param log Ponteiro para o arquivo de registro
+ */
 void Praga(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log);
 
-void Cura(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log);
+/**
+ * @brief Cura as hortaliças na mesma proporção dos círculos de raio r do defensivo.
+ * @param x Coordenada x da região retangular
+ * @param y Coordenada y da região retangular
+ * @param largura Largura da região retangular
+ * @param altura Altura da região retangular
+ * @param raio Raio dos círculos uniformemente distribuídos
+ * @param Afetados Lista contendo todos as hortaliças afetadas
+ * @param Entidades Lista que contém todas as entidades
+ * @param All Ponteiro para a árvore radial com todos os elementos
+ * @param log Ponteiro para o arquivo de registro
+ */
+void Cura(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree All, FILE *log);
 
-void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log);
+/**
+ * @brief Aduba as hortaliças da região Sempre que a área integral da hortaliça for atingida pelo adubo, a produtividade da hortaliça é incrementada em 10%.
+ * @param x Coordenada x da região retangular
+ * @param y Coordenada y da região retangular
+ * @param largura Largura da região retangular
+ * @param altura Altura da região retangular
+ * @param raio Raio dos círculos uniformemente distribuídos
+ * @param All Ponteiro para a árvore radial com todos os elementos
+ * @param Entidades Lista que contém todas as entidades
+ * @param Afetados Lista contendo todos as hortaliças afetadas
+ * @param log Ponteiro para o arquivo de registro
+ */
+void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree All, FILE *log);
 
-void Semeia(double x, double y, double largura, double altura, int fator, double dx, double dy, int ID, Lista Entidades, RadialTree All, FILE *log);
+/**
+ * @brief Dispersa as sementes das hortaliças que estão dentro da região (x,y,w,h), a um deslocamentode dx, dy, com fator f, com identificadores a partir de j.
+ * @param x Coordenada x da região retangular
+ * @param y Coordenada y da região retangular
+ * @param largura Largura da região retangular
+ * @param altura Altura da região retangular
+ * @param fator Fator de multiplicação das hortaliças
+ * @param dx Variação horizontal das hortaliças
+ * @param dy Variação vertical das hortaliças
+ * @param j ID do qual será contabilizado as hortaliças na nova área
+ * @param All Ponteiro para a árvore radial com todos os elementos
+ * @param Entidades Lista que contém todas as entidades
+ * @param log Ponteiro para o arquivo de registro
+ */
+void Semeia(double x, double y, double largura, double altura, int fator, double dx, double dy, int j, Lista Entidades, RadialTree All, FILE *log);
 
 /**
  * @brief Reporta os dados da figura identificado por ID no arquivo de registro
@@ -71,6 +121,12 @@ void Semeia(double x, double y, double largura, double altura, int fator, double
  */
 void DadosI(int ID, RadialTree All, FILE *log);
 
+/**
+ * @brief Reporta os atributos de todas as colheitadeiras
+ * @param Entidades Lista que contém todas as entidades
+ * @param log Ponteiro para o arquivo de registro
+ * @param All Ponteiro para a árvore radial com todos os elementos
+ */
 void InfoColheitadeiras(Lista Entidades, FILE *log, RadialTree All);
 
 /**

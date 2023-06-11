@@ -4,7 +4,8 @@
 #include "radialtree.h"
 #include "geo.h"
 #include "qry.h"
-#include "svg-dot.h"
+#include "svg.h"
+#include "dot.h"
 #include "Bibliotecas/geradores.h"
 #include "Bibliotecas/path.h"
 

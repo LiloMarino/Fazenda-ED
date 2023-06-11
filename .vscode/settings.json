@@ -22,7 +22,8 @@
         "utility": "c",
         "def.h": "c",
         "path.h": "c",
-        "random": "c"
+        "random": "c",
+        "unistd.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
