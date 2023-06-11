@@ -806,38 +806,16 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
     Area->alt = altura;
     visitaLarguraRadialT(*All, ObjetoAtingido, Area);
 
-    /* Insere na lista Afetados apenas os itens que não são entidades e foram atingidos e caso já tenha sido atingida não as insere novamente */
-    while (!isEmptyLst(Atingido))
+    /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
+    Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
+
+    /*Insere na lista AtingidoBefore as Hortaliças que já foram atingidas alguma vez, caso não tenha sido atingida é atribuído NULL*/
+    Lista AtingidoBefore = map(NotEntity, TransformaAtingidos, Afetados);
+
+    while (!isEmptyLst(AtingidoBefore))
     {
-        bool IsEntity = false;
-        bool IsAtingido = false;
-        Figura *F = popLst(Atingido);
-        /* Verifica se não é uma entidade conhecida */
-        Iterador E = createIterador(Entidades, false);
-        while (!isIteratorEmpty(Entidades, E))
-        {
-            Entidade *Ent = getIteratorNext(Entidades, E);
-            if (F->ID == Ent->ID)
-            {
-                IsEntity = true;
-                break;
-            }
-        }
-        killIterator(E);
-        /* Verifica se já não foi inserida */
-        Iterador HI = createIterador(Afetados, false);
-        Hortalica *Hor;
-        while (!isIteratorEmpty(Afetados, HI))
-        {
-            Hor = getIteratorNext(Afetados, HI);
-            if (F->ID == Hor->ID)
-            {
-                IsAtingido = true;
-                break;
-            }
-        }
-        killIterator(HI);
-        if (!IsEntity && IsAtingido)
+        Hortalica *Hor = popLst(AtingidoBefore);
+        if (Hor != NULL)
         {
             /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
             ReportaHortalica(*All, log, Hor);
@@ -853,7 +831,10 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
             fprintf(log, "\n");
         }
     }
+
     killLst(Atingido);
+    killLst(NotEntity);
+    killLst(AtingidoBefore);
     free(Area);
 
     /*Marca a área afetada para o svg e marca o círculo amarelo em (x,y)*/
@@ -906,7 +887,7 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
             fprintf(log, "\n");
         }
     }
-    
+
     killLst(Atingido);
     killLst(NotEntity);
     killLst(NotAtingidoBefore);
@@ -1023,51 +1004,32 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
     Area->alt = Yfim - Yinicio;
     visitaLarguraRadialT(*All, ObjetoTotalAtingido, Area);
 
-    /* Insere na lista Colheita apenas os itens que não são entidades e estão na área */
-    while (!isEmptyLst(Colh))
+    /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
+    Lista NotEntity = filter(Colh, FiltraEntidades, Entidades);
+
+    /*Insere na lista NotAtingidoBefore apenas as Hortaliças que nunca foram atingidas */
+    Lista NotAtingidoBefore = filter(NotEntity, FiltraAtingidos, Afetados);
+
+    /*Insere na lista AtingidoBefore as Hortaliças que já foram atingidas alguma vez, caso não tenha sido atingida é atribuído NULL*/
+    Lista AtingidoBefore = map(NotEntity, TransformaAtingidos, Afetados);
+
+    while (!isEmptyLst(NotAtingidoBefore))
     {
-        bool IsEntity = false;
-        bool IsAtingido = false;
-        Figura *F = popLst(Colh);
-        /* Verifica se não é uma entidade conhecida */
-        Iterador E = createIterador(Entidades, false);
-        while (!isIteratorEmpty(Entidades, E))
-        {
-            Entidade *Ent = getIteratorNext(Entidades, E);
-            if (F->ID == Ent->ID)
-            {
-                IsEntity = true;
-                break;
-            }
-        }
-        killIterator(E);
-        /* Verifica se foi atingida */
-        Iterador A = createIterador(Afetados, false);
-        Hortalica *Hor;
-        while (!isIteratorEmpty(Afetados, A))
-        {
-            Hor = getIteratorNext(Afetados, A);
-            if (F->ID == Hor->ID)
-            {
-                IsAtingido = true;
-                break;
-            }
-        }
-        killIterator(A);
-        if (!IsEntity && !IsAtingido)
-        {
-            /*A hortaliça nunca foi atingida e não é uma entidade*/
-            Hortalica *H = malloc(sizeof(Hortalica));
-            H->ID = F->ID;
-            H->Fig = F;
-            H->Dano = 0;
-            H->Prod = 0;
-            insertLst(Colheita, H);
-            F->RefCount++; // Pois foi inserido na lista Colheita
-            ReportaHortalica(*All, log, H);
-            fprintf(log, "\n");
-        }
-        else if (!IsEntity)
+        /*A hortaliça nunca foi atingida e não é uma entidade*/
+        Figura *F = popLst(NotAtingidoBefore);
+        Hortalica *H = calloc(1, sizeof(Hortalica));
+        H->ID = F->ID;
+        H->Fig = F;
+        insertLst(Colheita, H);
+        F->RefCount++; // Pois foi inserido na lista Colheita
+        ReportaHortalica(*All, log, H);
+        fprintf(log, "\n");
+    }
+
+    while (!isEmptyLst(AtingidoBefore))
+    {
+        Hortalica *Hor = popLst(AtingidoBefore);
+        if (Hor != NULL)
         {
             /*A hortaliça já foi atingida e não é uma entidade*/
             ProcID *P = ProcuraID(Hor->ID, *All);
@@ -1090,7 +1052,11 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
             fprintf(log, "\n");
         }
     }
+
     killLst(Colh);
+    killLst(NotEntity);
+    killLst(NotAtingidoBefore);
+    killLst(AtingidoBefore);
     free(Area);
 
     /* Remove os itens que foram colhidos da árvore */
