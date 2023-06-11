@@ -250,12 +250,9 @@ Lista VerificaArvore(RadialTree t)
 
 RadialTree newRadialTree(int numSetores, double fd)
 {
-    Raiz *Tree = malloc(sizeof(Raiz));
+    Raiz *Tree = calloc(1, sizeof(Raiz));
     Tree->numSetores = numSetores;
-    Tree->numTotalNos = 0;
-    Tree->numNosRemovidos = 0;
     Tree->limiar = fd;
-    Tree->node = NULL;
     return Tree;
 }
 
@@ -265,12 +262,10 @@ Node insertRadialT(RadialTree t, double x, double y, Info i)
 
     /*Inicializa o nó*/
     Tree->numTotalNos += 1;
-    NodeTree *No = malloc(sizeof(NodeTree));
+    NodeTree *No = calloc(1, sizeof(NodeTree));
     No->x = x;
     No->y = y;
     No->info = i;
-    No->removido = false;
-    No->pai = NULL;
     No->filhos = malloc(Tree->numSetores * sizeof(NodeTree *));
     for (int i = 0; i < Tree->numSetores; i++)
     {

@@ -80,10 +80,8 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
 {
     char comando[2];
     char *linha = NULL;
-    EstiloTxt *style = malloc(sizeof(EstiloTxt));
+    EstiloTxt *style = calloc(1, sizeof(EstiloTxt));
     style->fFamily = my_strdup("arial");
-    style->fWeight = NULL;
-    style->fSize = NULL;
     while (leLinha(fgeo, &linha))
     {
         linha[strcspn(linha, "\n")] = '\0';
