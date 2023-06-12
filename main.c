@@ -10,6 +10,7 @@
 #include "Bibliotecas/path.h"
 
 FILE *ARQDOT;
+char *FNARQDOT;
 
 int main(int argc, char **argv)
 {
@@ -40,13 +41,14 @@ int main(int argc, char **argv)
     joinFilePath(PathInput, nomeQry, &InputQry);
     joinFilePath(PathOutput, nomeGeo_semExt, &OutputGeo);
     joinFilePath(PathOutput, nomeGeoQry, &OutputGeoQry);
+    FNARQDOT = OutputGeoQry;
 
     /* Inicia o processamento de todas as informações e produz os resultados */
     RadialTree All = newRadialTree(atoi(numSetor), 0.1);
     ArqGeo Geo = abreLeituraGeo(InputGeo);
     ArqQry Qry = abreLeituraQry(InputQry);
     FILE *log = CriaLog(OutputGeoQry, "txt");
-    ARQDOT = CriaLog(OutputGeoQry, "dot");
+    ARQDOT = CriaLog(FNARQDOT, "dot");
     InicializaDot(ARQDOT);
     InterpretaGeo(Geo, All);
     OperaSVG(OutputGeo, All);

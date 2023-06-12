@@ -7,6 +7,7 @@
 typedef void *ArqDot;
 
 extern FILE* ARQDOT;
+extern char* FNARQDOT;
 
 /**
  * @brief Inicializa o arquivo .dot já aberto

@@ -56,11 +56,12 @@ void MarcaNoRemovido(ArqDot fdot, RadialTree All, Node removido)
 
 void CriaPngDot(const char nome[])
 {
-    char ext[] = "dot";
-    char nomearq[strlen(nome) + strlen(ext) + 2];
+    char nomearq[strlen(nome) + 6];
+    char nomepng[strlen(nome) + 6];
 
     int n = 1;
-    sprintf(nomearq, "%s.%s", nome, ext);
+    sprintf(nomearq, "%s.dot", nome);
+    sprintf(nomepng, "%s.png", nome);
 
     // Verifica se o arquivo já existe
     FILE *vrfy = fopen(nomearq, "r");
@@ -68,10 +69,11 @@ void CriaPngDot(const char nome[])
     {
         fclose(vrfy);
         char command[2*strlen(nomearq) + 30];
-        sprintf(command, "dot -Tpng %s -o %s.png", nomearq, nome);
+        sprintf(command, "dot -Tpng %s -o %s", nomearq, nomepng);
         system(command);
         n++;
-        sprintf(nomearq, "%s-%d.%s", nome, n, ext);
+        sprintf(nomearq, "%s-%d.dot", nome, n);
+        sprintf(nomepng, "%s-%d.png", nome, n);
         vrfy = fopen(nomearq, "r");
     }
 }

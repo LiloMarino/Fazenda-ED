@@ -369,7 +369,7 @@ void removeNoRadialT(RadialTree t, Node n)
     if (fd > Tree->limiar)
     {
         TerminaDot(ARQDOT);
-        ARQDOT = CriaLog("../logs/Arvore", "dot");
+        ARQDOT = CriaLog(FNARQDOT, "dot");
         InicializaDot(ARQDOT);
         RadialTree NovaArvore = newRadialTree(Tree->numSetores, Tree->limiar);
         Lista Aux = VerificaArvore(Tree);
