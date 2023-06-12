@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     joinFilePath(PathOutput, nomeGeoQry, &OutputGeoQry);
 
     /* Inicia o processamento de todas as informações e produz os resultados */
-    RadialTree All = newRadialTree(atoi(numSetor), 1);
+    RadialTree All = newRadialTree(atoi(numSetor), 0.1);
     ArqGeo Geo = abreLeituraGeo(InputGeo);
     ArqQry Qry = abreLeituraQry(InputQry);
     FILE *log = CriaLog(OutputGeoQry, "txt");

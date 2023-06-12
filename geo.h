@@ -4,6 +4,8 @@
 #include "Bibliotecas/arqsvg.h"
 #include "radialtree.h"
 
+#define TAM_VETOR 50 // Necessário para tirar os leaks de memória derivados das structs, define o tamanho de todos os arrays de caracteres
+
 /*
  * Conjunto de funções que interpretam arquivos .geo e criam figuras svg a partir dele
  */

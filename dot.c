@@ -2,6 +2,17 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "dot.h"
+#include "radialtree.h"
+
+struct StFigura
+{
+    int ID;
+    char Tipo;
+    Item Figura;
+    int RefCount; // Necessário para não dar free() mais de uma vez
+};
+
+typedef struct StFigura Figura;
 
 void InicializaDot(ArqDot fdot)
 {
@@ -16,6 +27,31 @@ void TerminaDot(ArqDot fdot)
         fprintf(fdot, "}");
         fclose(fdot);
     }
+}
+
+void LigaNo(ArqDot fdot, RadialTree All, Node pai, Node filho)
+{
+    if (pai == NULL)
+    {
+        char Forma = ((Figura *)getInfoRadialT(All, filho))->Tipo;
+        int ID = ((Figura *)getInfoRadialT(All, filho))->ID;
+        fprintf(fdot, "Raiz -> %c%d\n", Forma, ID);
+    }
+    else
+    {
+        char Forma1 = ((Figura *)getInfoRadialT(All, pai))->Tipo;
+        int ID1 = ((Figura *)getInfoRadialT(All, pai))->ID;
+        char Forma2 = ((Figura *)getInfoRadialT(All, filho))->Tipo;
+        int ID2 = ((Figura *)getInfoRadialT(All, filho))->ID;
+        fprintf(fdot, "%c%d -> %c%d\n", Forma1, ID1, Forma2, ID2);
+    }
+}
+
+void MarcaNoRemovido(ArqDot fdot, RadialTree All, Node removido)
+{
+    char Forma = ((Figura *)getInfoRadialT(All, removido))->Tipo;
+    int ID = ((Figura *)getInfoRadialT(All, removido))->ID;
+    fprintf(fdot, "%c%d [shape=none, label=\"X\", color=red, fontcolor=red, fontsize=20, width=0.3, height=0.3];\n", Forma, ID);
 }
 
 void CriaPngDot(const char nome[])
