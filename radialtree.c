@@ -469,7 +469,10 @@ bool getNodesDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, 
     /*Cria o Stack de verificação baseado na direção da área*/
     Lista Stack = createLst(-1);
     Lista Aux = createLst(-1);
-    insertLst(Aux, No);
+    if (!(No->removido))
+    {
+        insertLst(Aux, No);
+    }
     for (int i = 0; i < Tree->numSetores; i++)
     {
         double InclinacaoRetaInf = i * 360 / Tree->numSetores;
