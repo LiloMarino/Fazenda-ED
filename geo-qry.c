@@ -1032,11 +1032,11 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
         if (Hor != NULL)
         {
             /*A hortaliça já foi atingida e não é uma entidade*/
-            ProcID *P = ProcuraID(Hor->ID, *All);
             Posic Del = getFirstLst(Afetados);
             while (Del != NULL)
             {
-                if (Del != NULL && ((Hortalica *)getLst(Del))->ID == Hor->ID)
+                Hortalica *Afe = getLst(Del);
+                if (Afe->ID == Hor->ID)
                 {
                     removeLst(Afetados, Del);
                     Figura *F = Hor->Fig;
@@ -1047,7 +1047,6 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
                 }
                 Del = getNextLst(Afetados, Del);
             }
-            free(P);
             ReportaHortalica(*All, log, Hor);
             fprintf(log, "\n");
         }
