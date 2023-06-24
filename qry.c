@@ -1,21 +1,14 @@
-#include "svg-dot.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "geo.h"
-#include "Bibliotecas/arqsvg.h"
+#include "Bibliotecas/geradores.h"
 #include "Bibliotecas/learquivo.h"
 #include "Bibliotecas/utilities.h"
-#include "radialtree.h"
 #include "qry.h"
+#include "geo.h"
 #include "def.h"
-
-/*========================================================================================================== *
- * Funções GEO                                                                                               *
- *========================================================================================================== */
-
-#define TAM_VETOR 50 // Necessário para tirar os leaks de memória derivados das structs
+#include "svg.h"
 
 struct StFigura
 {
@@ -46,11 +39,6 @@ struct StLinha
     char cor[TAM_VETOR];
 };
 
-struct StTxtStyle
-{
-    char *fFamily, *fWeight, *fSize;
-};
-
 struct StTexto
 {
     int ID;
@@ -59,343 +47,6 @@ struct StTexto
     char a[TAM_VETOR];
     char rotacao[TAM_VETOR];
 };
-
-typedef struct StFigura Figura;
-typedef struct StCirculo Circulo;
-typedef struct StRetangulo Retangulo;
-typedef struct StLinha Linha;
-typedef struct StTxtStyle EstiloTxt;
-typedef struct StTexto Texto;
-
-ArqGeo abreLeituraGeo(char *fn)
-{
-    ArqGeo fgeo;
-    fgeo = fopen(fn, "r");
-    return fgeo;
-}
-
-void InterpretaGeo(ArqGeo fgeo, RadialTree All)
-{
-    char comando[2];
-    char *linha = NULL;
-    EstiloTxt *style = malloc(sizeof(EstiloTxt));
-    style->fFamily = my_strdup("arial");
-    style->fWeight = NULL;
-    style->fSize = NULL;
-    while (leLinha(fgeo, &linha))
-    {
-        linha[strcspn(linha, "\n")] = '\0';
-        sscanf(linha, "%s", comando);
-        if (strcmp(comando, "c") == 0)
-        {
-            Circulo *c = malloc(sizeof(Circulo));
-            sscanf(linha, "%s %d %lf %lf %lf", comando, &c->ID, &c->x, &c->y, &c->raio);
-            char *aux = getParametroI(linha, 5);
-            strcpy(c->corb, aux);
-            free(aux);
-            aux = getParametroI(linha, 6);
-            strcpy(c->corp, aux);
-            free(aux);
-            Figura *f = malloc(sizeof(Figura));
-            f->ID = c->ID;
-            f->Tipo = 'C';
-            f->Figura = c;
-            insertRadialT(All, c->x, c->y, f);
-            f->RefCount = 1; // Pois foi inserido apenas na árvore
-        }
-        else if (strcmp(comando, "r") == 0)
-        {
-            Retangulo *r = malloc(sizeof(Retangulo));
-            sscanf(linha, "%s %d %lf %lf %lf %lf", comando, &r->ID, &r->x, &r->y, &r->larg, &r->alt);
-            char *aux = getParametroI(linha, 6);
-            strcpy(r->corb, aux);
-            free(aux);
-            aux = getParametroI(linha, 7);
-            strcpy(r->corp, aux);
-            free(aux);
-            r->pont = -1;
-            Figura *f = malloc(sizeof(Figura));
-            f->ID = r->ID;
-            f->Tipo = 'R';
-            f->Figura = r;
-            insertRadialT(All, r->x, r->y, f);
-            f->RefCount = 1; // Pois foi inserido apenas na árvore
-        }
-        else if (strcmp(comando, "l") == 0)
-        {
-            Linha *l = malloc(sizeof(Linha));
-            sscanf(linha, "%s %d %lf %lf %lf %lf", comando, &l->ID, &l->x1, &l->y1, &l->x2, &l->y2);
-            char *aux = getParametroI(linha, 6);
-            strcpy(l->cor, aux);
-            free(aux);
-            Figura *f = malloc(sizeof(Figura));
-            f->ID = l->ID;
-            f->Tipo = 'L';
-            f->Figura = l;
-            insertRadialT(All, l->x1, l->y1, f);
-            f->RefCount = 1; // Pois foi inserido apenas na árvore
-        }
-        else if (strcmp(comando, "ts") == 0)
-        {
-            if (style->fFamily != NULL)
-            {
-                free(style->fFamily);
-            }
-            if (style->fWeight != NULL)
-            {
-                free(style->fWeight);
-            }
-            if (style->fSize != NULL)
-            {
-                free(style->fSize);
-            }
-            style->fFamily = getParametroI(linha, 1);
-            style->fWeight = getParametroI(linha, 2);
-            style->fSize = getParametroI(linha, 3);
-        }
-        else if (strcmp(comando, "t") == 0)
-        {
-            Texto *t = malloc(sizeof(Texto));
-            sscanf(linha, "%s %d %lf %lf %s %s %s %[^\n]", comando, &t->ID, &t->x, &t->y, t->corb, t->corp, t->a, t->txto);
-            t->rotacao[0] = '\0';
-            if (style->fFamily != NULL)
-            {
-                strcpy(t->fFamily, style->fFamily);
-            }
-            else
-            {
-                t->fFamily[0] = '\0';
-            }
-            if (style->fWeight != NULL)
-            {
-                strcpy(t->fWeight, style->fWeight);
-            }
-            else
-            {
-                t->fWeight[0] = '\0';
-            }
-            if (style->fSize != NULL)
-            {
-                strcpy(t->fSize, style->fSize);
-            }
-            else
-            {
-                t->fSize[0] = '\0';
-            }
-            Figura *f = malloc(sizeof(Figura));
-            f->ID = t->ID;
-            f->Tipo = 'T';
-            f->Figura = t;
-            insertRadialT(All, t->x, t->y, f);
-            f->RefCount = 1; // Pois foi inserido apenas na árvore
-        }
-        else
-        {
-            printf("Comando desconhecido: %s\n", comando);
-        }
-    }
-    if (style->fFamily != NULL)
-    {
-        free(style->fFamily);
-    }
-    if (style->fWeight != NULL)
-    {
-        free(style->fWeight);
-    }
-    if (style->fSize != NULL)
-    {
-        free(style->fSize);
-    }
-    free(style);
-}
-
-void CriaRetanguloSvg(ArqSvg fsvg, Item info)
-{
-    Figura *f = info;
-    Retangulo *r = f->Figura;
-    char *deco = NULL;
-    preparaDecoracao(&deco, 0, r->corb, r->corp, NULL, -1, -1, -1, r->pont);
-    escreveRetanguloSvg(fsvg, r->x, r->y, r->larg, r->alt, deco);
-    if (deco != NULL)
-    {
-        free(deco);
-    }
-}
-
-void CriaCirculoSvg(ArqSvg fsvg, Item info)
-{
-    Figura *f = info;
-    Circulo *c = f->Figura;
-    char *deco = NULL;
-    preparaDecoracao(&deco, 0, c->corb, c->corp, NULL, -1, -1, -1, -1);
-    escreveCirculoSvg(fsvg, c->x, c->y, c->raio, deco);
-    if (deco != NULL)
-    {
-        free(deco);
-    }
-}
-
-void CriaLinhaSvg(ArqSvg fsvg, Item info)
-{
-    Figura *f = info;
-    Linha *l = f->Figura;
-    char *deco = NULL;
-    preparaDecoracao(&deco, 0, l->cor, NULL, NULL, -1, -1, -1, -1);
-    escreveLinhaSvg(fsvg, l->x1, l->y1, l->x2, l->y2, deco);
-    if (deco != NULL)
-    {
-        free(deco);
-    }
-}
-
-void CriaTextoSvg(ArqSvg fsvg, Item info)
-{
-    Figura *f = info;
-    Texto *t = f->Figura;
-    char *deco = NULL, *fontWeight = NULL, *textAnchor = NULL;
-    if (*(t->a) == 'i')
-    {
-        textAnchor = my_strdup("start");
-    }
-    else if (*(t->a) == 'f')
-    {
-        textAnchor = my_strdup("end");
-    }
-    else
-    {
-        textAnchor = my_strdup("middle");
-    }
-
-    if (strcmp(t->fWeight, "l") == 0)
-    {
-        fontWeight = my_strdup("lighter");
-    }
-    else if (strcmp(t->fWeight, "b") == 0)
-    {
-        fontWeight = my_strdup("bold");
-    }
-    else if (strcmp(t->fWeight, "b+") == 0)
-    {
-        fontWeight = my_strdup("bolder");
-    }
-    else
-    {
-        fontWeight = my_strdup("normal");
-    }
-    preparaDecoracaoTexto(&deco, 0, t->fFamily, NULL, fontWeight, t->fSize, t->corb, t->corp, textAnchor, t->rotacao);
-    escreveTextoSvg(fsvg, t->x, t->y, t->txto, deco);
-    if (deco != NULL)
-    {
-        free(deco);
-    }
-    free(fontWeight);
-    free(textAnchor);
-}
-
-bool GetRetangulo(Info figura, double x1, double y1, double x2, double y2)
-{
-    Figura *f = figura;
-    return (f->Tipo == 'R');
-}
-
-bool GetCirculo(Info figura, double x1, double y1, double x2, double y2)
-{
-    Figura *f = figura;
-    return (f->Tipo == 'C');
-}
-
-bool GetLinha(Info figura, double x1, double y1, double x2, double y2)
-{
-    Figura *f = figura;
-    return (f->Tipo == 'L');
-}
-
-bool GetTexto(Info figura, double x1, double y1, double x2, double y2)
-{
-    Figura *f = figura;
-    return (f->Tipo == 'T');
-}
-
-void FreeFigura(Info figura)
-{
-    Figura *f = (Figura *)figura;
-    if (f->RefCount == 1)
-    {
-        switch (f->Tipo)
-        {
-        case 'R':
-        {
-            Retangulo *r = (Retangulo *)f->Figura;
-            free(r);
-            break;
-        }
-        case 'C':
-        {
-            Circulo *c = (Circulo *)f->Figura;
-            free(c);
-            break;
-        }
-        case 'L':
-        {
-            Linha *l = (Linha *)f->Figura;
-            free(l);
-            break;
-        }
-        case 'T':
-        {
-            Texto *t = (Texto *)f->Figura;
-            free(t);
-            break;
-        }
-        }
-        free(f);
-    }
-    else
-    {
-        f->RefCount--;
-    }
-}
-
-void fechaGeo(ArqGeo fgeo)
-{
-    if (fgeo != NULL)
-    {
-        fclose(fgeo);
-    }
-}
-
-/*========================================================================================================== *
- * Funções DOT                                                                                               *
- *========================================================================================================== */
-
-void LigaNo(ArqDot fdot, RadialTree All, Node pai, Node filho)
-{
-    if (pai == NULL)
-    {
-        char Forma = ((Figura *)getInfoRadialT(All, filho))->Tipo;
-        int ID = ((Figura *)getInfoRadialT(All, filho))->ID;
-        fprintf(fdot, "Raiz -> %c%d\n", Forma, ID);
-    }
-    else
-    {
-        char Forma1 = ((Figura *)getInfoRadialT(All, pai))->Tipo;
-        int ID1 = ((Figura *)getInfoRadialT(All, pai))->ID;
-        char Forma2 = ((Figura *)getInfoRadialT(All, filho))->Tipo;
-        int ID2 = ((Figura *)getInfoRadialT(All, filho))->ID;
-        fprintf(fdot, "%c%d -> %c%d\n", Forma1, ID1, Forma2, ID2);
-    }
-}
-
-void MarcaNoRemovido(ArqDot fdot, RadialTree All, Node removido)
-{
-    char Forma = ((Figura *)getInfoRadialT(All, removido))->Tipo;
-    int ID = ((Figura *)getInfoRadialT(All, removido))->ID;
-    fprintf(fdot, "%c%d [shape=none, label=\"X\", color=red, fontcolor=red, fontsize=20, width=0.3, height=0.3];\n", Forma, ID);
-}
-
-/*========================================================================================================== *
- * Funções QRY                                                                                               *
- *========================================================================================================== */
 
 struct StProcID
 {
@@ -439,11 +90,20 @@ struct StProcAfetado
     double x, y, larg, alt; // Especificações da área afetada
 };
 
+typedef struct StFigura Figura;
+typedef struct StCirculo Circulo;
+typedef struct StRetangulo Retangulo;
+typedef struct StLinha Linha;
+typedef struct StTexto Texto;
 typedef struct StProcID ProcID;
 typedef struct StEntidade Entidade;
 typedef struct StHortalica Hortalica;
 typedef struct StContabiliza Contabiliza;
 typedef struct StProcAfetado ProcAfetado;
+
+/*========================================================================================================== *
+ * Funções Principais                                                                                        *
+ *========================================================================================================== */
 
 ArqQry abreLeituraQry(char *fn)
 {
@@ -509,14 +169,14 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
             double x, y, larg, alt, raio;
             sscanf(linha, "%s %lf %lf %lf %lf %lf", comando, &x, &y, &larg, &alt, &raio);
             fprintf(log, "\n[*] %s %lf %lf %lf %lf %lf\n", comando, x, y, larg, alt, raio);
-            Cura(x, y, larg, alt, raio, Afetados, Entidades, All, log);
+            Cura(x, y, larg, alt, raio, Afetados, Entidades, *All, log);
         }
         else if (strcmp(comando, "ad") == 0)
         {
             double x, y, larg, alt, raio;
             sscanf(linha, "%s %lf %lf %lf %lf %lf", comando, &x, &y, &larg, &alt, &raio);
             fprintf(log, "\n[*] %s %lf %lf %lf %lf %lf\n", comando, x, y, larg, alt, raio);
-            Aduba(x, y, larg, alt, raio, Afetados, Entidades, All, log);
+            Aduba(x, y, larg, alt, raio, Afetados, Entidades, *All, log);
         }
         else if (strcmp(comando, "st") == 0)
         {
@@ -735,61 +395,42 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
     Area->alt = altura;
     visitaLarguraRadialT(*All, ObjetoAtingido, Area);
 
-    /* Insere na lista Afetados apenas os itens que não são entidades e foram atingidos e caso já tenha sido atingida não as insere novamente */
-    while (!isEmptyLst(Atingido))
+    /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
+    Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
+
+    /*Insere na lista NotAtingidoBefore apenas as Hortaliças que nunca foram atingidas */
+    Lista NotAtingidoBefore = filter(NotEntity, FiltraAtingidos, Afetados);
+
+    /*Insere na lista AtingidoBefore as Hortaliças que já foram atingidas alguma vez, caso não tenha sido atingida é atribuído NULL*/
+    Lista AtingidoBefore = map(NotEntity, TransformaAtingidos, Afetados);
+
+    while (!isEmptyLst(NotAtingidoBefore))
     {
-        bool IsEntity = false;
-        bool IsAtingido = false;
-        Figura *F = popLst(Atingido);
-        /* Verifica se não é uma entidade conhecida */
-        Iterador E = createIterador(Entidades, false);
-        while (!isIteratorEmpty(Entidades, E))
+        /*A hortaliça não havia sido afetada ainda*/
+        Figura *F = popLst(NotAtingidoBefore);
+        Hortalica *H = calloc(1, sizeof(Hortalica));
+        H->ID = F->ID;
+        H->Fig = F;
+        double AreaAfetada = CalculaAreaAfetada(H->Fig, Area);
+        H->Dano += AreaAfetada;
+        ReportaHortalica(*All, log, H);
+        if (H->Dano > 0.75)
         {
-            Entidade *Ent = getIteratorNext(Entidades, E);
-            if (F->ID == Ent->ID)
-            {
-                IsEntity = true;
-                break;
-            }
+            fprintf(log, "Eliminada!\n");
+            ReplaceWithRedX(All, Entidades, Afetados, H);
         }
-        killIterator(E);
-        /* Verifica se já não foi inserida */
-        Iterador HI = createIterador(Afetados, false);
-        Hortalica *Hor;
-        while (!isIteratorEmpty(Afetados, HI))
+        else
         {
-            Hor = getIteratorNext(Afetados, HI);
-            if (F->ID == Hor->ID)
-            {
-                IsAtingido = true;
-                break;
-            }
+            insertLst(Afetados, H);
+            F->RefCount++; // Pois foi inserido na lista Afetados
         }
-        killIterator(HI);
-        if (!IsEntity && !IsAtingido)
-        {
-            /*A hortaliça não havia sido afetada ainda*/
-            Hortalica *H = malloc(sizeof(Hortalica));
-            H->ID = F->ID;
-            H->Fig = F;
-            H->Dano = 0;
-            H->Prod = 0;
-            double AreaAfetada = CalculaAreaAfetada(H->Fig, Area);
-            H->Dano += AreaAfetada;
-            ReportaHortalica(*All, log, H);
-            if (H->Dano > 0.75)
-            {
-                fprintf(log, "Eliminada!\n");
-                ReplaceWithRedX(All, Entidades, Afetados, H);
-            }
-            else
-            {
-                insertLst(Afetados, H);
-                F->RefCount++; // Pois foi inserido na lista Afetados
-            }
-            fprintf(log, "\n");
-        }
-        else if (!IsEntity)
+        fprintf(log, "\n");
+    }
+
+    while (!isEmptyLst(AtingidoBefore))
+    {
+        Hortalica *Hor = popLst(AtingidoBefore);
+        if (Hor != NULL)
         {
             /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
             double AreaAfetada = CalculaAreaAfetada(Hor->Fig, Area);
@@ -804,6 +445,9 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
         }
     }
     killLst(Atingido);
+    killLst(NotEntity);
+    killLst(NotAtingidoBefore);
+    killLst(AtingidoBefore);
     free(Area);
 
     /*Marca a área afetada para o svg e marca o círculo vermelho em (x,y)*/
@@ -811,7 +455,7 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
     CriaMarcacaoCircular(*All, Entidades, x, y, raio, "red", "#ffffff00");
 }
 
-void Cura(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log)
+void Cura(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree All, FILE *log)
 {
     Lista Atingido = createLst(-1);
     ProcAfetado *Area = malloc(sizeof(ProcAfetado));
@@ -820,43 +464,21 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
     Area->y = y;
     Area->larg = largura;
     Area->alt = altura;
-    visitaLarguraRadialT(*All, ObjetoAtingido, Area);
+    visitaLarguraRadialT(All, ObjetoAtingido, Area);
 
-    /* Insere na lista Afetados apenas os itens que não são entidades e foram atingidos e caso já tenha sido atingida não as insere novamente */
-    while (!isEmptyLst(Atingido))
+    /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
+    Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
+
+    /*Insere na lista AtingidoBefore as Hortaliças que já foram atingidas alguma vez, caso não tenha sido atingida é atribuído NULL*/
+    Lista AtingidoBefore = map(NotEntity, TransformaAtingidos, Afetados);
+
+    while (!isEmptyLst(AtingidoBefore))
     {
-        bool IsEntity = false;
-        bool IsAtingido = false;
-        Figura *F = popLst(Atingido);
-        /* Verifica se não é uma entidade conhecida */
-        Iterador E = createIterador(Entidades, false);
-        while (!isIteratorEmpty(Entidades, E))
-        {
-            Entidade *Ent = getIteratorNext(Entidades, E);
-            if (F->ID == Ent->ID)
-            {
-                IsEntity = true;
-                break;
-            }
-        }
-        killIterator(E);
-        /* Verifica se já não foi inserida */
-        Iterador HI = createIterador(Afetados, false);
-        Hortalica *Hor;
-        while (!isIteratorEmpty(Afetados, HI))
-        {
-            Hor = getIteratorNext(Afetados, HI);
-            if (F->ID == Hor->ID)
-            {
-                IsAtingido = true;
-                break;
-            }
-        }
-        killIterator(HI);
-        if (!IsEntity && IsAtingido)
+        Hortalica *Hor = popLst(AtingidoBefore);
+        if (Hor != NULL)
         {
             /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
-            ReportaHortalica(*All, log, Hor);
+            ReportaHortalica(All, log, Hor);
             if (Hor->Dano > 0)
             {
                 double AreaAfetada = CalculaAreaAfetada(Hor->Fig, Area);
@@ -869,15 +491,18 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
             fprintf(log, "\n");
         }
     }
+
     killLst(Atingido);
+    killLst(NotEntity);
+    killLst(AtingidoBefore);
     free(Area);
 
     /*Marca a área afetada para o svg e marca o círculo amarelo em (x,y)*/
-    CriaArea(*All, Entidades, x, y, x + largura, y + altura);
-    CriaMarcacaoCircular(*All, Entidades, x, y, raio, "yellow", "#ffffff00");
+    CriaArea(All, Entidades, x, y, x + largura, y + altura);
+    CriaMarcacaoCircular(All, Entidades, x, y, raio, "yellow", "#ffffff00");
 }
 
-void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log)
+void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree All, FILE *log)
 {
     Lista Atingido = createLst(-1);
     ProcAfetado *Area = malloc(sizeof(ProcAfetado));
@@ -886,76 +511,62 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
     Area->y = y;
     Area->larg = largura;
     Area->alt = altura;
-    visitaLarguraRadialT(*All, ObjetoTotalAtingido, Area);
+    visitaLarguraRadialT(All, ObjetoTotalAtingido, Area);
 
-    /* Insere na lista Afetados apenas os itens que não são entidades e foram atingidos e caso já tenha sido atingida não as insere novamente */
-    while (!isEmptyLst(Atingido))
+    /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
+    Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
+
+    /*Insere na lista NotAtingidoBefore apenas as Hortaliças que nunca foram atingidas */
+    Lista NotAtingidoBefore = filter(NotEntity, FiltraAtingidos, Afetados);
+
+    /*Insere na lista AtingidoBefore as Hortaliças que já foram atingidas alguma vez, caso não tenha sido atingida é atribuído NULL*/
+    Lista AtingidoBefore = map(NotEntity, TransformaAtingidos, Afetados);
+
+    while (!isEmptyLst(NotAtingidoBefore))
     {
-        bool IsEntity = false;
-        bool IsAtingido = false;
-        Figura *F = popLst(Atingido);
-        /* Verifica se não é uma entidade conhecida */
-        Iterador E = createIterador(Entidades, false);
-        while (!isIteratorEmpty(Entidades, E))
-        {
-            Entidade *Ent = getIteratorNext(Entidades, E);
-            if (F->ID == Ent->ID)
-            {
-                IsEntity = true;
-                break;
-            }
-        }
-        killIterator(E);
-        /* Verifica se já não foi inserida */
-        Iterador HI = createIterador(Afetados, false);
-        Hortalica *Hor;
-        while (!isIteratorEmpty(Afetados, HI))
-        {
-            Hor = getIteratorNext(Afetados, HI);
-            if (F->ID == Hor->ID)
-            {
-                IsAtingido = true;
-                break;
-            }
-        }
-        killIterator(HI);
-        if (!IsEntity && !IsAtingido)
-        {
-            /*A hortaliça não havia sido afetada ainda*/
-            Hortalica *H = malloc(sizeof(Hortalica));
-            H->ID = F->ID;
-            H->Fig = F;
-            H->Dano = 0;
-            H->Prod = 0.1;
-            ReportaHortalica(*All, log, H);
-            insertLst(Afetados, H);
-            F->RefCount++; // Pois foi inserido na lista Afetados
-            fprintf(log, "\n");
-        }
-        else if (!IsEntity)
+        /*A hortaliça não havia sido afetada ainda*/
+        Figura *F = popLst(NotAtingidoBefore);
+        Hortalica *H = calloc(1, sizeof(Hortalica));
+        H->ID = F->ID;
+        H->Fig = F;
+        H->Prod = 0.1;
+        ReportaHortalica(All, log, H);
+        insertLst(Afetados, H);
+        F->RefCount++; // Pois foi inserido na lista Afetados
+        fprintf(log, "\n");
+    }
+
+    while (!isEmptyLst(AtingidoBefore))
+    {
+        Hortalica *Hor = popLst(AtingidoBefore);
+        if (Hor != NULL)
         {
             /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
             Hor->Prod += 0.1;
-            ReportaHortalica(*All, log, Hor);
+            ReportaHortalica(All, log, Hor);
             fprintf(log, "\n");
         }
     }
+
     killLst(Atingido);
+    killLst(NotEntity);
+    killLst(NotAtingidoBefore);
+    killLst(AtingidoBefore);
     free(Area);
 
     /*Marca a área afetada para o svg e marca o círculo verde em (x,y)*/
-    CriaArea(*All, Entidades, x, y, x + largura, y + altura);
-    CriaMarcacaoCircular(*All, Entidades, x, y, raio, "green", "#ffffff00");
+    CriaArea(All, Entidades, x, y, x + largura, y + altura);
+    CriaMarcacaoCircular(All, Entidades, x, y, raio, "green", "#ffffff00");
 }
 
-void Semeia(double x, double y, double largura, double altura, int fator, double dx, double dy, int ID, Lista Entidades, RadialTree All, FILE *log)
+void Semeia(double x, double y, double largura, double altura, int fator, double dx, double dy, int j, Lista Entidades, RadialTree All, FILE *log)
 {
     /* "Copia" os nós dentro da área */
     Lista Nos = createLst(-1);
     getNodesDentroRegiaoRadialT(All, x, y, x + largura, y + altura, Nos);
 
     /* "Cola" os nós na área movida por dx e dy */
-    Paste(ID, dx, dy, fator, All, Nos, Entidades, log);
+    Paste(j, dx, dy, fator, All, Nos, Entidades, log);
 
     /*Marca a área copiada para o svg e marca o círculo vermelho em (x,y)*/
     CriaArea(All, Entidades, x, y, x + largura, y + altura);
@@ -1042,6 +653,11 @@ void fechaQry(ArqQry fqry)
     }
 }
 
+/*========================================================================================================== *
+ * Funções Auxiliares                                                                                        *
+ *========================================================================================================== */
+
+
 void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, FILE *log, double Xinicio, double Yinicio, double Xfim, double Yfim)
 {
     Lista Colh = createLst(-1);
@@ -1053,58 +669,39 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
     Area->alt = Yfim - Yinicio;
     visitaLarguraRadialT(*All, ObjetoTotalAtingido, Area);
 
-    /* Insere na lista Colheita apenas os itens que não são entidades e estão na área */
-    while (!isEmptyLst(Colh))
+    /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
+    Lista NotEntity = filter(Colh, FiltraEntidades, Entidades);
+
+    /*Insere na lista NotAtingidoBefore apenas as Hortaliças que nunca foram atingidas */
+    Lista NotAtingidoBefore = filter(NotEntity, FiltraAtingidos, Afetados);
+
+    /*Insere na lista AtingidoBefore as Hortaliças que já foram atingidas alguma vez, caso não tenha sido atingida é atribuído NULL*/
+    Lista AtingidoBefore = map(NotEntity, TransformaAtingidos, Afetados);
+
+    while (!isEmptyLst(NotAtingidoBefore))
     {
-        bool IsEntity = false;
-        bool IsAtingido = false;
-        Figura *F = popLst(Colh);
-        /* Verifica se não é uma entidade conhecida */
-        Iterador E = createIterador(Entidades, false);
-        while (!isIteratorEmpty(Entidades, E))
-        {
-            Entidade *Ent = getIteratorNext(Entidades, E);
-            if (F->ID == Ent->ID)
-            {
-                IsEntity = true;
-                break;
-            }
-        }
-        killIterator(E);
-        /* Verifica se foi atingida */
-        Iterador A = createIterador(Afetados, false);
-        Hortalica *Hor;
-        while (!isIteratorEmpty(Afetados, A))
-        {
-            Hor = getIteratorNext(Afetados, A);
-            if (F->ID == Hor->ID)
-            {
-                IsAtingido = true;
-                break;
-            }
-        }
-        killIterator(A);
-        if (!IsEntity && !IsAtingido)
-        {
-            /*A hortaliça nunca foi atingida e não é uma entidade*/
-            Hortalica *H = malloc(sizeof(Hortalica));
-            H->ID = F->ID;
-            H->Fig = F;
-            H->Dano = 0;
-            H->Prod = 0;
-            insertLst(Colheita, H);
-            F->RefCount++; // Pois foi inserido na lista Colheita
-            ReportaHortalica(*All, log, H);
-            fprintf(log, "\n");
-        }
-        else if (!IsEntity)
+        /*A hortaliça nunca foi atingida e não é uma entidade*/
+        Figura *F = popLst(NotAtingidoBefore);
+        Hortalica *H = calloc(1, sizeof(Hortalica));
+        H->ID = F->ID;
+        H->Fig = F;
+        insertLst(Colheita, H);
+        F->RefCount++; // Pois foi inserido na lista Colheita
+        ReportaHortalica(*All, log, H);
+        fprintf(log, "\n");
+    }
+
+    while (!isEmptyLst(AtingidoBefore))
+    {
+        Hortalica *Hor = popLst(AtingidoBefore);
+        if (Hor != NULL)
         {
             /*A hortaliça já foi atingida e não é uma entidade*/
-            ProcID *P = ProcuraID(Hor->ID, *All);
             Posic Del = getFirstLst(Afetados);
             while (Del != NULL)
             {
-                if (Del != NULL && ((Hortalica *)getLst(Del))->ID == Hor->ID)
+                Hortalica *Afe = getLst(Del);
+                if (Afe->ID == Hor->ID)
                 {
                     removeLst(Afetados, Del);
                     Figura *F = Hor->Fig;
@@ -1115,12 +712,15 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
                 }
                 Del = getNextLst(Afetados, Del);
             }
-            free(P);
             ReportaHortalica(*All, log, Hor);
             fprintf(log, "\n");
         }
     }
+
     killLst(Colh);
+    killLst(NotEntity);
+    killLst(NotAtingidoBefore);
+    killLst(AtingidoBefore);
     free(Area);
 
     /* Remove os itens que foram colhidos da árvore */
@@ -1193,181 +793,6 @@ void ContabilizaColheita(Lista Colheita, FILE *log)
     fprintf(log, "Cenoura: %.0lfg ou %.2lfkg\n", CONT.cenoura, CONT.cenoura / 1000);
     fprintf(log, "Mato(linha): %.0lfg ou %.2lfkg\n", CONT.mato_linha, CONT.mato_linha / 1000);
     fprintf(log, "Mato(texto): %.0lfg ou %.2lfkg\n\n", CONT.mato_texto, CONT.mato_texto / 1000);
-}
-
-int GetIDUnico(Lista Entidades, int ID)
-{
-    int IDunico = ID;
-    bool JaExiste = true;
-    Iterador E = createIterador(Entidades, false);
-    while (JaExiste)
-    {
-        JaExiste = false;
-        while (!isIteratorEmpty(Entidades, E))
-        {
-            Entidade *Ent = getIteratorNext(Entidades, E);
-            if (Ent->ID == IDunico)
-            {
-                IDunico++;
-                JaExiste = true;
-                break;
-            }
-        }
-    }
-    killIterator(E);
-    return IDunico;
-}
-
-void CriaArea(RadialTree All, Lista Entidades, double Xinicio, double Yinicio, double Xfim, double Yfim)
-{
-    Retangulo *r = malloc(sizeof(Retangulo));
-    r->x = Xinicio;
-    r->y = Yinicio;
-    r->larg = Xfim - Xinicio;
-    r->alt = Yfim - Yinicio;
-    strcpy(r->corp, "#ffffff00"); // Branco Transparente via canal alpha 00
-    strcpy(r->corb, "#ff0000");   // Vermelho
-    r->pont = 3;
-    r->ID = GetIDUnico(Entidades, 9999);
-    Figura *f = malloc(sizeof(Figura));
-    f->ID = r->ID;
-    f->Tipo = 'R';
-    f->Figura = r;
-    Entidade *e = malloc(sizeof(Entidade));
-    e->ID = r->ID;
-    e->Fig = f;
-    e->Nox = r->x;
-    e->Noy = r->y;
-    e->IsColheita = false;
-    insertRadialT(All, r->x, r->y, f);
-    insertLst(Entidades, e);
-    f->RefCount = 2; // 2 pois foi inserido tanto na lista de entidades quanto na árvore
-}
-
-void FreeEntidade(void *Ent)
-{
-    Entidade *E = Ent;
-    FreeFigura(E->Fig);
-    free(E);
-}
-
-void FreeHortalica(void *Hor)
-{
-    Hortalica *H = Hor;
-    FreeFigura(H->Fig);
-    free(H);
-}
-
-void VerificaID(Info i, double x, double y, void *aux)
-{
-    Figura *F = i;
-    if (F->ID == ((ProcID *)aux)->ID)
-    {
-        ((ProcID *)aux)->NoInfo = i;
-        ((ProcID *)aux)->Nox = x;
-        ((ProcID *)aux)->Noy = y;
-    }
-}
-
-Info ProcuraID(int ID, RadialTree All)
-{
-    ProcID *aux = malloc(sizeof(ProcID));
-    aux->ID = ID;
-    visitaLarguraRadialT(All, VerificaID, aux);
-    return aux;
-}
-
-void ObjetoAtingido(Info i, double x, double y, void *aux)
-{
-    ProcAfetado *A = aux;
-    Lista Atingido = A->Atingido;
-    if (VerificaAtingido(i, aux))
-    {
-        insertLst(Atingido, i);
-    }
-}
-
-bool VerificaAtingido(Info i, void *aux)
-{
-    ProcAfetado *Atinge = aux;
-    Figura *F = i;
-    if (F->Tipo == 'T')
-    {
-        Texto *t = F->Figura;
-        return VerificaPonto(Atinge->x, t->x, Atinge->x + Atinge->larg, Atinge->y + Atinge->alt, t->y, Atinge->y);
-    }
-    else if (F->Tipo == 'C')
-    {
-        Circulo *c = F->Figura;
-        return (c->x + c->raio >= Atinge->x && c->x - c->raio <= Atinge->x + Atinge->larg &&
-                c->y + c->raio >= Atinge->y && c->y - c->raio <= Atinge->y + Atinge->alt);
-    }
-    else if (F->Tipo == 'R')
-    {
-        Retangulo *r = F->Figura;
-        return (r->x + r->larg >= Atinge->x && r->x <= Atinge->x + Atinge->larg &&
-                r->y + r->alt >= Atinge->y && r->y <= Atinge->y + Atinge->alt);
-    }
-    else if (F->Tipo == 'L')
-    {
-        Linha *l = F->Figura;
-        return (VerificaIntervalo(Atinge->x, l->x1, Atinge->x + Atinge->larg) &&
-                VerificaIntervalo(Atinge->x, l->x2, Atinge->x + Atinge->larg) &&
-                VerificaIntervalo(Atinge->y, l->y1, Atinge->y + Atinge->alt) &&
-                VerificaIntervalo(Atinge->y, l->y2, Atinge->y + Atinge->alt));
-    }
-
-    else
-    {
-        printf("Erro ao verificar forma da figura atingida!\n");
-        return false;
-    }
-}
-
-void ObjetoTotalAtingido(Info i, double x, double y, void *aux)
-{
-    ProcAfetado *A = aux;
-    Lista Atingido = A->Atingido;
-    if (VerificaTotalAtingido(i, aux))
-    {
-        insertLst(Atingido, i);
-    }
-}
-
-bool VerificaTotalAtingido(Info i, void *aux)
-{
-    ProcAfetado *Atinge = aux;
-    Figura *F = i;
-    if (F->Tipo == 'T')
-    {
-        Texto *t = F->Figura;
-        return VerificaPonto(Atinge->x, t->x, Atinge->x + Atinge->larg, Atinge->y + Atinge->alt, t->y, Atinge->y);
-    }
-    else if (F->Tipo == 'C')
-    {
-        Circulo *c = F->Figura;
-        return (c->x - c->raio >= Atinge->x && c->x + c->raio <= Atinge->x + Atinge->larg &&
-                c->y - c->raio >= Atinge->y && c->y + c->raio <= Atinge->y + Atinge->alt);
-    }
-    else if (F->Tipo == 'R')
-    {
-        Retangulo *r = F->Figura;
-        return (r->x >= Atinge->x && r->x + r->larg <= Atinge->x + Atinge->larg &&
-                r->y >= Atinge->y && r->y + r->alt <= Atinge->y + Atinge->alt);
-    }
-    else if (F->Tipo == 'L')
-    {
-        Linha *l = F->Figura;
-        return (l->x1 >= Atinge->x && l->x1 <= Atinge->x + Atinge->larg &&
-                l->x2 >= Atinge->x && l->x2 <= Atinge->x + Atinge->larg &&
-                l->y1 >= Atinge->y && l->y1 <= Atinge->y + Atinge->alt &&
-                l->y2 >= Atinge->y && l->y2 <= Atinge->y + Atinge->alt);
-    }
-    else
-    {
-        printf("Erro ao verificar forma do objeto!\n");
-        return false;
-    }
 }
 
 void Paste(int j, double dx, double dy, int proporcao, RadialTree All, Lista Nos, Lista Entidades, FILE *log)
@@ -1528,6 +953,56 @@ void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt)
     }
 }
 
+void CriaArea(RadialTree All, Lista Entidades, double Xinicio, double Yinicio, double Xfim, double Yfim)
+{
+    Retangulo *r = malloc(sizeof(Retangulo));
+    r->x = Xinicio;
+    r->y = Yinicio;
+    r->larg = Xfim - Xinicio;
+    r->alt = Yfim - Yinicio;
+    strcpy(r->corp, "#ffffff00"); // Branco Transparente via canal alpha 00
+    strcpy(r->corb, "#ff0000");   // Vermelho
+    r->pont = 3;
+    r->ID = GetIDUnico(Entidades, 9999);
+    Figura *f = malloc(sizeof(Figura));
+    f->ID = r->ID;
+    f->Tipo = 'R';
+    f->Figura = r;
+    Entidade *e = malloc(sizeof(Entidade));
+    e->ID = r->ID;
+    e->Fig = f;
+    e->Nox = r->x;
+    e->Noy = r->y;
+    e->IsColheita = false;
+    insertRadialT(All, r->x, r->y, f);
+    insertLst(Entidades, e);
+    f->RefCount = 2; // 2 pois foi inserido tanto na lista de entidades quanto na árvore
+}
+
+void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[], char corp[])
+{
+    Circulo *c = malloc(sizeof(Circulo));
+    c->x = x;
+    c->y = y;
+    c->raio = raio;
+    c->ID = GetIDUnico(Entidades, 9999);
+    strcpy(c->corp, corp);
+    strcpy(c->corb, corb);
+    Figura *f = malloc(sizeof(Figura));
+    f->ID = c->ID;
+    f->Tipo = 'C';
+    f->Figura = c;
+    Entidade *e = malloc(sizeof(Entidade));
+    e->ID = c->ID;
+    e->Fig = f;
+    e->Nox = c->x;
+    e->Noy = c->y;
+    e->IsColheita = false;
+    insertRadialT(All, c->x, c->y, f);
+    insertLst(Entidades, e);
+    f->RefCount = 2; // 2 pois foi inserido tanto na lista de entidades quanto na árvore
+}
+
 double CalculaAreaAfetada(void *Fig, void *Afeta)
 {
     Figura *F = Fig;
@@ -1624,28 +1099,97 @@ double CalculaAreaIntersecaoCirculoRetangulo(void *Circ, void *Afeta)
     return finalIntersectionArea;
 }
 
-void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[], char corp[])
+void ObjetoAtingido(Info i, double x, double y, void *aux)
 {
-    Circulo *c = malloc(sizeof(Circulo));
-    c->x = x;
-    c->y = y;
-    c->raio = raio;
-    c->ID = GetIDUnico(Entidades, 9999);
-    strcpy(c->corp, corp);
-    strcpy(c->corb, corb);
-    Figura *f = malloc(sizeof(Figura));
-    f->ID = c->ID;
-    f->Tipo = 'C';
-    f->Figura = c;
-    Entidade *e = malloc(sizeof(Entidade));
-    e->ID = c->ID;
-    e->Fig = f;
-    e->Nox = c->x;
-    e->Noy = c->y;
-    e->IsColheita = false;
-    insertRadialT(All, c->x, c->y, f);
-    insertLst(Entidades, e);
-    f->RefCount = 2; // 2 pois foi inserido tanto na lista de entidades quanto na árvore
+    ProcAfetado *A = aux;
+    Lista Atingido = A->Atingido;
+    if (VerificaAtingido(i, aux))
+    {
+        insertLst(Atingido, i);
+    }
+}
+
+bool VerificaAtingido(Info i, void *aux)
+{
+    ProcAfetado *Atinge = aux;
+    Figura *F = i;
+    if (F->Tipo == 'T')
+    {
+        Texto *t = F->Figura;
+        return VerificaPonto(Atinge->x, t->x, Atinge->x + Atinge->larg, Atinge->y + Atinge->alt, t->y, Atinge->y);
+    }
+    else if (F->Tipo == 'C')
+    {
+        Circulo *c = F->Figura;
+        return (c->x + c->raio >= Atinge->x && c->x - c->raio <= Atinge->x + Atinge->larg &&
+                c->y + c->raio >= Atinge->y && c->y - c->raio <= Atinge->y + Atinge->alt);
+    }
+    else if (F->Tipo == 'R')
+    {
+        Retangulo *r = F->Figura;
+        return (r->x + r->larg >= Atinge->x && r->x <= Atinge->x + Atinge->larg &&
+                r->y + r->alt >= Atinge->y && r->y <= Atinge->y + Atinge->alt);
+    }
+    else if (F->Tipo == 'L')
+    {
+        Linha *l = F->Figura;
+        return (VerificaIntervalo(Atinge->x, l->x1, Atinge->x + Atinge->larg) &&
+                VerificaIntervalo(Atinge->x, l->x2, Atinge->x + Atinge->larg) &&
+                VerificaIntervalo(Atinge->y, l->y1, Atinge->y + Atinge->alt) &&
+                VerificaIntervalo(Atinge->y, l->y2, Atinge->y + Atinge->alt));
+    }
+
+    else
+    {
+        printf("Erro ao verificar forma da figura atingida!\n");
+        return false;
+    }
+}
+
+void ObjetoTotalAtingido(Info i, double x, double y, void *aux)
+{
+    ProcAfetado *A = aux;
+    Lista Atingido = A->Atingido;
+    if (VerificaTotalAtingido(i, aux))
+    {
+        insertLst(Atingido, i);
+    }
+}
+
+bool VerificaTotalAtingido(Info i, void *aux)
+{
+    ProcAfetado *Atinge = aux;
+    Figura *F = i;
+    if (F->Tipo == 'T')
+    {
+        Texto *t = F->Figura;
+        return VerificaPonto(Atinge->x, t->x, Atinge->x + Atinge->larg, Atinge->y + Atinge->alt, t->y, Atinge->y);
+    }
+    else if (F->Tipo == 'C')
+    {
+        Circulo *c = F->Figura;
+        return (c->x - c->raio >= Atinge->x && c->x + c->raio <= Atinge->x + Atinge->larg &&
+                c->y - c->raio >= Atinge->y && c->y + c->raio <= Atinge->y + Atinge->alt);
+    }
+    else if (F->Tipo == 'R')
+    {
+        Retangulo *r = F->Figura;
+        return (r->x >= Atinge->x && r->x + r->larg <= Atinge->x + Atinge->larg &&
+                r->y >= Atinge->y && r->y + r->alt <= Atinge->y + Atinge->alt);
+    }
+    else if (F->Tipo == 'L')
+    {
+        Linha *l = F->Figura;
+        return (l->x1 >= Atinge->x && l->x1 <= Atinge->x + Atinge->larg &&
+                l->x2 >= Atinge->x && l->x2 <= Atinge->x + Atinge->larg &&
+                l->y1 >= Atinge->y && l->y1 <= Atinge->y + Atinge->alt &&
+                l->y2 >= Atinge->y && l->y2 <= Atinge->y + Atinge->alt);
+    }
+    else
+    {
+        printf("Erro ao verificar forma do objeto!\n");
+        return false;
+    }
 }
 
 void ReplaceWithRedX(RadialTree *All, Lista Entidades, Lista Afetados, void *Hor)
@@ -1704,58 +1248,123 @@ void CriaXVermelho(RadialTree All, Lista Entidades, double x, double y)
     f->RefCount = 2; // 2 pois foi inserido tanto na lista de entidades quanto na árvore
 }
 
-void MostraID(ArqSvg fsvg, Item info)
-{
-    Figura *F = info;
-    char *deco = NULL;
-    char cor[] = "#000000";
-    char ancora[] = "middle";
-    char size[] = "16";
-    char weight[] = "bold";
-    preparaDecoracaoTexto(&deco, 0, NULL, NULL, weight, size, NULL, cor, ancora, NULL);
-    char txto[30];
-    sprintf(txto, "%c%d", F->Tipo, F->ID);
-    double x, y;
-    if (F->Tipo == 'T')
-    {
-        Texto *t = F->Figura;
-        x = t->x;
-        y = t->y;
-    }
-    else if (F->Tipo == 'C')
-    {
-        Circulo *c = F->Figura;
-        x = c->x;
-        y = c->y;
-    }
-    else if (F->Tipo == 'R')
-    {
-        Retangulo *r = F->Figura;
-        x = r->x;
-        y = r->y;
-    }
-    else if (F->Tipo == 'L')
-    {
-        Linha *l = F->Figura;
-        x = l->x1;
-        y = l->y1;
-    }
-    else
-    {
-        free(deco);
-        return;
-    }
-    escreveTextoSvg(fsvg, x, y, txto, deco);
-    if (deco != NULL)
-    {
-        free(deco);
-    }
-}
-
 void ReportaHortalica(RadialTree All, FILE *log, void *Hor)
 {
     Hortalica *H = Hor;
     DadosI(H->ID, All, log);
     fprintf(log, "Dano: %.2lf %%\n", H->Dano * 100);
     fprintf(log, "Produtividade: %.2lf %%\n", H->Prod * 100);
+}
+
+void VerificaID(Info i, double x, double y, void *aux)
+{
+    Figura *F = i;
+    if (F->ID == ((ProcID *)aux)->ID)
+    {
+        ((ProcID *)aux)->NoInfo = i;
+        ((ProcID *)aux)->Nox = x;
+        ((ProcID *)aux)->Noy = y;
+    }
+}
+
+Info ProcuraID(int ID, RadialTree All)
+{
+    ProcID *aux = malloc(sizeof(ProcID));
+    aux->ID = ID;
+    visitaLarguraRadialT(All, VerificaID, aux);
+    return aux;
+}
+
+int GetIDUnico(Lista Entidades, int ID)
+{
+    int IDunico = ID;
+    bool JaExiste = true;
+    Iterador E = createIterador(Entidades, false);
+    while (JaExiste)
+    {
+        JaExiste = false;
+        while (!isIteratorEmpty(Entidades, E))
+        {
+            Entidade *Ent = getIteratorNext(Entidades, E);
+            if (Ent->ID == IDunico)
+            {
+                IDunico++;
+                JaExiste = true;
+                break;
+            }
+        }
+    }
+    killIterator(E);
+    return IDunico;
+}
+
+bool FiltraAtingidos(Item item, void *aux)
+{
+    Figura *F = (Figura *)item;
+    Lista Afetados = (Lista)aux;
+
+    Iterador A = createIterador(Afetados, false);
+    while (!isIteratorEmpty(Afetados, A))
+    {
+        Hortalica *Hor = getIteratorNext(Afetados, A);
+        if (F->ID == Hor->ID)
+        {
+            killIterator(A);
+            return false;
+        }
+    }
+    killIterator(A);
+    return true;
+}
+
+bool FiltraEntidades(Item item, void *aux)
+{
+    Figura *F = (Figura *)item;
+    Lista Entidades = (Lista)aux;
+
+    Iterador E = createIterador(Entidades, false);
+    while (!isIteratorEmpty(Entidades, E))
+    {
+        Entidade *Ent = getIteratorNext(Entidades, E);
+        if (F->ID == Ent->ID)
+        {
+            killIterator(E);
+            return false;
+        }
+    }
+    killIterator(E);
+    return true;
+}
+
+Item TransformaAtingidos(Item item, void *aux)
+{
+    Figura *F = (Figura *)item;
+    Lista Afetados = (Lista)aux;
+
+    Iterador A = createIterador(Afetados, false);
+    while (!isIteratorEmpty(Afetados, A))
+    {
+        Hortalica *Hor = getIteratorNext(Afetados, A);
+        if (F->ID == Hor->ID)
+        {
+            killIterator(A);
+            return Hor;
+        }
+    }
+    killIterator(A);
+    return NULL;
+}
+
+void FreeEntidade(void *Ent)
+{
+    Entidade *E = Ent;
+    FreeFigura(E->Fig);
+    free(E);
+}
+
+void FreeHortalica(void *Hor)
+{
+    Hortalica *H = Hor;
+    FreeFigura(H->Fig);
+    free(H);
 }

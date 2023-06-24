@@ -1,7 +1,9 @@
 #include "radialtree.h"
 #include "geo.h"
-#include "svg-dot.h"
+#include "svg.h"
+#include "dot.h"
 #include "Bibliotecas/utilities.h"
+#include "Bibliotecas/geradores.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -248,12 +250,9 @@ Lista VerificaArvore(RadialTree t)
 
 RadialTree newRadialTree(int numSetores, double fd)
 {
-    Raiz *Tree = malloc(sizeof(Raiz));
+    Raiz *Tree = calloc(1, sizeof(Raiz));
     Tree->numSetores = numSetores;
-    Tree->numTotalNos = 0;
-    Tree->numNosRemovidos = 0;
     Tree->limiar = fd;
-    Tree->node = NULL;
     return Tree;
 }
 
@@ -263,12 +262,10 @@ Node insertRadialT(RadialTree t, double x, double y, Info i)
 
     /*Inicializa o nó*/
     Tree->numTotalNos += 1;
-    NodeTree *No = malloc(sizeof(NodeTree));
+    NodeTree *No = calloc(1, sizeof(NodeTree));
     No->x = x;
     No->y = y;
     No->info = i;
-    No->removido = false;
-    No->pai = NULL;
     No->filhos = malloc(Tree->numSetores * sizeof(NodeTree *));
     for (int i = 0; i < Tree->numSetores; i++)
     {
@@ -372,7 +369,7 @@ void removeNoRadialT(RadialTree t, Node n)
     if (fd > Tree->limiar)
     {
         TerminaDot(ARQDOT);
-        ARQDOT = CriaLog("../logs/Arvore", "dot");
+        ARQDOT = CriaLog(FNARQDOT, "dot");
         InicializaDot(ARQDOT);
         RadialTree NovaArvore = newRadialTree(Tree->numSetores, Tree->limiar);
         Lista Aux = VerificaArvore(Tree);
@@ -472,7 +469,10 @@ bool getNodesDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, 
     /*Cria o Stack de verificação baseado na direção da área*/
     Lista Stack = createLst(-1);
     Lista Aux = createLst(-1);
-    insertLst(Aux, No);
+    if (!(No->removido))
+    {
+        insertLst(Aux, No);
+    }
     for (int i = 0; i < Tree->numSetores; i++)
     {
         double InclinacaoRetaInf = i * 360 / Tree->numSetores;

@@ -4,11 +4,17 @@
 #include "Bibliotecas/arqsvg.h"
 #include "radialtree.h"
 
+#define TAM_VETOR 50 // Necessário para tirar os leaks de memória derivados das structs, define o tamanho de todos os arrays de caracteres
+
 /*
  * Conjunto de funções que interpretam arquivos .geo e criam figuras svg a partir dele
  */
 
 typedef void *ArqGeo;
+
+/*========================================================================================================== *
+ * Funções Principais                                                                                        *
+ *========================================================================================================== */
 
 /**
  * @brief Cria o arquivo "fn" para escrita. Substitui o arquivo, caso exista.
@@ -30,6 +36,10 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All);
  * @param fgeo Ponteiro para o arquivo GEO aberto
  */
 void fechaGeo(ArqGeo fgeo);
+
+/*========================================================================================================== *
+ * Funções Auxiliares                                                                                        *
+ *========================================================================================================== */
 
 /**
  * @brief Interpreta o item dado pela lista e cria no arquivo svg o retângulo
@@ -97,7 +107,12 @@ bool GetTexto(Info figura, double x1, double y1, double x2, double y2);
  */
 void FreeFigura(Info figura);
 
-//APENAS PARA DEPURAÇÃO
+/**
+ * @note Esta função é feita apenas para fins de depuração 
+ * @brief Ela analisa o tipo da figura e escreve um texto no svg mostrando o ID da figura junto com o seu tipo
+ * @param fsvg Ponteiro para o arquivo SVG
+ * @param info Ponteiro para a struct com a figura
+ */
 void MostraID(ArqSvg fsvg, Item info);
 
 #endif

@@ -2,7 +2,7 @@
 PROJETO = ted
 
 # Arquivos fonte
-FONTES = main.c radialtree.c geo-qry.c svg-dot.c Bibliotecas/path.c Bibliotecas/utilities.c Bibliotecas/listadupla.c Bibliotecas/arqsvg.c Bibliotecas/learquivo.c Bibliotecas/geradores.c
+FONTES = main.c radialtree.c geo.c qry.c svg.c dot.c Bibliotecas/path.c Bibliotecas/utilities.c Bibliotecas/listadupla.c Bibliotecas/arqsvg.c Bibliotecas/learquivo.c Bibliotecas/geradores.c
 
 # Pasta de saída
 OUTPUT = output/

@@ -38,7 +38,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput);
  * @param Passos Número de passos a ser dado pela colheitadeira
  * @param Direcao Direção dos passos
  * @param log Ponteiro para o arquivo de registro
- * @param Entidades Lista que contém todas as informações de todas as colheitadeiras
+ * @param Entidades Lista que contém todas as entidades
  * @param All Endereço para a árvore radial com todos os elementos
  * @param Colheita Lista contendo todos as hortaliças colhidas
  * @param Afetados Lista contendo todos as hortaliças afetadas
@@ -55,13 +55,63 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
  */
 void Move(int ID, double dx, double dy, FILE *log, RadialTree *All);
 
+/**
+ * @brief Pragas de raio r são uniformemente distribuídas na região retangular
+ * @param x Coordenada x da região retangular
+ * @param y Coordenada y da região retangular
+ * @param largura Largura da região retangular
+ * @param altura Altura da região retangular
+ * @param raio Raio dos círculos uniformemente distribuídos
+ * @param Afetados Lista contendo todos as hortaliças afetadas
+ * @param Entidades Lista que contém todas as entidades
+ * @param All Endereço para a árvore radial com todos os elementos
+ * @param log Ponteiro para o arquivo de registro
+ */
 void Praga(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log);
 
-void Cura(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log);
+/**
+ * @brief Cura as hortaliças na mesma proporção dos círculos de raio r do defensivo.
+ * @param x Coordenada x da região retangular
+ * @param y Coordenada y da região retangular
+ * @param largura Largura da região retangular
+ * @param altura Altura da região retangular
+ * @param raio Raio dos círculos uniformemente distribuídos
+ * @param Afetados Lista contendo todos as hortaliças afetadas
+ * @param Entidades Lista que contém todas as entidades
+ * @param All Ponteiro para a árvore radial com todos os elementos
+ * @param log Ponteiro para o arquivo de registro
+ */
+void Cura(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree All, FILE *log);
 
-void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log);
+/**
+ * @brief Aduba as hortaliças da região Sempre que a área integral da hortaliça for atingida pelo adubo, a produtividade da hortaliça é incrementada em 10%.
+ * @param x Coordenada x da região retangular
+ * @param y Coordenada y da região retangular
+ * @param largura Largura da região retangular
+ * @param altura Altura da região retangular
+ * @param raio Raio dos círculos uniformemente distribuídos
+ * @param All Ponteiro para a árvore radial com todos os elementos
+ * @param Entidades Lista que contém todas as entidades
+ * @param Afetados Lista contendo todos as hortaliças afetadas
+ * @param log Ponteiro para o arquivo de registro
+ */
+void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree All, FILE *log);
 
-void Semeia(double x, double y, double largura, double altura, int fator, double dx, double dy, int ID, Lista Entidades, RadialTree All, FILE *log);
+/**
+ * @brief Dispersa as sementes das hortaliças que estão dentro da região (x,y,w,h), a um deslocamentode dx, dy, com fator f, com identificadores a partir de j.
+ * @param x Coordenada x da região retangular
+ * @param y Coordenada y da região retangular
+ * @param largura Largura da região retangular
+ * @param altura Altura da região retangular
+ * @param fator Fator de multiplicação das hortaliças
+ * @param dx Variação horizontal das hortaliças
+ * @param dy Variação vertical das hortaliças
+ * @param j ID do qual será contabilizado as hortaliças na nova área
+ * @param All Ponteiro para a árvore radial com todos os elementos
+ * @param Entidades Lista que contém todas as entidades
+ * @param log Ponteiro para o arquivo de registro
+ */
+void Semeia(double x, double y, double largura, double altura, int fator, double dx, double dy, int j, Lista Entidades, RadialTree All, FILE *log);
 
 /**
  * @brief Reporta os dados da figura identificado por ID no arquivo de registro
@@ -71,6 +121,12 @@ void Semeia(double x, double y, double largura, double altura, int fator, double
  */
 void DadosI(int ID, RadialTree All, FILE *log);
 
+/**
+ * @brief Reporta os atributos de todas as colheitadeiras
+ * @param Entidades Lista que contém todas as entidades
+ * @param log Ponteiro para o arquivo de registro
+ * @param All Ponteiro para a árvore radial com todos os elementos
+ */
 void InfoColheitadeiras(Lista Entidades, FILE *log, RadialTree All);
 
 /**
@@ -82,6 +138,157 @@ void fechaQry(ArqQry fqry);
 /*========================================================================================================== *
  * Funções Auxiliares                                                                                        *
  *========================================================================================================== */
+
+/**
+ * @brief Colhe os elementos na área e remove os nós da árvore sem remover a informação do nó e insere na lista colheita apenas as hortaliças
+ * @param All Endereço para a árvore radial com todos os elementos
+ * @param Entidades Lista contendo todas as entidades
+ * @param Afetados Lista contendo todos as hortaliças afetadas
+ * @param Colheita Lista contendo todos as hortaliças colhidos
+ * @param Xinicio Coordenada de início da área de colheita
+ * @param Yinicio Coordenada de início da área de colheita
+ * @param Xfim Coordenada de fim da área de colheita
+ * @param Yfim Coordenada de fim da área de colheita
+ */
+void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, FILE *log, double Xinicio, double Yinicio, double Xfim, double Yfim);
+
+/**
+ * @brief Contabiliza os elementos colhidos com base na Lista Colheita e os reporta no arquivo log
+ * @param Colheita Lista contendo todos os objetos colhidos
+ * @param log Ponteiro para o arquivo de registro
+ */
+void ContabilizaColheita(Lista Colheita, FILE *log);
+
+/**
+ * @brief Cola os nós na nova área determinada por dx e dy
+ * @param j ID que a partir dele as novas figuras serão enumeradas
+ * @param dx Variação horizontal da área
+ * @param dy Variação vertical da área
+ * @param proporcao Fator de proporção
+ * @param All Ponteiro para a árvore radial
+ * @param Nos Lista contendo os nós copiados
+ * @param Entidades Lista contendo as entidades
+ * @param log Ponteiro para o arquvio de registro
+ */
+void Paste(int j, double dx, double dy, int proporcao, RadialTree All, Lista Nos, Lista Entidades, FILE *log);
+
+/**
+ * @brief Copia as figuras da árvore e as insere na lista TempEnt proporcao vezes
+ * @param Fig Ponteiro para a struct do tipo Figura
+ * @param j ID que a partir dele as novas figuras serão enumeradas
+ * @param dx Variação horizontal das figuras
+ * @param dy Variação vertical das figuras
+ * @param proporcao Fator de proporção das figuras
+ * @param TempEnt Lista de entidades temporária para a "cola" das figuras
+ */
+void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt);
+
+/**
+ * @brief Cria o retângulo de colheita/praga/adubo e o insere tanto na árvore quanto na lista de entidades
+ * @param All Ponteiro para a árvore radial
+ * @param Entidades Lista contendo todas as entidades
+ * @param Xinicio Coordenada de início da área de colheita
+ * @param Yinicio Coordenada de início da área de colheita
+ * @param Xfim Coordenada de fim da área de colheita
+ * @param Yfim Coordenada de fim da área de colheita
+ */
+void CriaArea(RadialTree All, Lista Entidades, double Xinicio, double Yinicio, double Xfim, double Yfim);
+
+/**
+ * @brief Cria uma marcação circular nas coordenadas (x,y) com raio r
+ * @param All Ponteiro para a árvore radial
+ * @param Entidades Lista contendo todas as entidades
+ * @param x Coordenada x do círculo
+ * @param y Coordenada y do círculo
+ * @param raio Raio do círculo
+ * @param corb Cor da borda do círculo
+ * @param corp Cor do preenchimento do círculo
+ */
+void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[], char corp[]);
+
+/**
+ * @brief Dada uma figura Fig calcula a área afetada da figura pela região delimitada por Afeta
+ * @param Fig Ponteiro para a struct do tipo Figura
+ * @param Afeta Ponteiro para a struct do tipo ProcAfetado
+ * @return Retorna área afetada
+ */
+double CalculaAreaAfetada(void *Fig, void *Afeta);
+
+/**
+ * @brief Dada um retangulo Fig calcula a área de intersecção entre do retângulo e região delimitada por Afeta
+ * @param Ret Ponteiro para a struct do tipo Retangulo
+ * @param Afeta Ponteiro para a struct do tipo ProcAfetado
+ * @return Retorna a área de intersecção
+ */
+double CalculaAreaIntersecaoRetanguloRetangulo(void *Ret, void *Afeta);
+
+/**
+ * @brief Dada um circulo Circ calcula a área de intersecção entre do círculo e região delimitada por Afeta
+ * @param Circ Ponteiro para a struct do tipo Circulo
+ * @param Afeta Ponteiro para a struct do tipo ProcAfetado
+ * @return Retorna a área de intersecção
+ */
+double CalculaAreaIntersecaoCirculoRetangulo(void *Circ, void *Afeta);
+
+/**
+ * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore os objetos atingidos e inserí-los numa lista
+ * @param i Conteúdo do nó atual
+ * @param x Coordenada x do nó atual
+ * @param y Coordenada y do nó atual
+ * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
+ */
+void ObjetoAtingido(Info i, double x, double y, void *aux);
+
+/**
+ * @brief Verifica se determinado objeto foi atingido pela área
+ * @param i Conteúdo do nó atual
+ * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
+ * @return Retorna verdadeiro caso tenha sido atingido e falso caso não tenha
+ */
+bool VerificaAtingido(Info i, void *aux);
+
+/**
+ * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore os objetos 100% atingidos e inserí-los numa lista
+ * @param i Conteúdo do nó atual
+ * @param x Coordenada x do nó atual
+ * @param y Coordenada y do nó atual
+ * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
+ */
+void ObjetoTotalAtingido(Info i, double x, double y, void *aux);
+
+/**
+ * @brief Verifica se determinado objeto foi 100% atingido pela área
+ * @param i Conteúdo do nó atual
+ * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
+ * @return Retorna verdadeiro caso tenha sido atingido e falso caso não tenha
+ */
+bool VerificaTotalAtingido(Info i, void *aux);
+
+/**
+ * @brief Faz o "replace" de uma figura por um X vermelho
+ * @param All Endereço para a árvore radial
+ * @param Entidades Lista contendo todas as entidades
+ * @param Afetados Lista contendo todos as hortaliças afetadas
+ * @param Hor Ponteiro para a struct do tipo Hortalica
+ */
+void ReplaceWithRedX(RadialTree *All, Lista Entidades, Lista Afetados, void *Hor);
+
+/**
+ * @brief Cria um X vermelho e o insere na árvore em (x,y) e também nas entidades
+ * @param All Ponteiro para árvore radial
+ * @param Entidades Lista contendo todas as entidades
+ * @param x Coordenada x do X vermelho
+ * @param y Coordenada y do X vermelho
+ */
+void CriaXVermelho(RadialTree All, Lista Entidades, double x, double y);
+
+/**
+ * @brief Reporta os atributos de uma hortaliça
+ * @param All Ponteiro para árvore radial
+ * @param log Ponteiro para o arquivo de registro
+ * @param Hor Ponteiro para uma struct do tipo Hortalica
+ */
+void ReportaHortalica(RadialTree All, FILE *log, void *Hor);
 
 /**
  * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore um ID especificado e guardar suas informações em aux
@@ -102,26 +309,6 @@ void VerificaID(Info i, double x, double y, void *aux);
 Info ProcuraID(int ID, RadialTree All);
 
 /**
- * @brief Colhe os elementos na área e remove os nós da árvore sem remover a informação do nó e insere na lista colheita apenas as hortaliças
- * @param All Endereço para a árvore radial com todos os elementos
- * @param Entidades Lista contendo todas as entidades
- * @param Afetados Lista contendo todos as hortaliças afetados
- * @param Colheita Lista contendo todos as hortaliças colhidos
- * @param Xinicio Coordenada de início da área de colheita
- * @param Yinicio Coordenada de início da área de colheita
- * @param Xfim Coordenada de fim da área de colheita
- * @param Yfim Coordenada de fim da área de colheita
- */
-void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, FILE *log, double Xinicio, double Yinicio, double Xfim, double Yfim);
-
-/**
- * @brief Contabiliza os elementos colhidos com base na Lista Colheita e os reporta no arquivo log
- * @param Colheita Lista contendo todos os objetos colhidos
- * @param log Ponteiro para o arquivo de registro
- */
-void ContabilizaColheita(Lista Colheita, FILE *log);
-
-/**
  * @brief Obtém um ID único para entidades que não pertencem a árvore a partir do ID especificado
  * @param Entidades Lista contendo todas as entidades
  * @param ID ID especificado para ser único se houver um igual somará +1 e verificará novamente até ser único
@@ -131,15 +318,28 @@ void ContabilizaColheita(Lista Colheita, FILE *log);
 int GetIDUnico(Lista Entidades, int ID);
 
 /**
- * @brief Cria o retângulo de colheita/praga/adubo e o insere tanto na árvore quanto na lista de entidades
- * @param All Ponteiro para a árvore radial
- * @param Entidades Lista contendo todas as entidades
- * @param Xinicio Coordenada de início da área de colheita
- * @param Yinicio Coordenada de início da área de colheita
- * @param Xfim Coordenada de fim da área de colheita
- * @param Yfim Coordenada de fim da área de colheita
+ * @brief Função do tipo Check que é utilizada na filter para filtrar os itens que nunca foram atingidos
+ * @param item Item da lista a ser filtrado
+ * @param aux Lista Afetados
+ * @return Retorna falso se o item já havia sido atingido antes e verdadeiro caso o item nunca tenha sido atingido
  */
-void CriaArea(RadialTree All, Lista Entidades, double Xinicio, double Yinicio, double Xfim, double Yfim);
+bool FiltraAtingidos(Item item, void *aux);
+
+/**
+ * @brief Função do tipo Check que é utilizada na filter para filtrar os itens que não são entidades
+ * @param item Item da lista a ser filtrado
+ * @param aux Lista Entidades
+ * @return Retorna falso se o item é uma entidade conhecida e verdadeiro caso o item não seja uma entidade
+ */
+bool FiltraEntidades(Item item, void *aux);
+
+/**
+ * @brief Função do tipo Apply que é utilizada na map para criar uma nova lista, possibilitando a edição das hortaliças afetadas
+ * @param item Item da lista a ser aplicado a função
+ * @param aux Lista Afetados
+ * @return Retorna o ponteiro para hortaliça presente na lista Afetados, caso não esteja presente na lista Afetados retorna NULL
+ */
+Item TransformaAtingidos(Item item, void *aux);
 
 /**
  * @brief Faz o free() para a estrutura de entidades
@@ -152,44 +352,5 @@ void FreeEntidade(void *Ent);
  * @param Hor Ponteiro para uma estrutura do tipo Hortalica
  */
 void FreeHortalica(void *Hor);
-
-/**
- * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore os objetos atingidos e inserí-los numa lista
- * @param i Conteúdo do nó atual
- * @param x Coordenada x do nó atual
- * @param y Coordenada y do nó atual
- * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
- */
-void ObjetoAtingido(Info i, double x, double y, void *aux);
-
-/**
- * @brief Verifica se determinado objeto foi atingido pela área
- * @param i Conteúdo do nó atual
- * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
- * @return Retorna verdadeiro caso tenha sido atingido e falso caso não tenha
- */
-bool VerificaAtingido(Info i, void *aux);
-
-double CalculaAreaAfetada(void *Fig, void *Afeta);
-
-double CalculaAreaIntersecaoRetanguloRetangulo(void *Ret, void *Afeta);
-
-double CalculaAreaIntersecaoCirculoRetangulo(void *Circ, void *Afeta);
-
-void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[], char corp[]);
-
-void ReplaceWithRedX(RadialTree *All, Lista Entidades, Lista Afetados, void *Hor);
-
-void CriaXVermelho(RadialTree All, Lista Entidades, double x, double y);
-
-void ReportaHortalica(RadialTree All, FILE *log, void *Hor);
-
-void ObjetoTotalAtingido(Info i, double x, double y, void *aux);
-
-bool VerificaTotalAtingido(Info i, void *aux);
-
-void Paste(int j, double dx, double dy, int proporcao, RadialTree All, Lista Nos, Lista Entidades, FILE *log);
-
-void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt);
 
 #endif
