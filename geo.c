@@ -194,6 +194,14 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All)
     free(style);
 }
 
+void fechaGeo(ArqGeo fgeo)
+{
+    if (fgeo != NULL)
+    {
+        fclose(fgeo);
+    }
+}
+
 void CriaRetanguloSvg(ArqSvg fsvg, Item info)
 {
     Figura *f = info;
@@ -341,10 +349,50 @@ void FreeFigura(Info figura)
     }
 }
 
-void fechaGeo(ArqGeo fgeo)
+void MostraID(ArqSvg fsvg, Item info)
 {
-    if (fgeo != NULL)
+    Figura *F = info;
+    char *deco = NULL;
+    char cor[] = "#000000";
+    char ancora[] = "middle";
+    char size[] = "16";
+    char weight[] = "bold";
+    preparaDecoracaoTexto(&deco, 0, NULL, NULL, weight, size, NULL, cor, ancora, NULL);
+    char txto[30];
+    sprintf(txto, "%c%d", F->Tipo, F->ID);
+    double x, y;
+    if (F->Tipo == 'T')
     {
-        fclose(fgeo);
+        Texto *t = F->Figura;
+        x = t->x;
+        y = t->y;
+    }
+    else if (F->Tipo == 'C')
+    {
+        Circulo *c = F->Figura;
+        x = c->x;
+        y = c->y;
+    }
+    else if (F->Tipo == 'R')
+    {
+        Retangulo *r = F->Figura;
+        x = r->x;
+        y = r->y;
+    }
+    else if (F->Tipo == 'L')
+    {
+        Linha *l = F->Figura;
+        x = l->x1;
+        y = l->y1;
+    }
+    else
+    {
+        free(deco);
+        return;
+    }
+    escreveTextoSvg(fsvg, x, y, txto, deco);
+    if (deco != NULL)
+    {
+        free(deco);
     }
 }

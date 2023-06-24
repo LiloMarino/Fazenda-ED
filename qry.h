@@ -140,24 +140,6 @@ void fechaQry(ArqQry fqry);
  *========================================================================================================== */
 
 /**
- * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore um ID especificado e guardar suas informações em aux
- * @param i Conteúdo do nó atual
- * @param x Coordenada x do nó atual
- * @param y Coordenada y do nó atual
- * @param aux Estrutura que guarda as informações do nó que contenha o ID especificado
- */
-void VerificaID(Info i, double x, double y, void *aux);
-
-/**
- * @brief Procura na árvore o ID especificado
- * @param ID ID a ser procurado na árvore
- * @param All Ponteiro para a árvore radial
- * @return Retorna informações sobre o nó como coordenadas do nó e seu conteúdo em uma estrutura do tipo ProcID
- * @warning É necessário dar free() na variável retornada por essa função
- */
-Info ProcuraID(int ID, RadialTree All);
-
-/**
  * @brief Colhe os elementos na área e remove os nós da árvore sem remover a informação do nó e insere na lista colheita apenas as hortaliças
  * @param All Endereço para a árvore radial com todos os elementos
  * @param Entidades Lista contendo todas as entidades
@@ -178,13 +160,28 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
 void ContabilizaColheita(Lista Colheita, FILE *log);
 
 /**
- * @brief Obtém um ID único para entidades que não pertencem a árvore a partir do ID especificado
- * @param Entidades Lista contendo todas as entidades
- * @param ID ID especificado para ser único se houver um igual somará +1 e verificará novamente até ser único
- * @return Retorna um ID único baseado nos IDs existentes na lista de entidades
- * @note Esta função é necessária para que não haja conflitos entre entidades e objetos na árvore
+ * @brief Cola os nós na nova área determinada por dx e dy
+ * @param j ID que a partir dele as novas figuras serão enumeradas
+ * @param dx Variação horizontal da área
+ * @param dy Variação vertical da área
+ * @param proporcao Fator de proporção
+ * @param All Ponteiro para a árvore radial
+ * @param Nos Lista contendo os nós copiados
+ * @param Entidades Lista contendo as entidades
+ * @param log Ponteiro para o arquvio de registro
  */
-int GetIDUnico(Lista Entidades, int ID);
+void Paste(int j, double dx, double dy, int proporcao, RadialTree All, Lista Nos, Lista Entidades, FILE *log);
+
+/**
+ * @brief Copia as figuras da árvore e as insere na lista TempEnt proporcao vezes
+ * @param Fig Ponteiro para a struct do tipo Figura
+ * @param j ID que a partir dele as novas figuras serão enumeradas
+ * @param dx Variação horizontal das figuras
+ * @param dy Variação vertical das figuras
+ * @param proporcao Fator de proporção das figuras
+ * @param TempEnt Lista de entidades temporária para a "cola" das figuras
+ */
+void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt);
 
 /**
  * @brief Cria o retângulo de colheita/praga/adubo e o insere tanto na árvore quanto na lista de entidades
@@ -198,33 +195,16 @@ int GetIDUnico(Lista Entidades, int ID);
 void CriaArea(RadialTree All, Lista Entidades, double Xinicio, double Yinicio, double Xfim, double Yfim);
 
 /**
- * @brief Faz o free() para a estrutura de entidades
- * @param Ent Ponteiro para uma estrutura do tipo Entidade
+ * @brief Cria uma marcação circular nas coordenadas (x,y) com raio r
+ * @param All Ponteiro para a árvore radial
+ * @param Entidades Lista contendo todas as entidades
+ * @param x Coordenada x do círculo
+ * @param y Coordenada y do círculo
+ * @param raio Raio do círculo
+ * @param corb Cor da borda do círculo
+ * @param corp Cor do preenchimento do círculo
  */
-void FreeEntidade(void *Ent);
-
-/**
- * @brief Faz o free() para a estrutura de hortaliça
- * @param Hor Ponteiro para uma estrutura do tipo Hortalica
- */
-void FreeHortalica(void *Hor);
-
-/**
- * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore os objetos atingidos e inserí-los numa lista
- * @param i Conteúdo do nó atual
- * @param x Coordenada x do nó atual
- * @param y Coordenada y do nó atual
- * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
- */
-void ObjetoAtingido(Info i, double x, double y, void *aux);
-
-/**
- * @brief Verifica se determinado objeto foi atingido pela área
- * @param i Conteúdo do nó atual
- * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
- * @return Retorna verdadeiro caso tenha sido atingido e falso caso não tenha
- */
-bool VerificaAtingido(Info i, void *aux);
+void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[], char corp[]);
 
 /**
  * @brief Dada uma figura Fig calcula a área afetada da figura pela região delimitada por Afeta
@@ -251,16 +231,38 @@ double CalculaAreaIntersecaoRetanguloRetangulo(void *Ret, void *Afeta);
 double CalculaAreaIntersecaoCirculoRetangulo(void *Circ, void *Afeta);
 
 /**
- * @brief Cria uma marcação circular nas coordenadas (x,y) com raio r
- * @param All Ponteiro para a árvore radial
- * @param Entidades Lista contendo todas as entidades
- * @param x Coordenada x do círculo
- * @param y Coordenada y do círculo
- * @param raio Raio do círculo
- * @param corb Cor da borda do círculo
- * @param corp Cor do preenchimento do círculo
+ * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore os objetos atingidos e inserí-los numa lista
+ * @param i Conteúdo do nó atual
+ * @param x Coordenada x do nó atual
+ * @param y Coordenada y do nó atual
+ * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
  */
-void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[], char corp[]);
+void ObjetoAtingido(Info i, double x, double y, void *aux);
+
+/**
+ * @brief Verifica se determinado objeto foi atingido pela área
+ * @param i Conteúdo do nó atual
+ * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
+ * @return Retorna verdadeiro caso tenha sido atingido e falso caso não tenha
+ */
+bool VerificaAtingido(Info i, void *aux);
+
+/**
+ * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore os objetos 100% atingidos e inserí-los numa lista
+ * @param i Conteúdo do nó atual
+ * @param x Coordenada x do nó atual
+ * @param y Coordenada y do nó atual
+ * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
+ */
+void ObjetoTotalAtingido(Info i, double x, double y, void *aux);
+
+/**
+ * @brief Verifica se determinado objeto foi 100% atingido pela área
+ * @param i Conteúdo do nó atual
+ * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
+ * @return Retorna verdadeiro caso tenha sido atingido e falso caso não tenha
+ */
+bool VerificaTotalAtingido(Info i, void *aux);
 
 /**
  * @brief Faz o "replace" de uma figura por um X vermelho
@@ -289,51 +291,37 @@ void CriaXVermelho(RadialTree All, Lista Entidades, double x, double y);
 void ReportaHortalica(RadialTree All, FILE *log, void *Hor);
 
 /**
- * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore os objetos 100% atingidos e inserí-los numa lista
+ * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore um ID especificado e guardar suas informações em aux
  * @param i Conteúdo do nó atual
  * @param x Coordenada x do nó atual
  * @param y Coordenada y do nó atual
- * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
+ * @param aux Estrutura que guarda as informações do nó que contenha o ID especificado
  */
-void ObjetoTotalAtingido(Info i, double x, double y, void *aux);
+void VerificaID(Info i, double x, double y, void *aux);
 
 /**
- * @brief Verifica se determinado objeto foi 100% atingido pela área
- * @param i Conteúdo do nó atual
- * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
- * @return Retorna verdadeiro caso tenha sido atingido e falso caso não tenha
- */
-bool VerificaTotalAtingido(Info i, void *aux);
-
-/**
- * @brief Cola os nós na nova área determinada por dx e dy 
- * @param j ID que a partir dele as novas figuras serão enumeradas
- * @param dx Variação horizontal da área
- * @param dy Variação vertical da área
- * @param proporcao Fator de proporção
+ * @brief Procura na árvore o ID especificado
+ * @param ID ID a ser procurado na árvore
  * @param All Ponteiro para a árvore radial
- * @param Nos Lista contendo os nós copiados
- * @param Entidades Lista contendo as entidades
- * @param log Ponteiro para o arquvio de registro
+ * @return Retorna informações sobre o nó como coordenadas do nó e seu conteúdo em uma estrutura do tipo ProcID
+ * @warning É necessário dar free() na variável retornada por essa função
  */
-void Paste(int j, double dx, double dy, int proporcao, RadialTree All, Lista Nos, Lista Entidades, FILE *log);
+Info ProcuraID(int ID, RadialTree All);
 
 /**
- * @brief Copia as figuras da árvore e as insere na lista TempEnt proporcao vezes
- * @param Fig Ponteiro para a struct do tipo Figura
- * @param j ID que a partir dele as novas figuras serão enumeradas
- * @param dx Variação horizontal das figuras
- * @param dy Variação vertical das figuras
- * @param proporcao Fator de proporção das figuras
- * @param TempEnt Lista de entidades temporária para a "cola" das figuras
+ * @brief Obtém um ID único para entidades que não pertencem a árvore a partir do ID especificado
+ * @param Entidades Lista contendo todas as entidades
+ * @param ID ID especificado para ser único se houver um igual somará +1 e verificará novamente até ser único
+ * @return Retorna um ID único baseado nos IDs existentes na lista de entidades
+ * @note Esta função é necessária para que não haja conflitos entre entidades e objetos na árvore
  */
-void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt);
+int GetIDUnico(Lista Entidades, int ID);
 
 /**
  * @brief Função do tipo Check que é utilizada na filter para filtrar os itens que nunca foram atingidos
  * @param item Item da lista a ser filtrado
  * @param aux Lista Afetados
- * @return Retorna falso se o item já havia sido atingido antes e verdadeiro caso o item nunca tenha sido atingido 
+ * @return Retorna falso se o item já havia sido atingido antes e verdadeiro caso o item nunca tenha sido atingido
  */
 bool FiltraAtingidos(Item item, void *aux);
 
@@ -341,16 +329,28 @@ bool FiltraAtingidos(Item item, void *aux);
  * @brief Função do tipo Check que é utilizada na filter para filtrar os itens que não são entidades
  * @param item Item da lista a ser filtrado
  * @param aux Lista Entidades
- * @return Retorna falso se o item é uma entidade conhecida e verdadeiro caso o item não seja uma entidade 
+ * @return Retorna falso se o item é uma entidade conhecida e verdadeiro caso o item não seja uma entidade
  */
 bool FiltraEntidades(Item item, void *aux);
 
 /**
- * @brief Função do tipo Apply que é utilizada na map para criar uma nova lista, possibilitando a edição das hortaliças afetadas 
+ * @brief Função do tipo Apply que é utilizada na map para criar uma nova lista, possibilitando a edição das hortaliças afetadas
  * @param item Item da lista a ser aplicado a função
  * @param aux Lista Afetados
  * @return Retorna o ponteiro para hortaliça presente na lista Afetados, caso não esteja presente na lista Afetados retorna NULL
  */
 Item TransformaAtingidos(Item item, void *aux);
+
+/**
+ * @brief Faz o free() para a estrutura de entidades
+ * @param Ent Ponteiro para uma estrutura do tipo Entidade
+ */
+void FreeEntidade(void *Ent);
+
+/**
+ * @brief Faz o free() para a estrutura de hortaliça
+ * @param Hor Ponteiro para uma estrutura do tipo Hortalica
+ */
+void FreeHortalica(void *Hor);
 
 #endif

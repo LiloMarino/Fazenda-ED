@@ -12,6 +12,10 @@
 
 typedef void *ArqGeo;
 
+/*========================================================================================================== *
+ * Funções Principais                                                                                        *
+ *========================================================================================================== */
+
 /**
  * @brief Cria o arquivo "fn" para escrita. Substitui o arquivo, caso exista.
  * @note Retorna NULL, caso nao tenha sido possivel criar arquivo.
@@ -32,6 +36,10 @@ void InterpretaGeo(ArqGeo fgeo, RadialTree All);
  * @param fgeo Ponteiro para o arquivo GEO aberto
  */
 void fechaGeo(ArqGeo fgeo);
+
+/*========================================================================================================== *
+ * Funções Auxiliares                                                                                        *
+ *========================================================================================================== */
 
 /**
  * @brief Interpreta o item dado pela lista e cria no arquivo svg o retângulo
