@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     FNARQDOT = OutputGeoQry;
 
     /* Inicia o processamento de todas as informações e produz os resultados */
-    RadialTree All = newRadialTree(atoi(numSetor), atoi(fator));
+    RadialTree All = newRadialTree(atoi(numSetor), strtod(fator,NULL));
     ArqGeo Geo = abreLeituraGeo(InputGeo);
     ArqQry Qry = abreLeituraQry(InputQry);
     FILE *log = CriaLog(OutputGeoQry, "txt");
