@@ -26,7 +26,7 @@ void OperaSVG(char nome[], RadialTree All)
     {
         Info i = getInfoRadialT(All, getIteratorNext(Ret, R));
         CriaRetanguloSvg(B, i);
-        MostraID(B, i);
+        //MostraID(B, i);
     }
 
     Iterador L = createIterador(Lin, false);
@@ -35,7 +35,7 @@ void OperaSVG(char nome[], RadialTree All)
     {
         Info i = getInfoRadialT(All, getIteratorNext(Lin, L));
         CriaLinhaSvg(B, i);
-        MostraID(B, i);
+        //MostraID(B, i);
     }
 
     Iterador C = createIterador(Circ, false);
@@ -44,7 +44,7 @@ void OperaSVG(char nome[], RadialTree All)
     {
         Info i = getInfoRadialT(All, getIteratorNext(Circ, C));
         CriaCirculoSvg(B, i);
-        MostraID(B, i);
+        //MostraID(B, i);
     }
 
     Iterador T = createIterador(Tex, false);
@@ -53,7 +53,7 @@ void OperaSVG(char nome[], RadialTree All)
     {
         Info i = getInfoRadialT(All, getIteratorNext(Tex, T));
         CriaTextoSvg(B, i);
-        MostraID(B, i);
+        //MostraID(B, i);
     }
 
     killIterator(R);
