@@ -14,10 +14,10 @@ char *FNARQDOT;
 
 int main(int argc, char **argv)
 {
-    char *PathInput = NULL, *PathOutput = NULL, *nomeGeo = NULL, *nomeQry = NULL, *numSetor = NULL; 
-    char *OutputGeoQry = NULL, *OutputGeo = NULL, *InputQry = NULL , *InputGeo = NULL;
-    
-    ArgumentosDeComando(&PathInput, &PathOutput, &nomeGeo, &nomeQry, &numSetor, argc, argv);
+    char *PathInput = NULL, *PathOutput = NULL, *nomeGeo = NULL, *nomeQry = NULL, *numSetor = NULL, *fator = NULL;
+    char *OutputGeoQry = NULL, *OutputGeo = NULL, *InputQry = NULL, *InputGeo = NULL;
+
+    ArgumentosDeComando(&PathInput, &PathOutput, &nomeGeo, &nomeQry, &numSetor, &fator, argc, argv);
     char *nomeGeoQry = ConcatenaNomes(nomeGeo, nomeQry);
     char *nomeGeo_semExt = RemoveExtensao(nomeGeo);
 
@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     FNARQDOT = OutputGeoQry;
 
     /* Inicia o processamento de todas as informações e produz os resultados */
-    RadialTree All = newRadialTree(atoi(numSetor), 1);
+    RadialTree All = newRadialTree(atoi(numSetor), atoi(fator));
     ArqGeo Geo = abreLeituraGeo(InputGeo);
     ArqQry Qry = abreLeituraQry(InputQry);
     FILE *log = CriaLog(OutputGeoQry, "txt");

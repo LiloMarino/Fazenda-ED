@@ -125,7 +125,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
     while (leLinha(fqry, &linha))
     {
         sscanf(linha, "%s ", comando);
-        if (strcmp(comando, "c") == 0)
+        if (strcmp(comando, "cl") == 0)
         {
             int ID;
             sscanf(linha, "%s %d", comando, &ID);
