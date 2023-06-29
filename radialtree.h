@@ -70,6 +70,15 @@ typedef bool (*FpontoInternoAInfo)(Info i, double x, double y);
 typedef void (*FvisitaNo)(Info i, double x, double y, void *aux);
 
 /*
+ * Verifica se a informacao i associada a um no' da arvore, cuja ancora
+ * e' o ponto (x,y) e' a informacao procurada. Retorna verdadeiro, em caso
+ * afirmativo; falso, caso contrário. O parametro aux aponta para conjunto de dados
+ * (provavelmente um registro) que sao compartilhados entre as
+ * sucessivas invocacoes a esta funcao, incluindo (provavelmente) uma chave de busca.
+ */
+typedef bool (*FsearchNo)(Info i, double x, double y, void *aux);
+
+/*
  * Retorna uma arvore Radial vazia de numSetores setores e com fator
  * de degradacao fd.
  *    0 <= fd < 1.0
@@ -130,7 +139,19 @@ void visitaProfundidadeRadialT(RadialTree t, FvisitaNo f, void *aux);
  */
 void visitaLarguraRadialT(RadialTree t, FvisitaNo f, void *aux);
 
-//Teste
+/* Procura o no' da arvore que contenha um dado especifico.
+   Visita cada no' da arvore e invoca a funcao f. A funcao f
+   retornara' verdadeiro se o no' contem o dado procurado.
+   Neste caso, retorna o no' encontrado. Caso a busca falhe,
+   retorna NULL.
+ */
+Node procuraNoRadialT(RadialTree t, FsearchNo f, void *aux);
+
+/**
+ * @brief Realiza o free() na árvore radial
+ * @param t Endereço para a árvore radial
+ * @param ClearTotal Determina se faz o free() completo limpando até os conteúdos dos nós ou se é apenas para remover os nós
+ */
 void freeRadialTree(RadialTree t, bool ClearTotal); 
 
 #endif

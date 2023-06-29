@@ -58,10 +58,6 @@ void freeNode(Node n, bool ClearTotal)
     free(No);
 }
 
-/**
- * @brief Desaloca toda a memória da árvore
- * @param t Árvore radial
- */
 void freeRadialTree(RadialTree t, bool ClearTotal)
 {
     /** @warning É necessário passar o endereço do ponteiro da árvore para esta função*/
@@ -631,4 +627,35 @@ void visitaLarguraRadialT(RadialTree t, FvisitaNo f, void *aux)
     }
 
     killLst(Stack);
+}
+
+Node procuraNoRadialT(RadialTree t, FsearchNo f, void *aux)
+{
+    Raiz *Tree = t;
+    NodeTree *No = Tree->node;
+    Lista Stack = createLst(-1);
+    insertLst(Stack, No);
+
+    while (!isEmptyLst(Stack))
+    {
+        No = popLst(Stack);
+        if (!No->removido)
+        {
+            if (f(No->info, No->x, No->y, aux))
+            {
+                killLst(Stack);
+                return No;
+            }
+        }
+        for (int i = 0; i < Tree->numSetores; i++)
+        {
+            if (No->filhos[i] != NULL)
+            {
+                insertLst(Stack, No->filhos[i]);
+            }
+        }
+    }
+
+    killLst(Stack);
+    return NULL;
 }
