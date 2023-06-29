@@ -1,0 +1,186 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 600 600">
+ <rect x="51.228809" y="24.522221" width="506.304600" height="67.316315" stroke="#1b04ff" fill="#ffffff00" />
+ <text x="51.228809" y="24.522221" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >R59</text>
+ <rect x="205.084340" y="114.948500" width="36.965820" height="36.965820" stroke="#ccff00" fill="#ccff00" />
+ <text x="205.084340" y="114.948500" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >R60</text>
+ <rect x="249.701460" y="173.237880" width="44.700031" height="44.450382" stroke="#ccff00" fill="#ccff00" />
+ <text x="249.701460" y="173.237880" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >R62</text>
+ <rect x="12.105196" y="302.639560" width="33.517056" height="31.748260" stroke="#ccff00" fill="#ccff00" />
+ <text x="12.105196" y="302.639560" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >R70</text>
+ <rect x="488.103420" y="120.848750" width="33.517056" height="31.748260" stroke="#ccff00" fill="#ccff00" />
+ <text x="488.103420" y="120.848750" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >R65</text>
+ <rect x="330.920040" y="112.163410" width="36.965820" height="36.965820" stroke="#ccff00" fill="#ccff00" />
+ <text x="330.920040" y="112.163410" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >R61</text>
+ <rect x="422.273830" y="141.610380" width="33.517056" height="31.748260" stroke="#ccff00" fill="#ccff00" />
+ <text x="422.273830" y="141.610380" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >R66</text>
+ <rect x="232.835490" y="240.556030" width="55.901524" height="25.266592" stroke="#ccff00" fill="#ccff00" />
+ <text x="232.835490" y="240.556030" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >R63</text>
+ <rect x="269.599980" y="280.358830" width="33.517056" height="31.748260" stroke="#ccff00" fill="#ccff00" />
+ <text x="269.599980" y="280.358830" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >R64</text>
+ <rect x="151.866360" y="466.200650" width="33.517056" height="31.748260" stroke="#ccff00" fill="#ccff00" />
+ <text x="151.866360" y="466.200650" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >R68</text>
+ <rect x="28.309385" y="438.349700" width="33.517056" height="31.748260" stroke="#ccff00" fill="#ccff00" />
+ <text x="28.309385" y="438.349700" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >R69</text>
+ <rect x="136.168550" y="542.664180" width="33.517056" height="31.748260" stroke="#ccff00" fill="#ccff00" />
+ <text x="136.168550" y="542.664180" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >R67</text>
+ <rect x="151.000000" y="225.000000" width="367.937000" height="176.539000" stroke="#ff0000" fill="#ffffff00" stroke-dasharray="3.000000" />
+ <text x="151.000000" y="225.000000" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >R9999</text>
+ <circle cx="163.593990" cy="140.635860" r="30.435566" stroke="#ffcc00" fill="#ffcc00" />
+ <text x="163.593990" y="140.635860" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >C1</text>
+ <circle cx="514.898130" cy="433.259220" r="16.112947" stroke="#ffcc00" fill="#ffcc00" />
+ <text x="514.898130" y="433.259220" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >C6</text>
+ <circle cx="228.445770" cy="343.742860" r="16.829077" stroke="#ffcc00" fill="#ffcc00" />
+ <text x="228.445770" y="343.742860" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >C2</text>
+ <circle cx="42.251728" cy="405.330110" r="11.816161" stroke="#ffcc00" fill="#ffcc00" />
+ <text x="42.251728" y="405.330110" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >C10</text>
+ <circle cx="32.225895" cy="241.336140" r="11.816161" stroke="#ffcc00" fill="#ffcc00" />
+ <text x="32.225895" y="241.336140" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >C9</text>
+ <circle cx="47.980778" cy="138.929410" r="11.816161" stroke="#ffcc00" fill="#ffcc00" />
+ <text x="47.980778" y="138.929410" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >C8</text>
+ <circle cx="374.894560" cy="407.836580" r="22.200060" stroke="#ffcc00" fill="#ffcc00" />
+ <text x="374.894560" y="407.836580" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >C4</text>
+ <circle cx="214.123150" cy="433.975370" r="16.829077" stroke="#ffcc00" fill="#ffcc00" />
+ <text x="214.123150" y="433.975370" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >C3</text>
+ <circle cx="49.413036" cy="512.749820" r="11.816161" stroke="#ffcc00" fill="#ffcc00" />
+ <text x="49.413036" y="512.749820" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >C15</text>
+ <circle cx="31.151697" cy="560.372500" r="30.077501" stroke="#ffcc00" fill="#ffcc00" />
+ <text x="31.151697" y="560.372500" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >C17</text>
+ <circle cx="131.726170" cy="181.097260" r="11.816161" stroke="#ffcc00" fill="#ffcc00" />
+ <text x="131.726170" y="181.097260" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >C13</text>
+ <circle cx="70.896965" cy="158.264940" r="11.816161" stroke="#ffcc00" fill="#ffcc00" />
+ <text x="70.896965" y="158.264940" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >C11</text>
+ <circle cx="103.122860" cy="133.200360" r="21.841995" stroke="#ffcc00" fill="#ffcc00" />
+ <text x="103.122860" y="133.200360" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >C12</text>
+ <circle cx="536.382080" cy="542.111150" r="56.216282" stroke="#ffcc00" fill="#ffcc00" />
+ <text x="536.382080" y="542.111150" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >C7</text>
+ <circle cx="282.155610" cy="366.659060" r="22.200060" stroke="#ffcc00" fill="#ffcc00" />
+ <text x="282.155610" y="366.659060" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >C5</text>
+ <circle cx="84.861519" cy="562.520870" r="20.767797" stroke="#ffcc00" fill="#ffcc00" />
+ <text x="84.861519" y="562.520870" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >C16</text>
+ <circle cx="34.374287" cy="206.245710" r="11.816161" stroke="#ffcc00" fill="#ffcc00" />
+ <text x="34.374287" y="206.245710" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >C14</text>
+ <circle cx="151.000000" cy="225.000000" r="10.000000" stroke="green" fill="#ffffff00" />
+ <text x="151.000000" y="225.000000" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >C10000</text>
+ <text x="372.551390" y="254.431690" font-family="arial" font-weight="normal" font-size="" stroke="#010101" fill="#010101" text-anchor="middle" transform ="rotate()">~~~</text>
+ <text x="372.551390" y="254.431690" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T42</text>
+ <text x="515.636290" y="355.032170" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="515.636290" y="355.032170" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T85</text>
+ <text x="230.155300" y="465.542210" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="230.155300" y="465.542210" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T22</text>
+ <text x="179.658840" y="322.927120" font-family="arial" font-weight="normal" font-size="" stroke="#d40101" fill="#d40101" text-anchor="middle" transform ="rotate()">*</text>
+ <text x="179.658840" y="322.927120" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T52</text>
+ <text x="183.955630" y="272.081820" font-family="arial" font-weight="normal" font-size="" stroke="#d40101" fill="#d40101" text-anchor="middle" transform ="rotate()">*</text>
+ <text x="183.955630" y="272.081820" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T55</text>
+ <text x="240.529980" y="330.804570" font-family="arial" font-weight="normal" font-size="" stroke="#d40101" fill="#d40101" text-anchor="middle" transform ="rotate()">*</text>
+ <text x="240.529980" y="330.804570" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T57</text>
+ <text x="333.339140" y="319.585510" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="333.339140" y="319.585510" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T78</text>
+ <text x="117.722740" y="457.664760" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="117.722740" y="457.664760" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T21</text>
+ <text x="143.852290" y="335.101350" font-family="arial" font-weight="normal" font-size="" stroke="#d40101" fill="#d40101" text-anchor="middle" transform ="rotate()">*</text>
+ <text x="143.852290" y="335.101350" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T58</text>
+ <text x="464.998230" y="383.389530" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="464.998230" y="383.389530" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T86</text>
+ <text x="426.513240" y="351.993900" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="426.513240" y="351.993900" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T80</text>
+ <text x="426.977360" y="264.457520" font-family="arial" font-weight="normal" font-size="" stroke="#010101" fill="#010101" text-anchor="middle" transform ="rotate()">~~~</text>
+ <text x="426.977360" y="264.457520" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T43</text>
+ <text x="414.360110" y="306.925960" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="414.360110" y="306.925960" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T81</text>
+ <text x="341.757750" y="237.960680" font-family="arial" font-weight="normal" font-size="" stroke="#010101" fill="#010101" text-anchor="middle" transform ="rotate()">~~~</text>
+ <text x="341.757750" y="237.960680" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T47</text>
+ <text x="357.512630" y="199.289600" font-family="arial" font-weight="normal" font-size="" stroke="#010101" fill="#010101" text-anchor="middle" transform ="rotate()">~~~</text>
+ <text x="357.512630" y="199.289600" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T46</text>
+ <text x="479.971040" y="222.205800" font-family="arial" font-weight="normal" font-size="" stroke="#010101" fill="#010101" text-anchor="middle" transform ="rotate()">~~~</text>
+ <text x="479.971040" y="222.205800" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T44</text>
+ <text x="520.193730" y="399.593720" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="520.193730" y="399.593720" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T90</text>
+ <text x="546.525510" y="322.117400" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="546.525510" y="322.117400" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T89</text>
+ <text x="456.452700" y="489.890660" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="456.452700" y="489.890660" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T24</text>
+ <text x="364.787930" y="461.245390" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="364.787930" y="461.245390" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T36</text>
+ <text x="348.024200" y="352.500270" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="348.024200" y="352.500270" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T79</text>
+ <text x="331.129760" y="511.374600" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="331.129760" y="511.374600" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T23</text>
+ <text x="279.568330" y="546.464970" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="279.568330" y="546.464970" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T37</text>
+ <text x="283.865140" y="463.393800" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="283.865140" y="463.393800" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T27</text>
+ <text x="211.535890" y="546.464970" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="211.535890" y="546.464970" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T29</text>
+ <text x="185.982240" y="387.440580" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="185.982240" y="387.440580" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T75</text>
+ <text x="139.395170" y="430.989350" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="139.395170" y="430.989350" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T76</text>
+ <text x="74.754883" y="521.400390" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="74.754883" y="521.400390" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T26</text>
+ <text x="111.277570" y="504.929380" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="111.277570" y="504.929380" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T25</text>
+ <text x="146.003830" y="226.210510" font-family="arial" font-weight="normal" font-size="" stroke="#010101" fill="#010101" text-anchor="middle" transform ="rotate()">~~~</text>
+ <text x="146.003830" y="226.210510" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T41</text>
+ <text x="121.303400" y="256.431950" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="121.303400" y="256.431950" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T19</text>
+ <text x="82.984306" y="226.926620" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="82.984306" y="226.926620" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T18</text>
+ <text x="126.735660" y="361.108760" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="126.735660" y="361.108760" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T73</text>
+ <text x="372.330470" y="316.547210" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="372.330470" y="316.547210" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T82</text>
+ <text x="494.293670" y="272.334960" font-family="arial" font-weight="normal" font-size="" stroke="#010101" fill="#010101" text-anchor="middle" transform ="rotate()">~~~</text>
+ <text x="494.293670" y="272.334960" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T50</text>
+ <text x="457.402500" y="322.623780" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="457.402500" y="322.623780" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T87</text>
+ <text x="465.648440" y="259.444610" font-family="arial" font-weight="normal" font-size="" stroke="#010101" fill="#010101" text-anchor="middle" transform ="rotate()">~~~</text>
+ <text x="465.648440" y="259.444610" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T49</text>
+ <text x="418.383790" y="233.663880" font-family="arial" font-weight="normal" font-size="" stroke="#010101" fill="#010101" text-anchor="middle" transform ="rotate()">~~~</text>
+ <text x="418.383790" y="233.663880" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T48</text>
+ <text x="464.932280" y="208.599300" font-family="arial" font-weight="normal" font-size="" stroke="#010101" fill="#010101" text-anchor="middle" transform ="rotate()">~~~</text>
+ <text x="464.932280" y="208.599300" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T45</text>
+ <text x="445.710720" y="541.452030" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="445.710720" y="541.452030" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T31</text>
+ <text x="414.917110" y="486.310000" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="414.917110" y="486.310000" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T35</text>
+ <text x="384.123470" y="533.574580" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="384.123470" y="533.574580" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T39</text>
+ <text x="332.562040" y="521.993650" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="332.562040" y="521.993650" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T34</text>
+ <text x="279.568360" y="494.903560" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="279.568360" y="494.903560" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T30</text>
+ <text x="301.052280" y="538.587520" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="301.052280" y="538.587520" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T38</text>
+ <text x="262.381200" y="454.800230" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="262.381200" y="454.800230" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T28</text>
+ <text x="207.955250" y="479.148680" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="207.955250" y="479.148680" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T33</text>
+ <text x="212.252010" y="497.768100" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="212.252010" y="497.768100" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T32</text>
+ <text x="131.678070" y="295.714140" font-family="arial" font-weight="normal" font-size="" stroke="#d40101" fill="#d40101" text-anchor="middle" transform ="rotate()">*</text>
+ <text x="131.678070" y="295.714140" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T53</text>
+ <text x="103.035960" y="279.920350" font-family="arial" font-weight="normal" font-size="" stroke="#d40101" fill="#d40101" text-anchor="middle" transform ="rotate()">*</text>
+ <text x="103.035960" y="279.920350" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T40</text>
+ <text x="65.077896" y="254.178540" font-family="arial" font-weight="normal" font-size="" stroke="#d40101" fill="#d40101" text-anchor="middle" transform ="rotate()">*</text>
+ <text x="65.077896" y="254.178540" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T56</text>
+ <text x="109.845300" y="224.206040" font-family="arial" font-weight="normal" font-size="" stroke="#ab6d45" fill="#ab6d45" text-anchor="middle" transform ="rotate()">@</text>
+ <text x="109.845300" y="224.206040" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T20</text>
+ <text x="135.344130" y="396.049040" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="135.344130" y="396.049040" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T77</text>
+ <text x="104.961280" y="402.631990" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="104.961280" y="402.631990" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T74</text>
+ <text x="398.155910" y="348.955600" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="398.155910" y="348.955600" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T83</text>
+ <text x="495.009800" y="287.373720" font-family="arial" font-weight="normal" font-size="" stroke="#010101" fill="#010101" text-anchor="middle" transform ="rotate()">~~~</text>
+ <text x="495.009800" y="287.373720" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T51</text>
+ <text x="491.330050" y="310.470640" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="491.330050" y="310.470640" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T84</text>
+ <text x="485.759860" y="359.589600" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="485.759860" y="359.589600" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T88</text>
+ <text x="85.129570" y="310.036770" font-family="arial" font-weight="normal" font-size="" stroke="#d40101" fill="#d40101" text-anchor="middle" transform ="rotate()">*</text>
+ <text x="85.129570" y="310.036770" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T54</text>
+ <text x="73.943161" y="327.095460" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="73.943161" y="327.095460" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T71</text>
+ <text x="70.527359" y="376.300170" font-family="arial" font-weight="normal" font-size="" stroke="#ff6d0c" fill="#ff6d0c" text-anchor="middle" transform ="rotate()">%</text>
+ <text x="70.527359" y="376.300170" font-weight="bold" font-size="16" fill="#000000" text-anchor="middle" >T72</text>
+</svg>
