@@ -739,6 +739,8 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
     free(Area);
 
     /* Remove os itens que foram colhidos da árvore */
+    if (parcial)
+    {
     Iterador Del = createIterador(Colheita, false);
     while (!isIteratorEmpty(Colheita, Del))
     {
@@ -748,6 +750,7 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
         free(I);
     }
     killIterator(Del);
+    }
 }
 
 void ContabilizaColheita(Lista Colheita, FILE *log)

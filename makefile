@@ -42,11 +42,11 @@ clean:
 run:
 	cd $(OUTPUT) && valgrind --leak-check=full --show-leak-kinds=all ./$(PROJETO) \
 		-e "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED" \
-		-f "goticula.geo" \
+		-f "arq.geo" \
 		-o "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/logs" \
-		-q "goticula.qry" \
+		-q "arqcons.qry" \
 		-ns "8" \
-		-fd "0.1"
+		-fd "10"
 
 
 .PHONY: all run clean

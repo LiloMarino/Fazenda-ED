@@ -41,26 +41,34 @@ int main(int argc, char **argv)
     joinFilePath(PathInput, nomeQry, &InputQry);
     joinFilePath(PathOutput, nomeGeo_semExt, &OutputGeo);
     joinFilePath(PathOutput, nomeGeoQry, &OutputGeoQry);
-    FNARQDOT = OutputGeoQry;
+    
 
     /* Inicia o processamento de todas as informações e produz os resultados */
     RadialTree All = newRadialTree(atoi(numSetor), atoi(fator)/100.0);
     ArqGeo Geo = abreLeituraGeo(InputGeo);
     ArqQry Qry = abreLeituraQry(InputQry);
     FILE *log = CriaLog(OutputGeoQry, "txt");
+
+    FNARQDOT = OutputGeo;
     ARQDOT = CriaLog(FNARQDOT, "dot");
     InicializaDot(ARQDOT);
     InterpretaGeo(Geo, All);
     OperaSVG(OutputGeo, All);
+    TerminaDot(ARQDOT);
+
+    FNARQDOT = OutputGeoQry;
+    ARQDOT = CriaLog(FNARQDOT, "dot");
+    InicializaDot(ARQDOT);
     InterpretaQry(Qry, &All, log);
     OperaSVG(OutputGeoQry, All);
+    TerminaDot(ARQDOT);
 
     /*Realiza todos os frees*/
     freeRadialTree(&All, true);
     fechaGeo(Geo);
     fechaQry(Qry);
     fclose(log);
-    TerminaDot(ARQDOT);
+    CriaPngDot(OutputGeo);
     CriaPngDot(OutputGeoQry);
     free(PathInput);
     free(PathOutput);
