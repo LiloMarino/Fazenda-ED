@@ -1257,7 +1257,7 @@ int GetIDUnico(Lista Entidades, int ID)
             Entidade *Ent = getIteratorNext(Entidades, E);
             if (Ent->ID == IDunico)
             {
-                if (IDunico > 0)
+                if (IDunico < 0)
                 {
                     IDunico--;
                 }
