@@ -84,6 +84,12 @@ struct StContabiliza
     double mato_texto;
 };
 
+struct StProcColhido
+{
+    Lista Atingido;         // Lista que conterá as informações dos nós colhidos
+    double x, y, larg, alt; // Especificações da área de colheita
+};
+
 typedef struct StFigura Figura;
 typedef struct StCirculo Circulo;
 typedef struct StRetangulo Retangulo;
@@ -93,6 +99,7 @@ typedef struct StProcID ProcID;
 typedef struct StEntidade Entidade;
 typedef struct StHortalica Hortalica;
 typedef struct StContabiliza Contabiliza;
+typedef struct StProcColhido ProcColhido;
 
 /*========================================================================================================== *
  * Funções Principais                                                                                        *
@@ -650,14 +657,19 @@ void fechaQry(ArqQry fqry)
 
 void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, FILE *log, double Xinicio, double Yinicio, double Xfim, double Yfim, bool parcial)
 {
-    Lista Colh = createLst(-1);
+    Lista Atingido = createLst(-1);
     Lista Conta = createLst(-1);
 
-    getNodesDentroRegiaoRadialT(*All, Xinicio, Yinicio, Xfim, Yfim, Colh);
-    Colh = TransformaLista(*All, Colh);
+    ProcColhido *Area = malloc(sizeof(ProcColhido));
+    Area->Atingido = Atingido;
+    Area->x = Xinicio;
+    Area->y = Yinicio;
+    Area->larg = Xfim - Xinicio;
+    Area->alt = Yfim - Yinicio;
+    visitaLarguraRadialT(*All, ObjetoTotalAtingido, Area);
 
     /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
-    Lista NotEntity = filter(Colh, FiltraEntidades, Entidades);
+    Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
 
     /*Insere na lista NotAtingidoBefore apenas as Hortaliças que nunca foram atingidas */
     Lista NotAtingidoBefore = filter(NotEntity, FiltraAtingidos, Afetados);
@@ -719,11 +731,12 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
     }
     ContabilizaColheita(Conta, log);
 
-    killLst(Colh);
+    killLst(Atingido);
     killLst(Conta);
     killLst(NotEntity);
     killLst(NotAtingidoBefore);
     killLst(AtingidoBefore);
+    free(Area);
 
     /* Remove os itens que foram colhidos da árvore */
     Iterador Del = createIterador(Colheita, false);
@@ -1176,6 +1189,52 @@ bool TextoContidoNaGoticula(void *Txto, void *Goticula)
     Circulo *g = Goticula;
     double distanciaPonto = Distancia2Pontos(g->x, g->y, t->x, t->y);
     return (distanciaPonto <= g->raio);
+}
+
+void ObjetoTotalAtingido(Info i, double x, double y, void *aux)
+{
+    ProcColhido *A = aux;
+    Lista Atingido = A->Atingido;
+    if (VerificaTotalAtingido(i, aux))
+    {
+        insertLst(Atingido, i);
+    }
+}
+
+bool VerificaTotalAtingido(Info i, void *aux)
+{
+    ProcColhido *Atinge = aux;
+    Figura *F = i;
+    if (F->Tipo == 'T')
+    {
+        Texto *t = F->Figura;
+        return VerificaPonto(Atinge->x, t->x, Atinge->x + Atinge->larg, Atinge->y + Atinge->alt, t->y, Atinge->y);
+    }
+    else if (F->Tipo == 'C')
+    {
+        Circulo *c = F->Figura;
+        return (c->x - c->raio >= Atinge->x && c->x + c->raio <= Atinge->x + Atinge->larg &&
+                c->y - c->raio >= Atinge->y && c->y + c->raio <= Atinge->y + Atinge->alt);
+    }
+    else if (F->Tipo == 'R')
+    {
+        Retangulo *r = F->Figura;
+        return (r->x >= Atinge->x && r->x + r->larg <= Atinge->x + Atinge->larg &&
+                r->y >= Atinge->y && r->y + r->alt <= Atinge->y + Atinge->alt);
+    }
+    else if (F->Tipo == 'L')
+    {
+        Linha *l = F->Figura;
+        return (l->x1 >= Atinge->x && l->x1 <= Atinge->x + Atinge->larg &&
+                l->x2 >= Atinge->x && l->x2 <= Atinge->x + Atinge->larg &&
+                l->y1 >= Atinge->y && l->y1 <= Atinge->y + Atinge->alt &&
+                l->y2 >= Atinge->y && l->y2 <= Atinge->y + Atinge->alt);
+    }
+    else
+    {
+        printf("Erro ao verificar forma do objeto!\n");
+        return false;
+    }
 }
 
 void ReplaceWithRedX(RadialTree *All, Lista Entidades, Lista Afetados, void *Hor)

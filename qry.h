@@ -228,6 +228,22 @@ bool GoticulaContidaNoCirculo(void *Goticula, void *Circ);
 bool LinhaContidaNaGoticula(void *Lin, void *Goticula);
 
 bool TextoContidoNaGoticula(void *Txto, void *Goticula);
+/**
+ * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore os objetos 100% atingidos e inserí-los numa lista
+ * @param i Conteúdo do nó atual
+ * @param x Coordenada x do nó atual
+ * @param y Coordenada y do nó atual
+ * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
+ */
+void ObjetoTotalAtingido(Info i, double x, double y, void *aux);
+
+/**
+ * @brief Verifica se determinado objeto foi 100% atingido pela área
+ * @param i Conteúdo do nó atual
+ * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
+ * @return Retorna verdadeiro caso tenha sido atingido e falso caso não tenha
+ */
+bool VerificaTotalAtingido(Info i, void *aux);
 
 /**
  * @brief Faz o "replace" de uma figura por um X vermelho
