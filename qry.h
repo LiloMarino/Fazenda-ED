@@ -30,7 +30,7 @@ ArqQry abreLeituraQry(char *fn);
  * @param log Ponteiro para o arquivo de registro
  * @param PathOutput Ponteiro contendo o caminho de saída dos arquivos
  */
-void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput);
+void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log);
 
 /**
  * @brief Move a colheitadeira ID e colhe todos os objetos em sua trajetória
@@ -149,8 +149,9 @@ void fechaQry(ArqQry fqry);
  * @param Yinicio Coordenada de início da área de colheita
  * @param Xfim Coordenada de fim da área de colheita
  * @param Yfim Coordenada de fim da área de colheita
+ * @param reporta Determina se a contabilidade é parcial ou total 
  */
-void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, FILE *log, double Xinicio, double Yinicio, double Xfim, double Yfim);
+void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, FILE *log, double Xinicio, double Yinicio, double Xfim, double Yfim, bool parcial);
 
 /**
  * @brief Contabiliza os elementos colhidos com base na Lista Colheita e os reporta no arquivo log
@@ -206,47 +207,27 @@ void CriaArea(RadialTree All, Lista Entidades, double Xinicio, double Yinicio, d
  */
 void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[], char corp[]);
 
-/**
- * @brief Dada uma figura Fig calcula a área afetada da figura pela região delimitada por Afeta
- * @param Fig Ponteiro para a struct do tipo Figura
- * @param Afeta Ponteiro para a struct do tipo ProcAfetado
- * @return Retorna área afetada
- */
-double CalculaAreaAfetada(void *Fig, void *Afeta);
+double CalculaAreaAfetada(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas);
 
-/**
- * @brief Dada um retangulo Fig calcula a área de intersecção entre do retângulo e região delimitada por Afeta
- * @param Ret Ponteiro para a struct do tipo Retangulo
- * @param Afeta Ponteiro para a struct do tipo ProcAfetado
- * @return Retorna a área de intersecção
- */
-double CalculaAreaIntersecaoRetanguloRetangulo(void *Ret, void *Afeta);
+double VerificaGoticulaTexto(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas);
 
-/**
- * @brief Dada um circulo Circ calcula a área de intersecção entre do círculo e região delimitada por Afeta
- * @param Circ Ponteiro para a struct do tipo Circulo
- * @param Afeta Ponteiro para a struct do tipo ProcAfetado
- * @return Retorna a área de intersecção
- */
-double CalculaAreaIntersecaoCirculoRetangulo(void *Circ, void *Afeta);
+double VerificaGoticulaCirculo(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas);
 
-/**
- * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore os objetos atingidos e inserí-los numa lista
- * @param i Conteúdo do nó atual
- * @param x Coordenada x do nó atual
- * @param y Coordenada y do nó atual
- * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
- */
-void ObjetoAtingido(Info i, double x, double y, void *aux);
+double VerificaGoticulaRetangulo(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas);
 
-/**
- * @brief Verifica se determinado objeto foi atingido pela área
- * @param i Conteúdo do nó atual
- * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
- * @return Retorna verdadeiro caso tenha sido atingido e falso caso não tenha
- */
-bool VerificaAtingido(Info i, void *aux);
+double VerificaGoticulaLinha(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas);
 
+void *CriaMatrizDeGoticulas(double x, double y, double larg, double alt, double r, int *numLinhas, int *numColunas);
+
+void FreeMatrizDeGoticulas(void *MatrizGoticulas, int numLinhas);
+
+bool GoticulaContidaNoRetangulo(void *Goticula, void *Ret);
+
+bool GoticulaContidaNoCirculo(void *Goticula, void *Circ);
+
+bool LinhaContidaNaGoticula(void *Lin, void *Goticula);
+
+bool TextoContidoNaGoticula(void *Txto, void *Goticula);
 /**
  * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore os objetos 100% atingidos e inserí-los numa lista
  * @param i Conteúdo do nó atual
@@ -340,6 +321,15 @@ bool FiltraEntidades(Item item, void *aux);
  * @return Retorna o ponteiro para hortaliça presente na lista Afetados, caso não esteja presente na lista Afetados retorna NULL
  */
 Item TransformaAtingidos(Item item, void *aux);
+
+/**
+ * @brief Transforma a lista de nós em uma lista de figuras
+ * @param All Ponteiro para a árvore radial
+ * @param Atingido Lista dos objetos atingidos
+ * @warning Cuidado esta função elimina a lista passado como parâmetro
+ * @return Retorna a lista contendo as figuras
+ */
+Lista TransformaLista(RadialTree All, Lista Atingido);
 
 /**
  * @brief Faz o free() para a estrutura de entidades

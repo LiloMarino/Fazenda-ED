@@ -6,7 +6,7 @@
 #define SIZE_X2_Y2 600
 #define EPSILON_PADRAO 0.001
 #define RAIO_BASE 3.0
-#define DISPERCAO_MIN 5
+#define DISPERCAO_MIN 1
 #define DISPERCAO_MAX 10
 
 #endif

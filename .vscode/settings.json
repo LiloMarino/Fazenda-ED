@@ -38,15 +38,15 @@
                 "-e",
                 "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED",
                 "-f",
-                "arq.geo",
+                "goticula.geo",
                 "-o",
                 "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/logs",
                 "-q",
-                "arqcons.qry",
+                "goticula.qry",
                 "-ns",
                 "8",
                 "-fd",
-                "0.1"
+                "10"
             ]
         }
     ]

@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     FNARQDOT = OutputGeoQry;
 
     /* Inicia o processamento de todas as informações e produz os resultados */
-    RadialTree All = newRadialTree(atoi(numSetor), strtod(fator,NULL));
+    RadialTree All = newRadialTree(atoi(numSetor), atoi(fator)/100.0);
     ArqGeo Geo = abreLeituraGeo(InputGeo);
     ArqQry Qry = abreLeituraQry(InputQry);
     FILE *log = CriaLog(OutputGeoQry, "txt");
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
     InicializaDot(ARQDOT);
     InterpretaGeo(Geo, All);
     OperaSVG(OutputGeo, All);
-    InterpretaQry(Qry, &All, log, OutputGeoQry);
+    InterpretaQry(Qry, &All, log);
     OperaSVG(OutputGeoQry, All);
 
     /*Realiza todos os frees*/

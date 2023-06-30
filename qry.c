@@ -84,10 +84,10 @@ struct StContabiliza
     double mato_texto;
 };
 
-struct StProcAfetado
+struct StProcColhido
 {
-    Lista Atingido;         // Lista que conterá as informações dos nós atingidos
-    double x, y, larg, alt; // Especificações da área afetada
+    Lista Atingido;         // Lista que conterá as informações dos nós colhidos
+    double x, y, larg, alt; // Especificações da área de colheita
 };
 
 typedef struct StFigura Figura;
@@ -99,7 +99,7 @@ typedef struct StProcID ProcID;
 typedef struct StEntidade Entidade;
 typedef struct StHortalica Hortalica;
 typedef struct StContabiliza Contabiliza;
-typedef struct StProcAfetado ProcAfetado;
+typedef struct StProcColhido ProcColhido;
 
 /*========================================================================================================== *
  * Funções Principais                                                                                        *
@@ -112,7 +112,7 @@ ArqQry abreLeituraQry(char *fn)
     return fqry;
 }
 
-void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
+void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log)
 {
     char comando[3];
     char *linha = NULL;
@@ -206,6 +206,10 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
         num++;                                      // Remover depois
         OperaSVG(nome, *All);                       // Remover depois
     }
+    fprintf(log, "\nElementos Colhidos:\n");
+    ContabilizaColheita(Colheita, log);
+    fprintf(log, "\nElementos Não Colhidos:");
+    ColheElementos(All, Entidades, Afetados, Colheita, log, SIZE_X1_Y1, SIZE_X1_Y1, SIZE_X2_Y2, SIZE_X2_Y2, false);
     if (linha != NULL)
     {
         free(linha);
@@ -303,11 +307,7 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     fprintf(log, "Y: %lf\n\n", R->y + dy);
 
     /* Colhe os elementos na área e remove os nós da árvore sem remover a informação do nó inserindo na lista colheita apenas as hortaliças*/
-    ColheElementos(All, Entidades, Afetados, Colheita, log, Xinicio, Yinicio, Xfim, Yfim);
-
-    /* Contabiliza a colheita e reporta */
-    fprintf(log, "Contabilidade Parcial da Colheita\n");
-    ContabilizaColheita(Colheita, log);
+    ColheElementos(All, Entidades, Afetados, Colheita, log, Xinicio, Yinicio, Xfim, Yfim, true);
 
     /* Realiza o movimento da colheitadeira e marca a área colhida para o svg */
     Move(ID, dx, dy, log, All);
@@ -387,13 +387,9 @@ void Move(int ID, double dx, double dy, FILE *log, RadialTree *All)
 void Praga(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log)
 {
     Lista Atingido = createLst(-1);
-    ProcAfetado *Area = malloc(sizeof(ProcAfetado));
-    Area->Atingido = Atingido;
-    Area->x = x;
-    Area->y = y;
-    Area->larg = largura;
-    Area->alt = altura;
-    visitaLarguraRadialT(*All, ObjetoAtingido, Area);
+
+    getNodesDentroRegiaoRadialT(*All, x, y, x + largura, y + altura, Atingido);
+    Atingido = TransformaLista(*All, Atingido);
 
     /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
     Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
@@ -404,6 +400,9 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
     /*Insere na lista AtingidoBefore as Hortaliças que já foram atingidas alguma vez, caso não tenha sido atingida é atribuído NULL*/
     Lista AtingidoBefore = map(NotEntity, TransformaAtingidos, Afetados);
 
+    int numLinhas, numColunas;
+    void *MatrizGoticulas = CriaMatrizDeGoticulas(x, y, largura, altura, raio, &numLinhas, &numColunas);
+
     while (!isEmptyLst(NotAtingidoBefore))
     {
         /*A hortaliça não havia sido afetada ainda*/
@@ -411,7 +410,7 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
         Hortalica *H = calloc(1, sizeof(Hortalica));
         H->ID = F->ID;
         H->Fig = F;
-        double AreaAfetada = CalculaAreaAfetada(H->Fig, Area);
+        double AreaAfetada = CalculaAreaAfetada(H->Fig, MatrizGoticulas, numLinhas, numColunas);
         H->Dano += AreaAfetada;
         ReportaHortalica(*All, log, H);
         if (H->Dano > 0.75)
@@ -433,7 +432,7 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
         if (Hor != NULL)
         {
             /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
-            double AreaAfetada = CalculaAreaAfetada(Hor->Fig, Area);
+            double AreaAfetada = CalculaAreaAfetada(Hor->Fig, MatrizGoticulas, numLinhas, numColunas);
             Hor->Dano += AreaAfetada;
             ReportaHortalica(*All, log, Hor);
             if (Hor->Dano > 0.75)
@@ -444,11 +443,12 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
             fprintf(log, "\n");
         }
     }
+
+    FreeMatrizDeGoticulas(MatrizGoticulas, numLinhas);
     killLst(Atingido);
     killLst(NotEntity);
     killLst(NotAtingidoBefore);
     killLst(AtingidoBefore);
-    free(Area);
 
     /*Marca a área afetada para o svg e marca o círculo vermelho em (x,y)*/
     CriaArea(*All, Entidades, x, y, x + largura, y + altura);
@@ -458,19 +458,18 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
 void Cura(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree All, FILE *log)
 {
     Lista Atingido = createLst(-1);
-    ProcAfetado *Area = malloc(sizeof(ProcAfetado));
-    Area->Atingido = Atingido;
-    Area->x = x;
-    Area->y = y;
-    Area->larg = largura;
-    Area->alt = altura;
-    visitaLarguraRadialT(All, ObjetoAtingido, Area);
+
+    getNodesDentroRegiaoRadialT(All, x, y, x + largura, y + altura, Atingido);
+    Atingido = TransformaLista(All, Atingido);
 
     /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
     Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
 
     /*Insere na lista AtingidoBefore as Hortaliças que já foram atingidas alguma vez, caso não tenha sido atingida é atribuído NULL*/
     Lista AtingidoBefore = map(NotEntity, TransformaAtingidos, Afetados);
+
+    int numLinhas, numColunas;
+    void *MatrizGoticulas = CriaMatrizDeGoticulas(x, y, largura, altura, raio, &numLinhas, &numColunas);
 
     while (!isEmptyLst(AtingidoBefore))
     {
@@ -481,7 +480,7 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
             ReportaHortalica(All, log, Hor);
             if (Hor->Dano > 0)
             {
-                double AreaAfetada = CalculaAreaAfetada(Hor->Fig, Area);
+                double AreaAfetada = CalculaAreaAfetada(Hor->Fig, MatrizGoticulas, numLinhas, numColunas);
                 Hor->Dano -= AreaAfetada;
                 if (Hor->Dano < 0)
                 {
@@ -492,10 +491,10 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
         }
     }
 
+    FreeMatrizDeGoticulas(MatrizGoticulas, numLinhas);
     killLst(Atingido);
     killLst(NotEntity);
     killLst(AtingidoBefore);
-    free(Area);
 
     /*Marca a área afetada para o svg e marca o círculo amarelo em (x,y)*/
     CriaArea(All, Entidades, x, y, x + largura, y + altura);
@@ -505,13 +504,9 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
 void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree All, FILE *log)
 {
     Lista Atingido = createLst(-1);
-    ProcAfetado *Area = malloc(sizeof(ProcAfetado));
-    Area->Atingido = Atingido;
-    Area->x = x;
-    Area->y = y;
-    Area->larg = largura;
-    Area->alt = altura;
-    visitaLarguraRadialT(All, ObjetoTotalAtingido, Area);
+
+    getNodesDentroRegiaoRadialT(All, x, y, x + largura, y + altura, Atingido);
+    Atingido = TransformaLista(All, Atingido);
 
     /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
     Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
@@ -522,6 +517,9 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
     /*Insere na lista AtingidoBefore as Hortaliças que já foram atingidas alguma vez, caso não tenha sido atingida é atribuído NULL*/
     Lista AtingidoBefore = map(NotEntity, TransformaAtingidos, Afetados);
 
+    int numLinhas, numColunas;
+    void *MatrizGoticulas = CriaMatrizDeGoticulas(x, y, largura, altura, raio, &numLinhas, &numColunas);
+
     while (!isEmptyLst(NotAtingidoBefore))
     {
         /*A hortaliça não havia sido afetada ainda*/
@@ -529,7 +527,7 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
         Hortalica *H = calloc(1, sizeof(Hortalica));
         H->ID = F->ID;
         H->Fig = F;
-        H->Prod = 0.1;
+        H->Prod = CalculaAreaAfetada(H->Fig, MatrizGoticulas, numLinhas, numColunas);
         ReportaHortalica(All, log, H);
         insertLst(Afetados, H);
         F->RefCount++; // Pois foi inserido na lista Afetados
@@ -542,17 +540,17 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
         if (Hor != NULL)
         {
             /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
-            Hor->Prod += 0.1;
+            Hor->Prod += CalculaAreaAfetada(Hor->Fig, MatrizGoticulas, numLinhas, numColunas);
             ReportaHortalica(All, log, Hor);
             fprintf(log, "\n");
         }
     }
 
+    FreeMatrizDeGoticulas(MatrizGoticulas, numLinhas);
     killLst(Atingido);
     killLst(NotEntity);
     killLst(NotAtingidoBefore);
     killLst(AtingidoBefore);
-    free(Area);
 
     /*Marca a área afetada para o svg e marca o círculo verde em (x,y)*/
     CriaArea(All, Entidades, x, y, x + largura, y + altura);
@@ -657,12 +655,13 @@ void fechaQry(ArqQry fqry)
  * Funções Auxiliares                                                                                        *
  *========================================================================================================== */
 
-
-void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, FILE *log, double Xinicio, double Yinicio, double Xfim, double Yfim)
+void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, FILE *log, double Xinicio, double Yinicio, double Xfim, double Yfim, bool parcial)
 {
-    Lista Colh = createLst(-1);
-    ProcAfetado *Area = malloc(sizeof(ProcAfetado));
-    Area->Atingido = Colh;
+    Lista Atingido = createLst(-1);
+    Lista Conta = createLst(-1);
+
+    ProcColhido *Area = malloc(sizeof(ProcColhido));
+    Area->Atingido = Atingido;
     Area->x = Xinicio;
     Area->y = Yinicio;
     Area->larg = Xfim - Xinicio;
@@ -670,7 +669,7 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
     visitaLarguraRadialT(*All, ObjetoTotalAtingido, Area);
 
     /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
-    Lista NotEntity = filter(Colh, FiltraEntidades, Entidades);
+    Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
 
     /*Insere na lista NotAtingidoBefore apenas as Hortaliças que nunca foram atingidas */
     Lista NotAtingidoBefore = filter(NotEntity, FiltraAtingidos, Afetados);
@@ -687,7 +686,11 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
         H->Fig = F;
         insertLst(Colheita, H);
         F->RefCount++; // Pois foi inserido na lista Colheita
-        ReportaHortalica(*All, log, H);
+        insertLst(Conta, H);
+        if (parcial)
+        {
+            ReportaHortalica(*All, log, H);
+        }
         fprintf(log, "\n");
     }
 
@@ -708,16 +711,28 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
                     F->RefCount--; // Pois foi removido da lista Afetados
                     insertLst(Colheita, Hor);
                     F->RefCount++; // Pois foi inserido na lista Colheita
+                    insertLst(Conta, Hor);
                     break;
                 }
                 Del = getNextLst(Afetados, Del);
             }
-            ReportaHortalica(*All, log, Hor);
+            if (parcial)
+            {
+                ReportaHortalica(*All, log, Hor);
+            }
             fprintf(log, "\n");
         }
     }
 
-    killLst(Colh);
+    /* Contabiliza a colheita e reporta */
+    if (parcial)
+    {
+        fprintf(log, "Contabilidade Parcial da Colheita\n");
+    }
+    ContabilizaColheita(Conta, log);
+
+    killLst(Atingido);
+    killLst(Conta);
     killLst(NotEntity);
     killLst(NotAtingidoBefore);
     killLst(AtingidoBefore);
@@ -744,8 +759,8 @@ void ContabilizaColheita(Lista Colheita, FILE *log)
         Hortalica *H = getIteratorNext(Colheita, Col);
         Figura *F = H->Fig;
         double Modificador = 1;
-        Modificador -= H->Dano;
-        Modificador += H->Prod;
+        Modificador *= 1 + (int) H->Prod / 10.0;
+        Modificador *= 1 - H->Dano;
         char Forma = F->Tipo;
         if (Forma == 'T')
         {
@@ -963,7 +978,7 @@ void CriaArea(RadialTree All, Lista Entidades, double Xinicio, double Yinicio, d
     strcpy(r->corp, "#ffffff00"); // Branco Transparente via canal alpha 00
     strcpy(r->corb, "#ff0000");   // Vermelho
     r->pont = 3;
-    r->ID = GetIDUnico(Entidades, 9999);
+    r->ID = GetIDUnico(Entidades, -1);
     Figura *f = malloc(sizeof(Figura));
     f->ID = r->ID;
     f->Tipo = 'R';
@@ -985,7 +1000,7 @@ void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, d
     c->x = x;
     c->y = y;
     c->raio = raio;
-    c->ID = GetIDUnico(Entidades, 9999);
+    c->ID = GetIDUnico(Entidades, -1);
     strcpy(c->corp, corp);
     strcpy(c->corb, corb);
     Figura *f = malloc(sizeof(Figura));
@@ -1003,47 +1018,24 @@ void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, d
     f->RefCount = 2; // 2 pois foi inserido tanto na lista de entidades quanto na árvore
 }
 
-double CalculaAreaAfetada(void *Fig, void *Afeta)
+double CalculaAreaAfetada(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas)
 {
     Figura *F = Fig;
-    double tolerancia = 0.000001; // Tolerância para lidar com imprecisões numéricas
     if (F->Tipo == 'T')
     {
-        return 0.1; // Proporção fixa em 10%
+        return VerificaGoticulaTexto(Fig, MatrizGoticulas, numLinhas, numColunas);
     }
     else if (F->Tipo == 'C')
     {
-        Circulo *c = F->Figura;
-        double AreaIntersecao = CalculaAreaIntersecaoCirculoRetangulo(F->Figura, Afeta);
-        double AreaCirculo = PI * c->raio * c->raio;
-        double diferenca = fabs(1 - AreaIntersecao / AreaCirculo);
-        if (diferenca < tolerancia)
-        {
-            return 1.0;
-        }
-        else
-        {
-            return AreaIntersecao / AreaCirculo;
-        }
+        return VerificaGoticulaCirculo(Fig, MatrizGoticulas, numLinhas, numColunas);
     }
     else if (F->Tipo == 'R')
     {
-        Retangulo *r = F->Figura;
-        double AreaIntersecao = CalculaAreaIntersecaoRetanguloRetangulo(F->Figura, Afeta);
-        double AreaRetangulo = r->larg * r->alt;
-        double diferenca = fabs(1 - AreaIntersecao / AreaRetangulo);
-        if (diferenca < tolerancia)
-        {
-            return 1.0;
-        }
-        else
-        {
-            return AreaIntersecao / AreaRetangulo;
-        }
+        return VerificaGoticulaRetangulo(Fig, MatrizGoticulas, numLinhas, numColunas);
     }
     else if (F->Tipo == 'L')
     {
-        return 0.1; // Proporção fixa em 10%
+        return VerificaGoticulaLinha(Fig, MatrizGoticulas, numLinhas, numColunas);
     }
     else
     {
@@ -1052,103 +1044,156 @@ double CalculaAreaAfetada(void *Fig, void *Afeta)
     }
 }
 
-double CalculaAreaIntersecaoRetanguloRetangulo(void *Ret, void *Afeta)
+double VerificaGoticulaTexto(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas)
+{
+    Circulo **G = MatrizGoticulas;
+    Figura *F = Fig;
+
+    for (int i = 0; i < numLinhas; i++)
+    {
+        for (int j = 0; j < numColunas; j++)
+        {
+            if (TextoContidoNaGoticula(F->Figura, &G[i][j]))
+            {
+                return 0.1; // Proporção fixa em 10%
+            }
+        }
+    }
+
+    return 0.0; // Nenhum círculo contém o texto
+}
+
+double VerificaGoticulaCirculo(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas)
+{
+    Circulo **G = MatrizGoticulas;
+    Figura *F = Fig;
+    Circulo *c = F->Figura;
+
+    double AreaAfetada = 0;
+    double AreaCirculo = PI * c->raio * c->raio;
+    for (int i = 0; i < numLinhas; i++)
+    {
+        for (int j = 0; j < numColunas; j++)
+        {
+            if (GoticulaContidaNoCirculo(&G[i][j], F->Figura))
+            {
+                double AreaGoticula = PI * G[i][j].raio * G[i][j].raio;
+                AreaAfetada += AreaGoticula / AreaCirculo;
+            }
+        }
+    }
+    return AreaAfetada;
+}
+
+double VerificaGoticulaRetangulo(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas)
+{
+    Circulo **G = MatrizGoticulas;
+    Figura *F = Fig;
+    Retangulo *r = F->Figura;
+
+    double AreaAfetada = 0;
+    double AreaRetangulo = r->larg * r->alt;
+    for (int i = 0; i < numLinhas; i++)
+    {
+        for (int j = 0; j < numColunas; j++)
+        {
+            if (GoticulaContidaNoRetangulo(&G[i][j], F->Figura))
+            {
+                double AreaGoticula = PI * G[i][j].raio * G[i][j].raio;
+                AreaAfetada += AreaGoticula / AreaRetangulo;
+            }
+        }
+    }
+    return AreaAfetada;
+}
+
+double VerificaGoticulaLinha(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas)
+{
+    Circulo **G = MatrizGoticulas;
+    Figura *F = Fig;
+
+    for (int i = 0; i < numLinhas; i++)
+    {
+        for (int j = 0; j < numColunas; j++)
+        {
+            if (LinhaContidaNaGoticula(F->Figura, &G[i][j]))
+            {
+                return 0.1; // Proporção fixa em 10%
+            }
+        }
+    }
+
+    return 0.0; // Nenhum círculo contém a linha
+}
+
+void *CriaMatrizDeGoticulas(double x, double y, double larg, double alt, double r, int *numLinhas, int *numColunas)
+{
+    *numLinhas = round(alt / (2 * r));
+    *numColunas = round(larg / (2 * r));
+
+    Circulo **goticulas = calloc(*numLinhas, sizeof(Circulo *)); // Vetor de ponteiros "Linhas"
+    for (int i = 0; i < *numLinhas; i++)
+    {
+        goticulas[i] = calloc(*numColunas, sizeof(Circulo)); // Colunas ou Vetor da linha
+
+        for (int j = 0; j < *numColunas; j++)
+        {
+            goticulas[i][j].x = x + (2 * r * i) + r; // Atribui o valor de x para o círculo atual
+            goticulas[i][j].y = y + (2 * r * j) + r; // Atribui o valor de y para o círculo atual
+            goticulas[i][j].raio = r;                // Atribui o valor de raio para o círculo atual
+        }
+    }
+
+    return goticulas;
+}
+
+void FreeMatrizDeGoticulas(void *MatrizGoticulas, int numLinhas)
+{
+    Circulo **goticulas = MatrizGoticulas;
+    for (int i = 0; i < numLinhas; i++)
+    {
+        free(goticulas[i]); // Libera o vetor de círculos da linha
+    }
+    free(goticulas); // Libera o vetor de ponteiros para linhas
+}
+
+bool GoticulaContidaNoRetangulo(void *Goticula, void *Ret)
 {
     Retangulo *r = Ret;
-    ProcAfetado *Af = Afeta;
-    double intersecaoX = fmax(r->x, Af->x);
-    double intersecaoY = fmax(r->y, Af->y);
-    double intersecaoW = fmin(r->x + r->larg, Af->x + Af->larg) - intersecaoX;
-    double intersecaoH = fmin(r->y + r->alt, Af->y + Af->alt) - intersecaoY;
-    return intersecaoW * intersecaoH;
+    Circulo *g = Goticula;
+
+    return (g->x - g->raio >= r->x && g->x + g->raio <= r->x + r->larg &&
+            g->y - g->raio >= r->y && g->y + g->raio <= r->y + r->alt);
 }
 
-double CalculaAreaIntersecaoCirculoRetangulo(void *Circ, void *Afeta)
+bool GoticulaContidaNoCirculo(void *Goticula, void *Circ)
 {
     Circulo *c = Circ;
-    ProcAfetado *Af = Afeta;
-    // Verificar se não há interseção entre o círculo e o retângulo
-    if (c->x - c->raio > (Af->x + Af->larg) ||
-        c->x + c->raio < Af->x ||
-        c->y - c->raio > (Af->y + Af->alt) ||
-        c->y + c->raio < Af->y)
-    {
-        return 0;
-    }
-
-    // Reduzir o retângulo para limitar à interseção
-    double intersectionLeft = fmax(Af->x, c->x - c->raio);
-    double intersectionTop = fmax(Af->y, c->y - c->raio);
-    double intersectionRight = fmin((Af->x + Af->larg), c->x + c->raio);
-    double intersectionBottom = fmin((Af->y + Af->alt), c->y + c->raio);
-
-    // Calcular a área de interseção
-    double intersectionWidth = intersectionRight - intersectionLeft;
-    double intersectionHeight = intersectionBottom - intersectionTop;
-    double intersectionArea = intersectionWidth * intersectionHeight;
-
-    // Calcular a área do setor circular que está dentro da interseção
-    double circleX = c->x - intersectionLeft;
-    double circleY = c->y - intersectionTop;
-    double circleAngle = atan2(circleY, circleX);
-    double circleSectorArea = 0.5 * circleAngle * c->raio * c->raio;
-
-    // Calcular a área de interseção final
-    double finalIntersectionArea = intersectionArea - circleSectorArea;
-
-    return finalIntersectionArea;
+    Circulo *g = Goticula;
+    double distanciaCentros = Distancia2Pontos(c->x, c->y, g->x, g->y);
+    return (distanciaCentros + g->raio <= c->raio);
 }
 
-void ObjetoAtingido(Info i, double x, double y, void *aux)
+bool LinhaContidaNaGoticula(void *Lin, void *Goticula)
 {
-    ProcAfetado *A = aux;
-    Lista Atingido = A->Atingido;
-    if (VerificaAtingido(i, aux))
-    {
-        insertLst(Atingido, i);
-    }
+    Linha *l = Lin;
+    Circulo *g = Goticula;
+    double distanciaPonto1 = Distancia2Pontos(g->x, g->y, l->x1, l->y1);
+    double distanciaPonto2 = Distancia2Pontos(g->x, g->y, l->x2, l->y2);
+    return (distanciaPonto1 <= g->raio && distanciaPonto2 <= g->raio);
 }
 
-bool VerificaAtingido(Info i, void *aux)
+bool TextoContidoNaGoticula(void *Txto, void *Goticula)
 {
-    ProcAfetado *Atinge = aux;
-    Figura *F = i;
-    if (F->Tipo == 'T')
-    {
-        Texto *t = F->Figura;
-        return VerificaPonto(Atinge->x, t->x, Atinge->x + Atinge->larg, Atinge->y + Atinge->alt, t->y, Atinge->y);
-    }
-    else if (F->Tipo == 'C')
-    {
-        Circulo *c = F->Figura;
-        return (c->x + c->raio >= Atinge->x && c->x - c->raio <= Atinge->x + Atinge->larg &&
-                c->y + c->raio >= Atinge->y && c->y - c->raio <= Atinge->y + Atinge->alt);
-    }
-    else if (F->Tipo == 'R')
-    {
-        Retangulo *r = F->Figura;
-        return (r->x + r->larg >= Atinge->x && r->x <= Atinge->x + Atinge->larg &&
-                r->y + r->alt >= Atinge->y && r->y <= Atinge->y + Atinge->alt);
-    }
-    else if (F->Tipo == 'L')
-    {
-        Linha *l = F->Figura;
-        return (VerificaIntervalo(Atinge->x, l->x1, Atinge->x + Atinge->larg) &&
-                VerificaIntervalo(Atinge->x, l->x2, Atinge->x + Atinge->larg) &&
-                VerificaIntervalo(Atinge->y, l->y1, Atinge->y + Atinge->alt) &&
-                VerificaIntervalo(Atinge->y, l->y2, Atinge->y + Atinge->alt));
-    }
-
-    else
-    {
-        printf("Erro ao verificar forma da figura atingida!\n");
-        return false;
-    }
+    Texto *t = Txto;
+    Circulo *g = Goticula;
+    double distanciaPonto = Distancia2Pontos(g->x, g->y, t->x, t->y);
+    return (distanciaPonto <= g->raio);
 }
 
 void ObjetoTotalAtingido(Info i, double x, double y, void *aux)
 {
-    ProcAfetado *A = aux;
+    ProcColhido *A = aux;
     Lista Atingido = A->Atingido;
     if (VerificaTotalAtingido(i, aux))
     {
@@ -1158,7 +1203,7 @@ void ObjetoTotalAtingido(Info i, double x, double y, void *aux)
 
 bool VerificaTotalAtingido(Info i, void *aux)
 {
-    ProcAfetado *Atinge = aux;
+    ProcColhido *Atinge = aux;
     Figura *F = i;
     if (F->Tipo == 'T')
     {
@@ -1232,7 +1277,7 @@ void CriaXVermelho(RadialTree All, Lista Entidades, double x, double y)
     t->fFamily[0] = '\0';
     strcpy(t->fWeight, "b+");
     strcpy(t->fSize, "25");
-    t->ID = GetIDUnico(Entidades, 9999);
+    t->ID = GetIDUnico(Entidades, -1);
     Figura *f = malloc(sizeof(Figura));
     f->ID = t->ID;
     f->Tipo = 'T';
@@ -1288,7 +1333,14 @@ int GetIDUnico(Lista Entidades, int ID)
             Entidade *Ent = getIteratorNext(Entidades, E);
             if (Ent->ID == IDunico)
             {
-                IDunico++;
+                if (IDunico < 0)
+                {
+                    IDunico--;
+                }
+                else
+                {
+                    IDunico++;
+                }
                 JaExiste = true;
                 break;
             }
@@ -1353,6 +1405,20 @@ Item TransformaAtingidos(Item item, void *aux)
     }
     killIterator(A);
     return NULL;
+}
+
+Lista TransformaLista(RadialTree All, Lista Atingido)
+{
+    Lista Aux = createLst(-1);
+
+    while (!isEmptyLst(Atingido))
+    {
+        Figura *F = getInfoRadialT(All, popLst(Atingido));
+        insertLst(Aux, F);
+    }
+    killLst(Atingido);
+
+    return Aux;
 }
 
 void FreeEntidade(void *Ent)

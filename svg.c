@@ -61,7 +61,6 @@ void OperaSVG(char nome[], RadialTree All)
     killIterator(C);
     killIterator(T);
 
-    /** @note Observar se limpar a lista vai limpar as structs que contém as informações internas dos objetos*/
     killLst(Ret);
     killLst(Lin);
     killLst(Circ);
