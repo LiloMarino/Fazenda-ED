@@ -206,63 +206,17 @@ void CriaArea(RadialTree All, Lista Entidades, double Xinicio, double Yinicio, d
  */
 void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[], char corp[]);
 
-/**
- * @brief Dada uma figura Fig calcula a área afetada da figura pela região delimitada por Afeta
- * @param Fig Ponteiro para a struct do tipo Figura
- * @param Afeta Ponteiro para a struct do tipo ProcAfetado
- * @return Retorna área afetada
- */
-double CalculaAreaAfetada(void *Fig, void *Afeta);
+double CalculaAreaAfetada(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas);
 
-/**
- * @brief Dada um retangulo Fig calcula a área de intersecção entre do retângulo e região delimitada por Afeta
- * @param Ret Ponteiro para a struct do tipo Retangulo
- * @param Afeta Ponteiro para a struct do tipo ProcAfetado
- * @return Retorna a área de intersecção
- */
-double CalculaAreaIntersecaoRetanguloRetangulo(void *Ret, void *Afeta);
+void *CriaMatrizDeGoticulas(double x, double y, double larg, double alt, double r, int *numLinhas, int *numColunas);
 
-/**
- * @brief Dada um circulo Circ calcula a área de intersecção entre do círculo e região delimitada por Afeta
- * @param Circ Ponteiro para a struct do tipo Circulo
- * @param Afeta Ponteiro para a struct do tipo ProcAfetado
- * @return Retorna a área de intersecção
- */
-double CalculaAreaIntersecaoCirculoRetangulo(void *Circ, void *Afeta);
+bool GoticulaContidaNoRetangulo(void *Goticula, void *Ret);
 
-/**
- * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore os objetos atingidos e inserí-los numa lista
- * @param i Conteúdo do nó atual
- * @param x Coordenada x do nó atual
- * @param y Coordenada y do nó atual
- * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
- */
-void ObjetoAtingido(Info i, double x, double y, void *aux);
+bool GoticulaContidaNoCirculo(void *Goticula, void *Circ);
 
-/**
- * @brief Verifica se determinado objeto foi atingido pela área
- * @param i Conteúdo do nó atual
- * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
- * @return Retorna verdadeiro caso tenha sido atingido e falso caso não tenha
- */
-bool VerificaAtingido(Info i, void *aux);
+bool LinhaContidaNaGoticula(void *Lin, void *Goticula);
 
-/**
- * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore os objetos 100% atingidos e inserí-los numa lista
- * @param i Conteúdo do nó atual
- * @param x Coordenada x do nó atual
- * @param y Coordenada y do nó atual
- * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
- */
-void ObjetoTotalAtingido(Info i, double x, double y, void *aux);
-
-/**
- * @brief Verifica se determinado objeto foi 100% atingido pela área
- * @param i Conteúdo do nó atual
- * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
- * @return Retorna verdadeiro caso tenha sido atingido e falso caso não tenha
- */
-bool VerificaTotalAtingido(Info i, void *aux);
+bool TextoContidoNaGoticula(void *Txto, void *Goticula);
 
 /**
  * @brief Faz o "replace" de uma figura por um X vermelho

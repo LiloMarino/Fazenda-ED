@@ -84,13 +84,6 @@ struct StContabiliza
     double mato_texto;
 };
 
-struct StProcAfetado
-{
-    Lista Atingido;         // Lista que conterá as informações dos nós atingidos
-    double x, y, larg, alt; // Especificações da área afetada
-    double r;               // Especificações da gotícula
-};
-
 typedef struct StFigura Figura;
 typedef struct StCirculo Circulo;
 typedef struct StRetangulo Retangulo;
@@ -100,7 +93,6 @@ typedef struct StProcID ProcID;
 typedef struct StEntidade Entidade;
 typedef struct StHortalica Hortalica;
 typedef struct StContabiliza Contabiliza;
-typedef struct StProcAfetado ProcAfetado;
 
 /*========================================================================================================== *
  * Funções Principais                                                                                        *
@@ -430,7 +422,7 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
         if (Hor != NULL)
         {
             /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
-            double AreaAfetada = CalculaAreaAfetada(Hor->Fig, Area);
+            double AreaAfetada = CalculaAreaAfetada();
             Hor->Dano += AreaAfetada;
             ReportaHortalica(*All, log, Hor);
             if (Hor->Dano > 0.75)
@@ -473,7 +465,7 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
             ReportaHortalica(All, log, Hor);
             if (Hor->Dano > 0)
             {
-                double AreaAfetada = CalculaAreaAfetada(Hor->Fig, Area);
+                double AreaAfetada = CalculaAreaAfetada();
                 Hor->Dano -= AreaAfetada;
                 if (Hor->Dano < 0)
                 {
@@ -983,47 +975,87 @@ void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, d
     f->RefCount = 2; // 2 pois foi inserido tanto na lista de entidades quanto na árvore
 }
 
-double CalculaAreaAfetada(void *Fig, void *Afeta)
+double CalculaAreaAfetada(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas)
 {
     Figura *F = Fig;
-    double tolerancia = 0.000001; // Tolerância para lidar com imprecisões numéricas
+    Circulo **G = MatrizGoticulas;
     if (F->Tipo == 'T')
     {
-        return 0.1; // Proporção fixa em 10%
+        for (int i = 0; i < numLinhas; i++)
+        {
+            for (int j = 0; i < numColunas; j++)
+            {
+                if (TextoContidoNaGoticula(F->Figura, &G[i][j]))
+                {
+                    return 0.1; // Proporção fixa em 10%
+                }
+                else
+                {
+                    return 0.0;
+                }
+            }
+        }
     }
     else if (F->Tipo == 'C')
     {
         Circulo *c = F->Figura;
-        double AreaIntersecao = CalculaAreaIntersecaoCirculoRetangulo(F->Figura, Afeta);
+        double AreaAfetada = 0;
         double AreaCirculo = PI * c->raio * c->raio;
-        double diferenca = fabs(1 - AreaIntersecao / AreaCirculo);
-        if (diferenca < tolerancia)
+        for (int i = 0; i < numLinhas; i++)
         {
-            return 1.0;
+            for (int j = 0; i < numColunas; j++)
+            {
+                if (GoticulaContidaNoCirculo(&G[i][j], F->Figura))
+                {
+                    double AreaGoticula = PI * G[i][j].raio * G[i][j].raio;
+                    AreaAfetada += AreaGoticula / AreaCirculo;
+                }
+                else
+                {
+                    AreaAfetada += 0.0;
+                }
+            }
         }
-        else
-        {
-            return AreaIntersecao / AreaCirculo;
-        }
+        return AreaAfetada;
     }
     else if (F->Tipo == 'R')
     {
         Retangulo *r = F->Figura;
-        double AreaIntersecao = CalculaAreaIntersecaoRetanguloRetangulo(F->Figura, Afeta);
+        double AreaAfetada = 0;
         double AreaRetangulo = r->larg * r->alt;
-        double diferenca = fabs(1 - AreaIntersecao / AreaRetangulo);
-        if (diferenca < tolerancia)
+        for (int i = 0; i < numLinhas; i++)
         {
-            return 1.0;
+            for (int j = 0; i < numColunas; j++)
+            {
+                if (GoticulaContidaNoRetangulo(&G[i][j], F->Figura))
+                {
+                    double AreaGoticula = PI * G[i][j].raio * G[i][j].raio;
+                    AreaAfetada += AreaGoticula / AreaRetangulo;
+                }
+                else
+                {
+                    AreaAfetada += 0.0;
+                }
+            }
         }
-        else
-        {
-            return AreaIntersecao / AreaRetangulo;
-        }
+        return AreaAfetada;
     }
     else if (F->Tipo == 'L')
     {
-        return 0.1; // Proporção fixa em 10%
+        for (int i = 0; i < numLinhas; i++)
+        {
+            for (int j = 0; i < numColunas; j++)
+            {
+                if (LinhaContidaNaGoticula(F->Figura, &G[i][j]))
+                {
+                    return 0.1; // Proporção fixa em 10%
+                }
+                else
+                {
+                    return 0.0;
+                }
+            }
+        }
     }
     else
     {
@@ -1032,144 +1064,59 @@ double CalculaAreaAfetada(void *Fig, void *Afeta)
     }
 }
 
-double CalculaAreaIntersecaoRetanguloRetangulo(void *Ret, void *Afeta)
+void *CriaMatrizDeGoticulas(double x, double y, double larg, double alt, double r, int *numLinhas, int *numColunas)
+{
+    *numLinhas = larg / (2 * r);
+    *numColunas = alt / (2 * r);
+
+    Circulo **goticulas = calloc(*numLinhas, sizeof(Circulo *)); // Vetor de ponteiros "Linhas"
+    for (int i = 0; i < *numLinhas; i++)
+    {
+        goticulas[i] = calloc(*numColunas, sizeof(Circulo)); // Colunas ou Vetor da linha
+
+        for (int j = 0; j < *numColunas; j++)
+        {
+            goticulas[i][j].x = x + (2 * r * i) + r; // Atribui o valor de x para o círculo atual
+            goticulas[i][j].y = y + (2 * r * j) + r; // Atribui o valor de y para o círculo atual
+            goticulas[i][j].raio = r;                // Atribui o valor de raio para o círculo atual
+        }
+    }
+
+    return goticulas;
+}
+
+bool GoticulaContidaNoRetangulo(void *Goticula, void *Ret)
 {
     Retangulo *r = Ret;
-    ProcAfetado *Af = Afeta;
-    double intersecaoX = fmax(r->x, Af->x);
-    double intersecaoY = fmax(r->y, Af->y);
-    double intersecaoW = fmin(r->x + r->larg, Af->x + Af->larg) - intersecaoX;
-    double intersecaoH = fmin(r->y + r->alt, Af->y + Af->alt) - intersecaoY;
-    return intersecaoW * intersecaoH;
+    Circulo *g = Goticula;
+
+    return (g->x - g->raio >= r->x && g->x + g->raio <= r->x + r->larg &&
+            g->y - g->raio >= r->y && g->y + g->raio <= r->y + r->alt);
 }
 
-double CalculaAreaIntersecaoCirculoRetangulo(void *Circ, void *Afeta)
+bool GoticulaContidaNoCirculo(void *Goticula, void *Circ)
 {
     Circulo *c = Circ;
-    ProcAfetado *Af = Afeta;
-    // Verificar se não há interseção entre o círculo e o retângulo
-    if (c->x - c->raio > (Af->x + Af->larg) ||
-        c->x + c->raio < Af->x ||
-        c->y - c->raio > (Af->y + Af->alt) ||
-        c->y + c->raio < Af->y)
-    {
-        return 0;
-    }
-
-    // Reduzir o retângulo para limitar à interseção
-    double intersectionLeft = fmax(Af->x, c->x - c->raio);
-    double intersectionTop = fmax(Af->y, c->y - c->raio);
-    double intersectionRight = fmin((Af->x + Af->larg), c->x + c->raio);
-    double intersectionBottom = fmin((Af->y + Af->alt), c->y + c->raio);
-
-    // Calcular a área de interseção
-    double intersectionWidth = intersectionRight - intersectionLeft;
-    double intersectionHeight = intersectionBottom - intersectionTop;
-    double intersectionArea = intersectionWidth * intersectionHeight;
-
-    // Calcular a área do setor circular que está dentro da interseção
-    double circleX = c->x - intersectionLeft;
-    double circleY = c->y - intersectionTop;
-    double circleAngle = atan2(circleY, circleX);
-    double circleSectorArea = 0.5 * circleAngle * c->raio * c->raio;
-
-    // Calcular a área de interseção final
-    double finalIntersectionArea = intersectionArea - circleSectorArea;
-
-    return finalIntersectionArea;
+    Circulo *g = Goticula;
+    double distanciaCentros = Distancia2Pontos(c->x, c->y, g->x, g->y);
+    return (distanciaCentros + g->raio <= c->raio);
 }
 
-void ObjetoAtingido(Info i, double x, double y, void *aux)
+bool LinhaContidaNaGoticula(void *Lin, void *Goticula)
 {
-    ProcAfetado *A = aux;
-    Lista Atingido = A->Atingido;
-    if (VerificaAtingido(i, aux))
-    {
-        insertLst(Atingido, i);
-    }
+    Linha *l = Lin;
+    Circulo *g = Goticula;
+    double distanciaPonto1 = Distancia2Pontos(g->x, g->y, l->x1, l->y1);
+    double distanciaPonto2 = Distancia2Pontos(g->x, g->y, l->x2, l->y2);
+    return (distanciaPonto1 <= g->raio && distanciaPonto2 <= g->raio);
 }
 
-bool VerificaAtingido(Info i, void *aux)
+bool TextoContidoNaGoticula(void *Txto, void *Goticula)
 {
-    ProcAfetado *Atinge = aux;
-    Figura *F = i;
-    if (F->Tipo == 'T')
-    {
-        Texto *t = F->Figura;
-        return VerificaPonto(Atinge->x, t->x, Atinge->x + Atinge->larg, Atinge->y + Atinge->alt, t->y, Atinge->y);
-    }
-    else if (F->Tipo == 'C')
-    {
-        Circulo *c = F->Figura;
-        return (c->x + c->raio >= Atinge->x && c->x - c->raio <= Atinge->x + Atinge->larg &&
-                c->y + c->raio >= Atinge->y && c->y - c->raio <= Atinge->y + Atinge->alt);
-    }
-    else if (F->Tipo == 'R')
-    {
-        Retangulo *r = F->Figura;
-        return (r->x + r->larg >= Atinge->x && r->x <= Atinge->x + Atinge->larg &&
-                r->y + r->alt >= Atinge->y && r->y <= Atinge->y + Atinge->alt);
-    }
-    else if (F->Tipo == 'L')
-    {
-        Linha *l = F->Figura;
-        return (VerificaIntervalo(Atinge->x, l->x1, Atinge->x + Atinge->larg) &&
-                VerificaIntervalo(Atinge->x, l->x2, Atinge->x + Atinge->larg) &&
-                VerificaIntervalo(Atinge->y, l->y1, Atinge->y + Atinge->alt) &&
-                VerificaIntervalo(Atinge->y, l->y2, Atinge->y + Atinge->alt));
-    }
-
-    else
-    {
-        printf("Erro ao verificar forma da figura atingida!\n");
-        return false;
-    }
-}
-
-void ObjetoTotalAtingido(Info i, double x, double y, void *aux)
-{
-    ProcAfetado *A = aux;
-    Lista Atingido = A->Atingido;
-    if (VerificaTotalAtingido(i, aux))
-    {
-        insertLst(Atingido, i);
-    }
-}
-
-bool VerificaTotalAtingido(Info i, void *aux)
-{
-    ProcAfetado *Atinge = aux;
-    Figura *F = i;
-    if (F->Tipo == 'T')
-    {
-        Texto *t = F->Figura;
-        return VerificaPonto(Atinge->x, t->x, Atinge->x + Atinge->larg, Atinge->y + Atinge->alt, t->y, Atinge->y);
-    }
-    else if (F->Tipo == 'C')
-    {
-        Circulo *c = F->Figura;
-        return (c->x - c->raio >= Atinge->x && c->x + c->raio <= Atinge->x + Atinge->larg &&
-                c->y - c->raio >= Atinge->y && c->y + c->raio <= Atinge->y + Atinge->alt);
-    }
-    else if (F->Tipo == 'R')
-    {
-        Retangulo *r = F->Figura;
-        return (r->x >= Atinge->x && r->x + r->larg <= Atinge->x + Atinge->larg &&
-                r->y >= Atinge->y && r->y + r->alt <= Atinge->y + Atinge->alt);
-    }
-    else if (F->Tipo == 'L')
-    {
-        Linha *l = F->Figura;
-        return (l->x1 >= Atinge->x && l->x1 <= Atinge->x + Atinge->larg &&
-                l->x2 >= Atinge->x && l->x2 <= Atinge->x + Atinge->larg &&
-                l->y1 >= Atinge->y && l->y1 <= Atinge->y + Atinge->alt &&
-                l->y2 >= Atinge->y && l->y2 <= Atinge->y + Atinge->alt);
-    }
-    else
-    {
-        printf("Erro ao verificar forma do objeto!\n");
-        return false;
-    }
+    Texto *t = Txto;
+    Circulo *g = Goticula;
+    double distanciaPonto = Distancia2Pontos(g->x, g->y, t->x, t->y);
+    return (distanciaPonto <= g->raio);
 }
 
 void ReplaceWithRedX(RadialTree *All, Lista Entidades, Lista Afetados, void *Hor)
