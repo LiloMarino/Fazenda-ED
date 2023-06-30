@@ -46,7 +46,7 @@ run:
 		-o "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/logs" \
 		-q "arqcons.qry" \
 		-ns "8" \
-		-fd "10"
+		-fd "30"
 
 
 .PHONY: all run clean

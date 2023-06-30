@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include "dot.h"
 #include "radialtree.h"
+#include "Bibliotecas/learquivo.h"
 
 struct StFigura
 {
@@ -52,6 +53,29 @@ void MarcaNoRemovido(ArqDot fdot, RadialTree All, Node removido)
     char Forma = ((Figura *)getInfoRadialT(All, removido))->Tipo;
     int ID = ((Figura *)getInfoRadialT(All, removido))->ID;
     fprintf(fdot, "%c%d [shape=none, label=\"X\", color=red, fontcolor=red, fontsize=20, width=0.3, height=0.3];\n", Forma, ID);
+}
+
+void CopiaDot(ArqDot fdot, const char *OutputGeo)
+{
+    char fn[strlen(OutputGeo) + 5];
+    strcpy(fn, OutputGeo);
+    strcat(fn,".dot");
+    FILE *faux = fopen(fn,"r");
+    if (!faux)
+    {
+        printf("Erro ao copiar DOT");
+    }
+    else
+    {
+        char *buf = NULL;
+        while (leLinha(faux,&buf))
+        {
+            if (buf[0] != '}')
+            {
+                fprintf(fdot,"%s",buf);
+            }
+        }
+    }
 }
 
 void CriaPngDot(const char nome[])
