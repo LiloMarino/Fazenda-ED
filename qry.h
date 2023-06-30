@@ -208,7 +208,17 @@ void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, d
 
 double CalculaAreaAfetada(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas);
 
+double VerificaGoticulaTexto(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas);
+
+double VerificaGoticulaCirculo(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas);
+
+double VerificaGoticulaRetangulo(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas);
+
+double VerificaGoticulaLinha(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas);
+
 void *CriaMatrizDeGoticulas(double x, double y, double larg, double alt, double r, int *numLinhas, int *numColunas);
+
+void FreeMatrizDeGoticulas(void *MatrizGoticulas, int numLinhas);
 
 bool GoticulaContidaNoRetangulo(void *Goticula, void *Ret);
 
