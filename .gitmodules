@@ -1,0 +1,3 @@
+[submodule "src/Bibliotecas"]
+	path = src/Bibliotecas
+	url = https://github.com/LiloMarino/Bibliotecas
