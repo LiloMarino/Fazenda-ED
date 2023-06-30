@@ -935,7 +935,7 @@ void CriaArea(RadialTree All, Lista Entidades, double Xinicio, double Yinicio, d
     strcpy(r->corp, "#ffffff00"); // Branco Transparente via canal alpha 00
     strcpy(r->corb, "#ff0000");   // Vermelho
     r->pont = 3;
-    r->ID = GetIDUnico(Entidades, 9999);
+    r->ID = GetIDUnico(Entidades, -1);
     Figura *f = malloc(sizeof(Figura));
     f->ID = r->ID;
     f->Tipo = 'R';
@@ -957,7 +957,7 @@ void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, d
     c->x = x;
     c->y = y;
     c->raio = raio;
-    c->ID = GetIDUnico(Entidades, 9999);
+    c->ID = GetIDUnico(Entidades, -1);
     strcpy(c->corp, corp);
     strcpy(c->corb, corb);
     Figura *f = malloc(sizeof(Figura));
@@ -1159,7 +1159,7 @@ void CriaXVermelho(RadialTree All, Lista Entidades, double x, double y)
     t->fFamily[0] = '\0';
     strcpy(t->fWeight, "b+");
     strcpy(t->fSize, "25");
-    t->ID = GetIDUnico(Entidades, 9999);
+    t->ID = GetIDUnico(Entidades, -1);
     Figura *f = malloc(sizeof(Figura));
     f->ID = t->ID;
     f->Tipo = 'T';
@@ -1215,7 +1215,14 @@ int GetIDUnico(Lista Entidades, int ID)
             Entidade *Ent = getIteratorNext(Entidades, E);
             if (Ent->ID == IDunico)
             {
-                IDunico++;
+                if (IDunico > 0)
+                {
+                    IDunico--;
+                }
+                else
+                {
+                    IDunico++;
+                }
                 JaExiste = true;
                 break;
             }
