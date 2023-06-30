@@ -1043,7 +1043,7 @@ double VerificaGoticulaCirculo(void *Fig, void *MatrizGoticulas, int numLinhas, 
     double AreaCirculo = PI * c->raio * c->raio;
     for (int i = 0; i < numLinhas; i++)
     {
-        for (int j = 0; i < numColunas; j++)
+        for (int j = 0; j < numColunas; j++)
         {
             if (GoticulaContidaNoCirculo(&G[i][j], F->Figura))
             {
@@ -1065,7 +1065,7 @@ double VerificaGoticulaRetangulo(void *Fig, void *MatrizGoticulas, int numLinhas
     double AreaRetangulo = r->larg * r->alt;
     for (int i = 0; i < numLinhas; i++)
     {
-        for (int j = 0; i < numColunas; j++)
+        for (int j = 0; j < numColunas; j++)
         {
             if (GoticulaContidaNoRetangulo(&G[i][j], F->Figura))
             {
@@ -1098,8 +1098,8 @@ double VerificaGoticulaLinha(void *Fig, void *MatrizGoticulas, int numLinhas, in
 
 void *CriaMatrizDeGoticulas(double x, double y, double larg, double alt, double r, int *numLinhas, int *numColunas)
 {
-    *numLinhas = larg / (2 * r);
-    *numColunas = alt / (2 * r);
+    *numLinhas = round(alt / (2 * r));
+    *numColunas = round(larg / (2 * r));
 
     Circulo **goticulas = calloc(*numLinhas, sizeof(Circulo *)); // Vetor de ponteiros "Linhas"
     for (int i = 0; i < *numLinhas; i++)
