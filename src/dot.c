@@ -19,6 +19,7 @@ void InicializaDot(ArqDot fdot)
 {
     fprintf(fdot, "digraph Tree {\n");
     fprintf(fdot, "node [shape=box];\n");
+    fflush(fdot);
 }
 
 void TerminaDot(ArqDot fdot)
@@ -46,6 +47,7 @@ void LigaNo(ArqDot fdot, RadialTree All, Node pai, Node filho)
         int ID2 = ((Figura *)getInfoRadialT(All, filho))->ID;
         fprintf(fdot, "\"%c%d\" -> \"%c%d\"\n", Forma1, ID1, Forma2, ID2);
     }
+    fflush(fdot);
 }
 
 void MarcaNoRemovido(ArqDot fdot, RadialTree All, Node removido)
@@ -53,6 +55,7 @@ void MarcaNoRemovido(ArqDot fdot, RadialTree All, Node removido)
     char Forma = ((Figura *)getInfoRadialT(All, removido))->Tipo;
     int ID = ((Figura *)getInfoRadialT(All, removido))->ID;
     fprintf(fdot, "%c%d [shape=none, label=\"X\", color=red, fontcolor=red, fontsize=20, width=0.3, height=0.3];\n", Forma, ID);
+    fflush(fdot);
 }
 
 void CopiaDot(ArqDot fdot, const char *OutputGeo)
@@ -76,6 +79,7 @@ void CopiaDot(ArqDot fdot, const char *OutputGeo)
             }
         }
     }
+    fflush(fdot);
     fclose(faux);
 }
 
