@@ -23,7 +23,8 @@
         "def.h": "c",
         "path.h": "c",
         "random": "c",
-        "unistd.h": "c"
+        "unistd.h": "c",
+        "stdlib.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
@@ -32,15 +33,15 @@
     ],
     "makefile.launchConfigurations": [
         {
-            "cwd": "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/output",
-            "binaryPath": "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/output/ted",
+            "cwd": "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src/output",
+            "binaryPath": "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src/output/ted",
             "binaryArgs": [
                 "-e",
                 "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src",
                 "-f",
                 "00-simples-morango.geo",
                 "-o",
-                "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/logs",
+                "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src/logs",
                 "-q",
                 "00-simples-morango/colhe-interv-horz.qry",
                 "-ns",
@@ -48,6 +49,11 @@
                 "-fd",
                 "30"
             ]
+        },
+        {
+            "cwd": "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src/output",
+            "binaryPath": "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src/output/ted",
+            "binaryArgs": []
         }
     ]
 }

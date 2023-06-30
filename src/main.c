@@ -18,27 +18,15 @@ int main(int argc, char **argv)
     char *OutputGeoQry = NULL, *OutputGeo = NULL, *InputQry = NULL, *InputGeo = NULL;
 
     ArgumentosDeComando(&PathInput, &PathOutput, &nomeGeo, &nomeQry, &numSetor, &fator, argc, argv);
+    
+    ArrumaPath(&PathInput,&PathOutput);
+    joinFilePath(PathInput, nomeGeo, &InputGeo);
+    joinFilePath(PathInput, nomeQry, &InputQry);
+   
+    nomeQry = getFileName(nomeQry);
     char *nomeGeoQry = ConcatenaNomes(nomeGeo, nomeQry);
     char *nomeGeo_semExt = RemoveExtensao(nomeGeo);
 
-    /* Arruma o Input e o Output adicionando a barra final */
-    if (PathInput[strlen(PathInput) - 1] != '/')
-    {
-        char *PathInput1 = malloc(strlen(PathInput) + 2);
-        strcpy(PathInput1, PathInput);
-        strcat(PathInput1, "/");
-        PathInput = PathInput1;
-    }
-    if (PathOutput[strlen(PathOutput) - 1] != '/')
-    {
-        char *PathOutput1 = malloc(strlen(PathOutput) + 2);
-        strcpy(PathOutput1, PathOutput);
-        strcat(PathOutput1, "/");
-        PathOutput = PathOutput1;
-    }
-
-    joinFilePath(PathInput, nomeGeo, &InputGeo);
-    joinFilePath(PathInput, nomeQry, &InputQry);
     joinFilePath(PathOutput, nomeGeo_semExt, &OutputGeo);
     joinFilePath(PathOutput, nomeGeoQry, &OutputGeoQry);
 
