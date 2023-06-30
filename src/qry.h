@@ -207,27 +207,108 @@ void CriaArea(RadialTree All, Lista Entidades, double Xinicio, double Yinicio, d
  */
 void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, double raio, char corb[], char corp[]);
 
+/**
+ * @brief Calcula a área afetada da figura pelas gotículas
+ * @param Fig Ponteiro para a figura
+ * @param MatrizGoticulas Ponteiro para a matriz de gotículas
+ * @param numLinhas Número de linhas da matriz
+ * @param numColunas Número de colunas da matriz
+ * @return Retorna a área afetada
+ */
 double CalculaAreaAfetada(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas);
 
+/**
+ * @brief Calcula a área afetada da figura pelas gotículas
+ * @param Fig Ponteiro para a figura de texto
+ * @param MatrizGoticulas Ponteiro para a matriz de gotículas
+ * @param numLinhas Número de linhas da matriz
+ * @param numColunas Número de colunas da matriz
+ * @return Retorna a área afetada
+ */
 double VerificaGoticulaTexto(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas);
 
+/**
+ * @brief Calcula a área afetada da figura pelas gotículas
+ * @param Fig Ponteiro para a figura de círculo
+ * @param MatrizGoticulas Ponteiro para a matriz de gotículas
+ * @param numLinhas Número de linhas da matriz
+ * @param numColunas Número de colunas da matriz
+ * @return Retorna a área afetada
+ */
 double VerificaGoticulaCirculo(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas);
 
+/**
+ * @brief Calcula a área afetada da figura pelas gotículas
+ * @param Fig Ponteiro para a figura de retângulo
+ * @param MatrizGoticulas Ponteiro para a matriz de gotículas
+ * @param numLinhas Número de linhas da matriz
+ * @param numColunas Número de colunas da matriz
+ * @return Retorna a área afetada
+ */
 double VerificaGoticulaRetangulo(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas);
 
+/**
+ * @brief Calcula a área afetada da figura pelas gotículas
+ * @param Fig Ponteiro para a figura de linha
+ * @param MatrizGoticulas Ponteiro para a matriz de gotículas
+ * @param numLinhas Número de linhas da matriz
+ * @param numColunas Número de colunas da matriz
+ * @return Retorna a área afetada
+ */
 double VerificaGoticulaLinha(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas);
 
+/**
+ * @brief Cria uma matriz de gotículas circulares distribuidas uniformemente em uma área retangular
+ * @param x Coordenada x da área retangular  
+ * @param y Coordenada y da área retangular
+ * @param larg Largura da área retangular
+ * @param alt Altura da área retangular
+ * @param r Raio da gotícula
+ * @param numLinhas Endereço para o número de linhas da matriz
+ * @param numColunas Endereço para o número de colunas da matriz
+ * @return Retorna o ponteiro para a matriz de gotículas
+ */
 void *CriaMatrizDeGoticulas(double x, double y, double larg, double alt, double r, int *numLinhas, int *numColunas);
 
+/**
+ * @brief Realiza o free() da matriz de gotículas
+ * @param MatrizGoticulas Ponteiro para a matriz de gotículas
+ * @param numLinhas Número de linhas da matriz
+ */
 void FreeMatrizDeGoticulas(void *MatrizGoticulas, int numLinhas);
 
+/**
+ * @brief Verifica se a gotícula está totalmente contida no retângulo
+ * @param Goticula Ponteiro para a gotícula
+ * @param Ret Ponteiro para o retângulo
+ * @return Retorna verdadeiro se caso esteja e falso caso não esteja
+ */
 bool GoticulaContidaNoRetangulo(void *Goticula, void *Ret);
 
+/**
+ * @brief Verifica se a gotícula está totalmente contida no círculo
+ * @param Goticula Ponteiro para a gotícula
+ * @param Circ Ponteiro para o círculo
+ * @return Retorna verdadeiro se caso esteja e falso caso não esteja
+ */
 bool GoticulaContidaNoCirculo(void *Goticula, void *Circ);
 
+/**
+ * @brief Verifica se a linha está totalmente contida na gotícula
+ * @param Lin Ponteiro para a linha
+ * @param Goticula Ponteiro para a gotícula
+ * @return Retorna verdadeiro se caso esteja e falso caso não esteja
+ */
 bool LinhaContidaNaGoticula(void *Lin, void *Goticula);
 
+/**
+ * @brief Verifica se o texto está totalmente contido na gotícula
+ * @param Txto Ponteiro para o texto
+ * @param Goticula Ponteiro para a gotícula
+ * @return Retorna verdadeiro se caso esteja e falso caso não esteja
+ */
 bool TextoContidoNaGoticula(void *Txto, void *Goticula);
+
 /**
  * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore os objetos 100% atingidos e inserí-los numa lista
  * @param i Conteúdo do nó atual

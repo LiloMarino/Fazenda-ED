@@ -22,9 +22,10 @@ Bibliotecas/%.o : Bibliotecas/%.c
 
 clean:
 	rm -f *.o $(PROJ_NAME)
+	rm -f Bibliotecas/*.o $(PROJ_NAME)
 
 pack: $(PROJ_NAME)
 	rm -f ../$(ALUNO).zip
 	echo $(ALUNO)
 	date >> .entrega
-	cd ..; zip $(ALUNO).zip -r src/*.c src/*.h src/Makefile LEIA-ME.txt .entrega
+	cd ..; zip $(ALUNO).zip -r src/*.c src/*.h src/Bibliotecas/*.c src/Bibliotecas/*.h src/Makefile LEIA-ME.txt .entrega
