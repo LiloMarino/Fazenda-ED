@@ -149,8 +149,9 @@ void fechaQry(ArqQry fqry);
  * @param Yinicio Coordenada de início da área de colheita
  * @param Xfim Coordenada de fim da área de colheita
  * @param Yfim Coordenada de fim da área de colheita
+ * @param reporta Determina se a contabilidade é parcial ou total 
  */
-void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, FILE *log, double Xinicio, double Yinicio, double Xfim, double Yfim);
+void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, FILE *log, double Xinicio, double Yinicio, double Xfim, double Yfim, bool parcial);
 
 /**
  * @brief Contabiliza os elementos colhidos com base na Lista Colheita e os reporta no arquivo log

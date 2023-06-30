@@ -199,6 +199,10 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log)
         num++;                                      // Remover depois
         OperaSVG(nome, *All);                       // Remover depois
     }
+    fprintf(log, "\nElementos Colhidos:\n");
+    ContabilizaColheita(Colheita, log);
+    fprintf(log, "\nElementos Não Colhidos:\n");
+    ColheElementos(All, Entidades, Afetados, Colheita, log, SIZE_X1_Y1, SIZE_X1_Y1, SIZE_X2_Y2, SIZE_X2_Y2, false);
     if (linha != NULL)
     {
         free(linha);
@@ -296,11 +300,7 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     fprintf(log, "Y: %lf\n\n", R->y + dy);
 
     /* Colhe os elementos na área e remove os nós da árvore sem remover a informação do nó inserindo na lista colheita apenas as hortaliças*/
-    ColheElementos(All, Entidades, Afetados, Colheita, log, Xinicio, Yinicio, Xfim, Yfim);
-
-    /* Contabiliza a colheita e reporta */
-    fprintf(log, "Contabilidade Parcial da Colheita\n");
-    ContabilizaColheita(Colheita, log);
+    ColheElementos(All, Entidades, Afetados, Colheita, log, Xinicio, Yinicio, Xfim, Yfim, true);
 
     /* Realiza o movimento da colheitadeira e marca a área colhida para o svg */
     Move(ID, dx, dy, log, All);
@@ -648,9 +648,10 @@ void fechaQry(ArqQry fqry)
  * Funções Auxiliares                                                                                        *
  *========================================================================================================== */
 
-void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, FILE *log, double Xinicio, double Yinicio, double Xfim, double Yfim)
+void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, FILE *log, double Xinicio, double Yinicio, double Xfim, double Yfim, bool parcial)
 {
     Lista Colh = createLst(-1);
+    Lista Conta = createLst(-1);
 
     getNodesDentroRegiaoRadialT(*All, Xinicio, Yinicio, Xfim, Yfim, Colh);
     Colh = TransformaLista(*All, Colh);
@@ -673,7 +674,11 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
         H->Fig = F;
         insertLst(Colheita, H);
         F->RefCount++; // Pois foi inserido na lista Colheita
-        ReportaHortalica(*All, log, H);
+        insertLst(Conta, H);
+        if (parcial)
+        {
+            ReportaHortalica(*All, log, H);
+        }
         fprintf(log, "\n");
     }
 
@@ -694,16 +699,28 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
                     F->RefCount--; // Pois foi removido da lista Afetados
                     insertLst(Colheita, Hor);
                     F->RefCount++; // Pois foi inserido na lista Colheita
+                    insertLst(Conta, Hor);
                     break;
                 }
                 Del = getNextLst(Afetados, Del);
             }
-            ReportaHortalica(*All, log, Hor);
+            if (parcial)
+            {
+                ReportaHortalica(*All, log, Hor);
+            }
             fprintf(log, "\n");
         }
     }
 
+    /* Contabiliza a colheita e reporta */
+    if (parcial)
+    {
+        fprintf(log, "Contabilidade Parcial da Colheita\n");
+    }
+    ContabilizaColheita(Conta, log);
+
     killLst(Colh);
+    killLst(Conta);
     killLst(NotEntity);
     killLst(NotAtingidoBefore);
     killLst(AtingidoBefore);
@@ -729,8 +746,8 @@ void ContabilizaColheita(Lista Colheita, FILE *log)
         Hortalica *H = getIteratorNext(Colheita, Col);
         Figura *F = H->Fig;
         double Modificador = 1;
-        Modificador -= H->Dano;
-        Modificador += H->Prod;
+        Modificador *= 1 + (int) H->Prod / 10.0;
+        Modificador *= 1 - H->Dano;
         char Forma = F->Tipo;
         if (Forma == 'T')
         {
