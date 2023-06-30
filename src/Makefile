@@ -1,8 +1,8 @@
 PROJ_NAME=ted
 
 ALUNO= muriloa
-LIBS=-lm 
-OBJETOS=$(patsubst %.c,%.o,$(wildcard *.c))
+LIBS=-lm
+OBJETOS= main.o radialtree.o geo.o qry.o svg.o dot.o Bibliotecas/path.o Bibliotecas/utilities.o Bibliotecas/listadupla.o Bibliotecas/arqsvg.o Bibliotecas/learquivo.o Bibliotecas/geradores.o
 
 # compilador
 CC=gcc
@@ -12,9 +12,12 @@ CFLAGS= -ggdb -O0 -std=c99 -fstack-protector-all -Werror=implicit-function-decla
 LDFLAGS= -O0
 
 $(PROJ_NAME): $(OBJETOS)
-	$(CC) -o $(PROJ_NAME) $(LDFLAGS)  $(OBJETOS) $(LIBS)
+	$(CC) -o $(PROJ_NAME) $(LDFLAGS) $(OBJETOS) $(LIBS)
 
 %.o : %.c
+	$(CC) -c $(CFLAGS) $< -o $@
+
+Bibliotecas/%.o : Bibliotecas/%.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
 clean:
