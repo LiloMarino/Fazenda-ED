@@ -206,9 +206,10 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log)
         num++;                                      // Remover depois
         OperaSVG(nome, *All);                       // Remover depois
     }
+    fprintf(log, "\n[*] Terminada Execução do QRY\n");
     fprintf(log, "\nElementos Colhidos:\n");
     ContabilizaColheita(Colheita, log);
-    fprintf(log, "\nElementos Não Colhidos:");
+    fprintf(log, "\nElementos Não Colhidos:\n");
     ColheElementos(All, Entidades, Afetados, Colheita, log, SIZE_X1_Y1, SIZE_X1_Y1, SIZE_X2_Y2, SIZE_X2_Y2, false);
     if (linha != NULL)
     {
@@ -690,8 +691,8 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
         if (parcial)
         {
             ReportaHortalica(*All, log, H);
+            fprintf(log, "\n");
         }
-        fprintf(log, "\n");
     }
 
     while (!isEmptyLst(AtingidoBefore))
@@ -719,8 +720,8 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
             if (parcial)
             {
                 ReportaHortalica(*All, log, Hor);
+                fprintf(log, "\n");
             }
-            fprintf(log, "\n");
         }
     }
 

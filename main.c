@@ -61,14 +61,15 @@ int main(int argc, char **argv)
     InterpretaQry(Qry, &All, log);
     OperaSVG(OutputGeoQry, All);
     TerminaDot(ARQDOT);
+    
+    CriaPngDot(OutputGeo);
+    CriaPngDot(OutputGeoQry);
 
     /*Realiza todos os frees*/
     freeRadialTree(&All, true);
     fechaGeo(Geo);
     fechaQry(Qry);
     fclose(log);
-    CriaPngDot(OutputGeo);
-    CriaPngDot(OutputGeoQry);
     free(PathInput);
     free(PathOutput);
     free(InputGeo);

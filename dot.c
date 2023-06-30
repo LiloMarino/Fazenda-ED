@@ -76,6 +76,7 @@ void CopiaDot(ArqDot fdot, const char *OutputGeo)
             }
         }
     }
+    fclose(faux);
 }
 
 void CriaPngDot(const char nome[])
