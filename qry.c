@@ -88,6 +88,7 @@ struct StProcAfetado
 {
     Lista Atingido;         // Lista que conterá as informações dos nós atingidos
     double x, y, larg, alt; // Especificações da área afetada
+    double r;               // Especificações da gotícula
 };
 
 typedef struct StFigura Figura;
@@ -112,7 +113,7 @@ ArqQry abreLeituraQry(char *fn)
     return fqry;
 }
 
-void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput)
+void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log)
 {
     char comando[3];
     char *linha = NULL;
@@ -387,13 +388,9 @@ void Move(int ID, double dx, double dy, FILE *log, RadialTree *All)
 void Praga(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log)
 {
     Lista Atingido = createLst(-1);
-    ProcAfetado *Area = malloc(sizeof(ProcAfetado));
-    Area->Atingido = Atingido;
-    Area->x = x;
-    Area->y = y;
-    Area->larg = largura;
-    Area->alt = altura;
-    visitaLarguraRadialT(*All, ObjetoAtingido, Area);
+
+    getNodesDentroRegiaoRadialT(*All, x, y, x + largura, y + altura, Atingido);
+    Atingido = TransformaLista(*All, Atingido);
 
     /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
     Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
@@ -448,7 +445,6 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
     killLst(NotEntity);
     killLst(NotAtingidoBefore);
     killLst(AtingidoBefore);
-    free(Area);
 
     /*Marca a área afetada para o svg e marca o círculo vermelho em (x,y)*/
     CriaArea(*All, Entidades, x, y, x + largura, y + altura);
@@ -458,13 +454,9 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
 void Cura(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree All, FILE *log)
 {
     Lista Atingido = createLst(-1);
-    ProcAfetado *Area = malloc(sizeof(ProcAfetado));
-    Area->Atingido = Atingido;
-    Area->x = x;
-    Area->y = y;
-    Area->larg = largura;
-    Area->alt = altura;
-    visitaLarguraRadialT(All, ObjetoAtingido, Area);
+
+    getNodesDentroRegiaoRadialT(All, x, y, x + largura, y + altura, Atingido);
+    Atingido = TransformaLista(All, Atingido);
 
     /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
     Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
@@ -495,7 +487,6 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
     killLst(Atingido);
     killLst(NotEntity);
     killLst(AtingidoBefore);
-    free(Area);
 
     /*Marca a área afetada para o svg e marca o círculo amarelo em (x,y)*/
     CriaArea(All, Entidades, x, y, x + largura, y + altura);
@@ -505,13 +496,9 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
 void Aduba(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree All, FILE *log)
 {
     Lista Atingido = createLst(-1);
-    ProcAfetado *Area = malloc(sizeof(ProcAfetado));
-    Area->Atingido = Atingido;
-    Area->x = x;
-    Area->y = y;
-    Area->larg = largura;
-    Area->alt = altura;
-    visitaLarguraRadialT(All, ObjetoTotalAtingido, Area);
+
+    getNodesDentroRegiaoRadialT(All, x, y, x + largura, y + altura, Atingido);
+    Atingido = TransformaLista(All, Atingido);
 
     /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
     Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
@@ -552,7 +539,6 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
     killLst(NotEntity);
     killLst(NotAtingidoBefore);
     killLst(AtingidoBefore);
-    free(Area);
 
     /*Marca a área afetada para o svg e marca o círculo verde em (x,y)*/
     CriaArea(All, Entidades, x, y, x + largura, y + altura);
@@ -657,17 +643,12 @@ void fechaQry(ArqQry fqry)
  * Funções Auxiliares                                                                                        *
  *========================================================================================================== */
 
-
 void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, FILE *log, double Xinicio, double Yinicio, double Xfim, double Yfim)
 {
     Lista Colh = createLst(-1);
-    ProcAfetado *Area = malloc(sizeof(ProcAfetado));
-    Area->Atingido = Colh;
-    Area->x = Xinicio;
-    Area->y = Yinicio;
-    Area->larg = Xfim - Xinicio;
-    Area->alt = Yfim - Yinicio;
-    visitaLarguraRadialT(*All, ObjetoTotalAtingido, Area);
+
+    getNodesDentroRegiaoRadialT(*All, Xinicio, Yinicio, Xfim, Yfim, Colh);
+    Colh = TransformaLista(*All, Colh);
 
     /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
     Lista NotEntity = filter(Colh, FiltraEntidades, Entidades);
@@ -721,7 +702,6 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
     killLst(NotEntity);
     killLst(NotAtingidoBefore);
     killLst(AtingidoBefore);
-    free(Area);
 
     /* Remove os itens que foram colhidos da árvore */
     Iterador Del = createIterador(Colheita, false);
@@ -1353,6 +1333,20 @@ Item TransformaAtingidos(Item item, void *aux)
     }
     killIterator(A);
     return NULL;
+}
+
+Lista TransformaLista(RadialTree All, Lista Atingido)
+{
+    Lista Aux = createLst(-1);
+
+    while (!isEmptyLst(Atingido))
+    {
+        Figura *F = getInfoRadialT(All, popLst(Atingido));
+        insertLst(Aux, F);
+    }
+    killLst(Atingido);
+
+    return Aux;
 }
 
 void FreeEntidade(void *Ent)

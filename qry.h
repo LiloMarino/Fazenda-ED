@@ -30,7 +30,7 @@ ArqQry abreLeituraQry(char *fn);
  * @param log Ponteiro para o arquivo de registro
  * @param PathOutput Ponteiro contendo o caminho de saída dos arquivos
  */
-void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *PathOutput);
+void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log);
 
 /**
  * @brief Move a colheitadeira ID e colhe todos os objetos em sua trajetória
@@ -340,6 +340,15 @@ bool FiltraEntidades(Item item, void *aux);
  * @return Retorna o ponteiro para hortaliça presente na lista Afetados, caso não esteja presente na lista Afetados retorna NULL
  */
 Item TransformaAtingidos(Item item, void *aux);
+
+/**
+ * @brief Transforma a lista de nós em uma lista de figuras
+ * @param All Ponteiro para a árvore radial
+ * @param Atingido Lista dos objetos atingidos
+ * @warning Cuidado esta função elimina a lista passado como parâmetro
+ * @return Retorna a lista contendo as figuras
+ */
+Lista TransformaLista(RadialTree All, Lista Atingido);
 
 /**
  * @brief Faz o free() para a estrutura de entidades

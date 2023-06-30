@@ -52,7 +52,7 @@ int main(int argc, char **argv)
     InicializaDot(ARQDOT);
     InterpretaGeo(Geo, All);
     OperaSVG(OutputGeo, All);
-    InterpretaQry(Qry, &All, log, OutputGeoQry);
+    InterpretaQry(Qry, &All, log);
     OperaSVG(OutputGeoQry, All);
 
     /*Realiza todos os frees*/
