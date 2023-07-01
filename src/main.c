@@ -18,11 +18,11 @@ int main(int argc, char **argv)
     char *OutputGeoQry = NULL, *OutputGeo = NULL, *InputQry = NULL, *InputGeo = NULL;
 
     ArgumentosDeComando(&PathInput, &PathOutput, &nomeGeo, &nomeQry, &numSetor, &fator, argc, argv);
-    
-    ArrumaPath(&PathInput,&PathOutput);
+
+    ArrumaPath(&PathInput, &PathOutput);
     joinFilePath(PathInput, nomeGeo, &InputGeo);
     joinFilePath(PathInput, nomeQry, &InputQry);
-   
+
     nomeQry = getFileName(nomeQry);
     char *nomeGeoQry = ConcatenaNomes(nomeGeo, nomeQry);
     char *nomeGeo_semExt = RemoveExtensao(nomeGeo);
@@ -34,7 +34,15 @@ int main(int argc, char **argv)
     RadialTree All = newRadialTree(atoi(numSetor), atoi(fator) / 100.0);
     ArqGeo Geo = abreLeituraGeo(InputGeo);
     ArqQry Qry = abreLeituraQry(InputQry);
-    FILE *log = CriaLog(OutputGeoQry, "txt");
+    FILE *log;
+    if (Qry != NULL)
+    {
+        log = CriaLog(OutputGeoQry, "txt");
+    }
+    else
+    {
+        log = CriaLog(OutputGeo, "txt");
+    }
 
     FNARQDOT = OutputGeo;
     ARQDOT = CriaLog(FNARQDOT, "dot");
@@ -42,23 +50,24 @@ int main(int argc, char **argv)
     InterpretaGeo(Geo, All);
     OperaSVG(OutputGeo, All);
     TerminaDot(ARQDOT);
-
-    FNARQDOT = OutputGeoQry;
-    ARQDOT = CriaLog(FNARQDOT, "dot");
-    CopiaDot(ARQDOT, OutputGeo);
-    InterpretaQry(Qry, &All, log);
-    OperaSVG(OutputGeoQry, All);
-    TerminaDot(ARQDOT);
-    
     CriaPngDot(OutputGeo);
-    CriaPngDot(OutputGeoQry);
+
+    if (Qry != NULL)
+    {
+        FNARQDOT = OutputGeoQry;
+        ARQDOT = CriaLog(FNARQDOT, "dot");
+        CopiaDot(ARQDOT, OutputGeo);
+        InterpretaQry(Qry, &All, log);
+        OperaSVG(OutputGeoQry, All);
+        TerminaDot(ARQDOT);
+        CriaPngDot(OutputGeoQry);
+    }
 
     /*Realiza todos os frees*/
     freeRadialTree(&All, true);
     fechaGeo(Geo);
     fechaQry(Qry);
     fclose(log);
-    free(nomeQry);
     free(PathInput);
     free(PathOutput);
     free(InputGeo);
