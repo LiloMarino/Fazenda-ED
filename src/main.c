@@ -47,22 +47,23 @@ int main(int argc, char **argv)
     }
 
     /* Executa o .geo */
-    if (Qry == NULL)
-    {
-        FNARQDOT = OutputGeo;
-        ARQDOT = CriaLog(FNARQDOT, "dot");
-        InicializaDot(ARQDOT);
-    }
+    FNARQDOT = OutputGeo;
+    ARQDOT = CriaLog(FNARQDOT, "dot");
+    InicializaDot(ARQDOT);
     InterpretaGeo(Geo, All);
     OperaSVG(OutputGeo, All);
+    TerminaDot(ARQDOT);
     if (Qry == NULL)
     {
-        TerminaDot(ARQDOT);
         #if SKIP_IMAGE_GENERATION != 1
         iniciarTempo();
         CriaPngDot(OutputGeo);
         finalizarTempo();
         #endif
+    }
+    else
+    {
+        DeleteDuplicates(FNARQDOT,"dot");
     }
 
     /* Executa o .qry */
