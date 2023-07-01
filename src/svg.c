@@ -89,7 +89,7 @@ void CriaFrame(RadialTree All,char *OutputGeoQry, int *num)
     CriaPasta(path,nomepasta);
     char nome[strlen(path) + strlen(nomepasta) + strlen(file) + 10];
     sprintf(nome, "%s/%s/%s-frame0%d", path, nomepasta, file, *num);
-    num++;
+    (*num)++;
     OperaSVG(nome, All);
     free(path);
     free(file);
