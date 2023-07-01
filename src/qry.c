@@ -383,6 +383,7 @@ void Move(int ID, double dx, double dy, FILE *log, RadialTree *All)
         fprintf(log, "Colisão de Nó evitada\n");
     }
     free(I);
+    fflush(log);
 }
 
 void Praga(double x, double y, double largura, double altura, double raio, Lista Afetados, Lista Entidades, RadialTree *All, FILE *log)
@@ -626,6 +627,7 @@ void DadosI(int ID, RadialTree All, FILE *log)
         fprintf(log, "Cor: %s\n", l->cor);
     }
     free(I);
+    fflush(log);
 }
 
 void InfoColheitadeiras(Lista Entidades, FILE *log, RadialTree All)
@@ -812,6 +814,7 @@ void ContabilizaColheita(Lista Colheita, FILE *log)
     fprintf(log, "Cenoura: %.0lfg ou %.2lfkg\n", CONT.cenoura, CONT.cenoura / 1000);
     fprintf(log, "Mato(linha): %.0lfg ou %.2lfkg\n", CONT.mato_linha, CONT.mato_linha / 1000);
     fprintf(log, "Mato(texto): %.0lfg ou %.2lfkg\n\n", CONT.mato_texto, CONT.mato_texto / 1000);
+    fflush(log);
 }
 
 void Paste(int j, double dx, double dy, int proporcao, RadialTree All, Lista Nos, Lista Entidades, FILE *log)
@@ -1303,6 +1306,7 @@ void ReportaHortalica(RadialTree All, FILE *log, void *Hor)
     DadosI(H->ID, All, log);
     fprintf(log, "Dano: %.2lf %%\n", H->Dano * 100);
     fprintf(log, "Produtividade: %.2lf %%\n", H->Prod * 100);
+    fflush(log);
 }
 
 void VerificaID(Info i, double x, double y, void *aux)
