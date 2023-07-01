@@ -355,7 +355,7 @@ void MostraID(ArqSvg fsvg, Item info)
     char *deco = NULL;
     char cor[] = "#000000";
     char ancora[] = "middle";
-    char size[] = "16";
+    char size[] = "5";
     char weight[] = "bold";
     preparaDecoracaoTexto(&deco, 0, NULL, NULL, weight, size, NULL, cor, ancora, NULL);
     char txto[30];

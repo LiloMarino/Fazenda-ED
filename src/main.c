@@ -6,6 +6,7 @@
 #include "qry.h"
 #include "svg.h"
 #include "dot.h"
+#include "def.h"
 #include "Bibliotecas/geradores.h"
 #include "Bibliotecas/path.h"
 
@@ -50,7 +51,9 @@ int main(int argc, char **argv)
     InterpretaGeo(Geo, All);
     OperaSVG(OutputGeo, All);
     TerminaDot(ARQDOT);
+    #if SKIP_IMAGE_GENERATION != 1
     CriaPngDot(OutputGeo);
+    #endif
 
     if (Qry != NULL)
     {
@@ -60,7 +63,9 @@ int main(int argc, char **argv)
         InterpretaQry(Qry, &All, log);
         OperaSVG(OutputGeoQry, All);
         TerminaDot(ARQDOT);
+        #if SKIP_IMAGE_GENERATION != 1
         CriaPngDot(OutputGeoQry);
+        #endif
     }
 
     /*Realiza todos os frees*/
@@ -74,6 +79,7 @@ int main(int argc, char **argv)
     free(InputQry);
     free(OutputGeo);
     free(OutputGeoQry);
+    free(nomeQry);
     free(nomeGeoQry);
     free(nomeGeo_semExt);
 }

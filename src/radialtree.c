@@ -355,6 +355,11 @@ Node getNodeRadialT(RadialTree t, double x, double y, double epsilon)
 void removeNoRadialT(RadialTree t, Node n)
 {
     /** @warning É necessário passar o endereço do ponteiro da árvore para esta função para a mudança da árvore*/
+    if(n == NULL)
+    {
+        return;
+    }
+    
     Raiz *Tree = *((Raiz **)t);
     NodeTree *Rmv = n;
     Rmv->removido = true;
