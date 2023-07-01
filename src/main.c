@@ -46,14 +46,18 @@ int main(int argc, char **argv)
         log = CriaLog(OutputGeo, "txt");
     }
 
-    FNARQDOT = OutputGeo;
-    ARQDOT = CriaLog(FNARQDOT, "dot");
-    InicializaDot(ARQDOT);
-    InterpretaGeo(Geo, All);
-    OperaSVG(OutputGeo, All);
-    TerminaDot(ARQDOT);
+    /* Executa o .geo */
     if (Qry == NULL)
     {
+        FNARQDOT = OutputGeo;
+        ARQDOT = CriaLog(FNARQDOT, "dot");
+        InicializaDot(ARQDOT);
+    }
+    InterpretaGeo(Geo, All);
+    OperaSVG(OutputGeo, All);
+    if (Qry == NULL)
+    {
+        TerminaDot(ARQDOT);
         #if SKIP_IMAGE_GENERATION != 1
         iniciarTempo();
         CriaPngDot(OutputGeo);
@@ -61,6 +65,7 @@ int main(int argc, char **argv)
         #endif
     }
 
+    /* Executa o .qry */
     if (Qry != NULL)
     {
         FNARQDOT = OutputGeoQry;
