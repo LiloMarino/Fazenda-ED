@@ -149,7 +149,7 @@ void fechaQry(ArqQry fqry);
  * @param Yinicio Coordenada de início da área de colheita
  * @param Xfim Coordenada de fim da área de colheita
  * @param Yfim Coordenada de fim da área de colheita
- * @param reporta Determina se a contabilidade é parcial ou total 
+ * @param reporta Determina se a contabilidade é parcial ou total
  */
 void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colheita, FILE *log, double Xinicio, double Yinicio, double Xfim, double Yfim, bool parcial);
 
@@ -259,7 +259,7 @@ double VerificaGoticulaLinha(void *Fig, void *MatrizGoticulas, int numLinhas, in
 
 /**
  * @brief Cria uma matriz de gotículas circulares distribuidas uniformemente em uma área retangular
- * @param x Coordenada x da área retangular  
+ * @param x Coordenada x da área retangular
  * @param y Coordenada y da área retangular
  * @param larg Largura da área retangular
  * @param alt Altura da área retangular
@@ -368,7 +368,7 @@ void VerificaID(Info i, double x, double y, void *aux);
  * @return Retorna informações sobre o nó como coordenadas do nó e seu conteúdo em uma estrutura do tipo ProcID
  * @warning É necessário dar free() na variável retornada por essa função
  */
-Info ProcuraID(int ID, RadialTree All);
+void *ProcuraID(int ID, RadialTree All);
 
 /**
  * @brief Obtém um ID único para entidades que não pertencem a árvore a partir do ID especificado

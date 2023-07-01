@@ -1320,7 +1320,7 @@ void VerificaID(Info i, double x, double y, void *aux)
     }
 }
 
-Info ProcuraID(int ID, RadialTree All)
+void *ProcuraID(int ID, RadialTree All)
 {
     ProcID *aux = malloc(sizeof(ProcID));
     aux->ID = ID;
