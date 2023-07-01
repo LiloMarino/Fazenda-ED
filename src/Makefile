@@ -29,3 +29,5 @@ pack: $(PROJ_NAME)
 	echo $(ALUNO)
 	date >> .entrega
 	cd ..; zip $(ALUNO).zip -r src/*.c src/*.h src/Bibliotecas/*.c src/Bibliotecas/*.h src/Makefile LEIA-ME.txt .entrega
+
+.PHONY: pack clean
