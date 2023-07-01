@@ -63,7 +63,7 @@ ArqGeo abreLeituraGeo(char *fn)
 
 void InterpretaGeo(ArqGeo fgeo, RadialTree All)
 {
-    char comando[2];
+    char comando[3];
     char *linha = NULL;
     EstiloTxt *style = calloc(1, sizeof(EstiloTxt));
     style->fFamily = my_strdup("arial");

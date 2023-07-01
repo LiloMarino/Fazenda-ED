@@ -98,8 +98,11 @@ void CriaPngDot(const char nome[])
     {
         fclose(vrfy);
         char command[2*strlen(nomearq) + 30];
-        sprintf(command, "dot -Tpng %s -o %s", nomearq, nomepng);
+
+        // Aplicar otimizações
+        sprintf(command, "dot -Kneato -Gmaxiter=100 -Tpng %s -o %s", nomearq, nomepng);
         system(command);
+
         n++;
         sprintf(nomearq, "%s-%d.dot", nome, n);
         sprintf(nomepng, "%s-%d.png", nome, n);

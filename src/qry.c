@@ -114,9 +114,9 @@ ArqQry abreLeituraQry(char *fn)
 
 void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log)
 {
-    char comando[3];
+    char comando[4];
     char *linha = NULL;
-    char nome[25]; // Remover depois
+    char nome[40]; // Remover depois
     int num = 0;   // Remover depois
     Lista Entidades = createLst(-1);
     Lista Colheita = createLst(-1);
