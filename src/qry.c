@@ -735,7 +735,6 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
     ContabilizaColheita(Conta, log);
 
     killLst(Atingido);
-    killLst(Conta);
     killLst(NotEntity);
     killLst(NotAtingidoBefore);
     killLst(AtingidoBefore);
@@ -744,16 +743,17 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
     /* Remove os itens que foram colhidos da árvore */
     if (parcial)
     {
-    Iterador Del = createIterador(Colheita, false);
-    while (!isIteratorEmpty(Colheita, Del))
+    Iterador Del = createIterador(Conta, false);
+    while (!isIteratorEmpty(Conta, Del))
     {
-        Hortalica *H = getIteratorNext(Colheita, Del);
+        Hortalica *H = getIteratorNext(Conta, Del);
         ProcID *I = ProcuraID(H->ID, *All);
         removeNoRadialT(All, getNodeRadialT(*All, I->Nox, I->Noy, EPSILON_PADRAO));
         free(I);
     }
     killIterator(Del);
     }
+    killLst(Conta);
 }
 
 void ContabilizaColheita(Lista Colheita, FILE *log)

@@ -9,6 +9,6 @@
 #define DISPERCAO_MIN 1
 #define DISPERCAO_MAX 10
 #define SHOW_ID_FIGURA 0 /* 1 = True, 0 = False */
-#define SKIP_IMAGE_GENERATION 1 /* 1 = True, 0 = False */
+#define SKIP_IMAGE_GENERATION 0 /* 1 = True, 0 = False */
 
 #endif
