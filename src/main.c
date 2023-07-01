@@ -9,6 +9,7 @@
 #include "def.h"
 #include "Bibliotecas/geradores.h"
 #include "Bibliotecas/path.h"
+#include "Bibliotecas/efficiency.h"
 
 FILE *ARQDOT;
 char *FNARQDOT;
@@ -54,7 +55,9 @@ int main(int argc, char **argv)
     if (Qry == NULL)
     {
         #if SKIP_IMAGE_GENERATION != 1
+        iniciarTempo();
         CriaPngDot(OutputGeo);
+        finalizarTempo();
         #endif
     }
 
@@ -67,7 +70,9 @@ int main(int argc, char **argv)
         OperaSVG(OutputGeoQry, All);
         TerminaDot(ARQDOT);
         #if SKIP_IMAGE_GENERATION != 1
+        iniciarTempo();
         CriaPngDot(OutputGeoQry);
+        finalizarTempo();
         #endif
     }
 

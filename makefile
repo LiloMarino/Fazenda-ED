@@ -2,7 +2,7 @@
 PROJETO = ted
 
 # Arquivos fonte
-FONTES = main.c radialtree.c geo.c qry.c svg.c dot.c Bibliotecas/path.c Bibliotecas/utilities.c Bibliotecas/listadupla.c Bibliotecas/arqsvg.c Bibliotecas/learquivo.c Bibliotecas/geradores.c
+FONTES = main.c radialtree.c geo.c qry.c svg.c dot.c Bibliotecas/path.c Bibliotecas/utilities.c Bibliotecas/listadupla.c Bibliotecas/arqsvg.c Bibliotecas/learquivo.c Bibliotecas/geradores.c Bibliotecas/efficiency.c  
 
 # Pasta de saída
 OUTPUT = output/
@@ -41,10 +41,10 @@ clean:
 # Regra para executar o programa com o Valgrind
 run:
 	cd $(OUTPUT) && valgrind --leak-check=full --show-leak-kinds=all ./$(PROJETO) \
-		-e "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED" \
-		-f "arq.geo" \
-		-o "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/logs" \
-		-q "arqcons.qry" \
+		-e "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src" \
+		-f "00-simples-morango.geo" \
+		-o "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src/logs" \
+		-q "00-simples-morango/colhe-interv-horz.qry" \
 		-ns "8" \
 		-fd "10"
 

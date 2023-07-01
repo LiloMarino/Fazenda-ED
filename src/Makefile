@@ -2,7 +2,7 @@ PROJ_NAME=ted
 
 ALUNO= muriloa
 LIBS=-lm
-OBJETOS= main.o radialtree.o geo.o qry.o svg.o dot.o Bibliotecas/path.o Bibliotecas/utilities.o Bibliotecas/listadupla.o Bibliotecas/arqsvg.o Bibliotecas/learquivo.o Bibliotecas/geradores.o
+OBJETOS= main.o radialtree.o geo.o qry.o svg.o dot.o Bibliotecas/path.o Bibliotecas/utilities.o Bibliotecas/listadupla.o Bibliotecas/arqsvg.o Bibliotecas/learquivo.o Bibliotecas/geradores.o Bibliotecas/efficiency.o
 
 # compilador
 CC=gcc
