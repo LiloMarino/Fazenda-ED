@@ -58,6 +58,7 @@ int main(int argc, char **argv)
     fechaGeo(Geo);
     fechaQry(Qry);
     fclose(log);
+    free(nomeQry);
     free(PathInput);
     free(PathOutput);
     free(InputGeo);
