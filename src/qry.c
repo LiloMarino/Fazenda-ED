@@ -212,7 +212,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *OutputGeoQry)
     fprintf(log, "\nElementos Colhidos:\n");
     ContabilizaColheita(Colheita, log);
     fprintf(log, "\nElementos Não Colhidos:\n");
-    ColheElementos(All, Entidades, Afetados, Colheita, log, SIZE_X1_Y1, SIZE_X1_Y1, SIZE_X2_Y2, SIZE_X2_Y2, false);
+    ColheElementos(All, Entidades, Afetados, Colheita, log, SIZE_X1, SIZE_Y1, SIZE_X2, SIZE_Y2, false);
     if (linha != NULL)
     {
         free(linha);

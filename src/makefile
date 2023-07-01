@@ -44,7 +44,7 @@ run:
 		-e "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src" \
 		-f "00-simples-morango.geo" \
 		-o "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src/logs" \
-		-q "00-simples-morango/colhe-interv-horz.qry" \
+		-q "arqcons.qry" \
 		-ns "8" \
 		-fd "10"
 

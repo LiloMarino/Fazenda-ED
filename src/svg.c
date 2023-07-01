@@ -18,10 +18,10 @@ void OperaSVG(char nome[], RadialTree All)
     Lista Circ = createLst(-1);
     Lista Tex = createLst(-1);
 
-    getInfosDentroRegiaoRadialT(All, SIZE_X1_Y1, SIZE_X1_Y1, SIZE_X2_Y2, SIZE_X2_Y2, GetRetangulo, Ret);
-    getInfosDentroRegiaoRadialT(All, SIZE_X1_Y1, SIZE_X1_Y1, SIZE_X2_Y2, SIZE_X2_Y2, GetLinha, Lin);
-    getInfosDentroRegiaoRadialT(All, SIZE_X1_Y1, SIZE_X1_Y1, SIZE_X2_Y2, SIZE_X2_Y2, GetCirculo, Circ);
-    getInfosDentroRegiaoRadialT(All, SIZE_X1_Y1, SIZE_X1_Y1, SIZE_X2_Y2, SIZE_X2_Y2, GetTexto, Tex);
+    getInfosDentroRegiaoRadialT(All, SIZE_X1, SIZE_Y1, SIZE_X2, SIZE_Y2, GetRetangulo, Ret);
+    getInfosDentroRegiaoRadialT(All, SIZE_X1, SIZE_Y1, SIZE_X2, SIZE_Y2, GetLinha, Lin);
+    getInfosDentroRegiaoRadialT(All, SIZE_X1, SIZE_Y1, SIZE_X2, SIZE_Y2, GetCirculo, Circ);
+    getInfosDentroRegiaoRadialT(All, SIZE_X1, SIZE_Y1, SIZE_X2, SIZE_Y2, GetTexto, Tex);
 
     /*Cria as figuras no SVG baseado nas listas*/
     Iterador R = createIterador(Ret, false);
@@ -84,8 +84,8 @@ void OperaSVG(char nome[], RadialTree All)
 void CriaFrame(RadialTree All,char *OutputGeoQry, int *num)
 {
     char *path = getPath(OutputGeoQry), *file = getFileName(OutputGeoQry);
-    char nomepasta[strlen(getFileName(file)) + 10];
-    sprintf(nomepasta, "frames-%s", file);
+    char nomepasta[strlen(file) + 10];
+    sprintf(nomepasta, "frames%s", file);
     CriaPasta(path,nomepasta);
     char nome[strlen(path) + strlen(nomepasta) + strlen(file) + 10];
     sprintf(nome, "%s/%s/%s-frame-%d", path, nomepasta, file, *num);
