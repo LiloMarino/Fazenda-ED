@@ -8,5 +8,6 @@
 #define RAIO_BASE 3.0
 #define DISPERCAO_MIN 1
 #define DISPERCAO_MAX 10
+#define SHOW_ID_FIGURA 1 /* 1 = True, 0 = False */
 
 #endif
