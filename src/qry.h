@@ -353,13 +353,14 @@ void CriaXVermelho(RadialTree All, Lista Entidades, double x, double y);
 void ReportaHortalica(RadialTree All, FILE *log, void *Hor);
 
 /**
- * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore um ID especificado e guardar suas informações em aux
+ * @brief Função do tipo FsearchNo que é utilizada para procurar na árvore um ID especificado e guardar suas informações em aux
  * @param i Conteúdo do nó atual
  * @param x Coordenada x do nó atual
  * @param y Coordenada y do nó atual
  * @param aux Estrutura que guarda as informações do nó que contenha o ID especificado
+ * @return Retorna verdadeiro caso tenha encontrado o nó e falso caso não tenha
  */
-void VerificaID(Info i, double x, double y, void *aux);
+bool VerificaID(Info i, double x, double y, void *aux);
 
 /**
  * @brief Procura na árvore o ID especificado

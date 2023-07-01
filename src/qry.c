@@ -51,6 +51,7 @@ struct StTexto
 struct StProcID
 {
     int ID;
+    Node No;
     Info NoInfo;
     double Nox;
     double Noy;
@@ -375,7 +376,7 @@ void Move(int ID, double dx, double dy, FILE *log, RadialTree *All)
         }
         insertRadialT(*All, I->Nox + dx, I->Noy + dy, I->NoInfo);
         ((Figura *)I->NoInfo)->RefCount++; // Pois foi inserido novamente na árvore
-        removeNoRadialT(All, getNodeRadialT(*All, I->Nox, I->Noy, EPSILON_PADRAO));
+        removeNoRadialT(All, I->No);
     }
     else
     {
@@ -743,15 +744,15 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
     /* Remove os itens que foram colhidos da árvore */
     if (parcial)
     {
-    Iterador Del = createIterador(Conta, false);
-    while (!isIteratorEmpty(Conta, Del))
-    {
-        Hortalica *H = getIteratorNext(Conta, Del);
-        ProcID *I = ProcuraID(H->ID, *All);
-        removeNoRadialT(All, getNodeRadialT(*All, I->Nox, I->Noy, EPSILON_PADRAO));
-        free(I);
-    }
-    killIterator(Del);
+        Iterador Del = createIterador(Conta, false);
+        while (!isIteratorEmpty(Conta, Del))
+        {
+            Hortalica *H = getIteratorNext(Conta, Del);
+            ProcID *I = ProcuraID(H->ID, *All);
+            removeNoRadialT(All, I->No);
+            free(I);
+        }
+        killIterator(Del);
     }
     killLst(Conta);
 }
@@ -765,7 +766,7 @@ void ContabilizaColheita(Lista Colheita, FILE *log)
         Hortalica *H = getIteratorNext(Colheita, Col);
         Figura *F = H->Fig;
         double Modificador = 1;
-        Modificador *= 1 + (int) H->Prod / 10.0;
+        Modificador *= 1 + (int)H->Prod / 10.0;
         Modificador *= 1 - H->Dano;
         char Forma = F->Tipo;
         if (Forma == 'T')
@@ -1265,7 +1266,7 @@ void ReplaceWithRedX(RadialTree *All, Lista Entidades, Lista Afetados, void *Hor
         Figura *F = H->Fig;
         F->RefCount--; // Pois foi removido da lista Afetados
     }
-    removeNoRadialT(All, getNodeRadialT(*All, P->Nox, P->Noy, EPSILON_PADRAO));
+    removeNoRadialT(All, P->No);
     CriaXVermelho(*All, Entidades, P->Nox, P->Noy);
     free(P);
     free(H);
@@ -1309,7 +1310,7 @@ void ReportaHortalica(RadialTree All, FILE *log, void *Hor)
     fflush(log);
 }
 
-void VerificaID(Info i, double x, double y, void *aux)
+bool VerificaID(Info i, double x, double y, void *aux)
 {
     Figura *F = i;
     if (F->ID == ((ProcID *)aux)->ID)
@@ -1317,14 +1318,19 @@ void VerificaID(Info i, double x, double y, void *aux)
         ((ProcID *)aux)->NoInfo = i;
         ((ProcID *)aux)->Nox = x;
         ((ProcID *)aux)->Noy = y;
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }
 
 void *ProcuraID(int ID, RadialTree All)
 {
-    ProcID *aux = malloc(sizeof(ProcID));
+    ProcID *aux = calloc(1, sizeof(ProcID));
     aux->ID = ID;
-    visitaLarguraRadialT(All, VerificaID, aux);
+    aux->No = procuraNoRadialT(All, VerificaID, aux);
     return aux;
 }
 
