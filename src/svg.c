@@ -1,7 +1,11 @@
+#include <string.h>
+#include <stdlib.h>
 #include "svg.h"
-#include "Bibliotecas/arqsvg.h"
 #include "def.h"
 #include "geo.h"
+#include "Bibliotecas/geradores.h"
+#include "Bibliotecas/arqsvg.h"
+#include "Bibliotecas/path.h"
 
 
 void OperaSVG(char nome[], RadialTree All)
@@ -75,5 +79,19 @@ void OperaSVG(char nome[], RadialTree All)
     killLst(Tex);
 
     fechaSvg(B);
+}
+
+void CriaFrame(RadialTree All,char *OutputGeoQry, int *num)
+{
+    char *path = getPath(OutputGeoQry), *file = getFileName(OutputGeoQry);
+    char nomepasta[strlen(getFileName(file)) + 10];
+    sprintf(nomepasta, "frames-%s", file);
+    CriaPasta(path,nomepasta);
+    char nome[strlen(path) + strlen(nomepasta) + strlen(file) + 10];
+    sprintf(nome, "%s/%s/%s-frame0%d", path, nomepasta, file, *num);
+    num++;
+    OperaSVG(nome, All);
+    free(path);
+    free(file);
 }
 

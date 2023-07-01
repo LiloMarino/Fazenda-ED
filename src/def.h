@@ -11,5 +11,6 @@
 #define DISPERCAO_MAX 10 /* Dispersão máxima da função de semear */
 #define SHOW_ID_FIGURA 0 /* 1 = True, 0 = False */
 #define SKIP_IMAGE_GENERATION 0 /* 1 = True, 0 = False */
+#define FRAME_GENERATION 1 /* 1 = True, 0 = False */
 
 #endif

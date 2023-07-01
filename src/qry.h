@@ -28,9 +28,9 @@ ArqQry abreLeituraQry(char *fn);
  * @param fqry Ponteiro para o arquivo QRY aberto
  * @param All Endereço para a árvore radial com todos os elementos
  * @param log Ponteiro para o arquivo de registro
- * @param PathOutput Ponteiro contendo o caminho de saída dos arquivos
+ * @param OutputGeoQry Ponteiro contendo o caminho de saída dos arquivos
  */
-void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log);
+void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *OutputGeoQry);
 
 /**
  * @brief Move a colheitadeira ID e colhe todos os objetos em sua trajetória

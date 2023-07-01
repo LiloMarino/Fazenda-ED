@@ -14,4 +14,12 @@
  */
 void OperaSVG(char nome[], RadialTree All);
 
+/**
+ * @brief Cria frames de cada ação do .qry em uma pasta
+ * @param All Ponteiro para a árvore contendo os elementos do SVG
+ * @param OutputGeoQry Caminho da saída do .qry
+ * @param num Endereço para número do frame
+ */
+void CriaFrame(RadialTree All,char *OutputGeoQry, int *num);
+
 #endif

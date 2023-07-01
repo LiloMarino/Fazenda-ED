@@ -66,7 +66,7 @@ int main(int argc, char **argv)
         FNARQDOT = OutputGeoQry;
         ARQDOT = CriaLog(FNARQDOT, "dot");
         CopiaDot(ARQDOT, OutputGeo);
-        InterpretaQry(Qry, &All, log);
+        InterpretaQry(Qry, &All, log, OutputGeoQry);
         OperaSVG(OutputGeoQry, All);
         TerminaDot(ARQDOT);
         #if SKIP_IMAGE_GENERATION != 1

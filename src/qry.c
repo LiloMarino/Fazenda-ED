@@ -113,12 +113,13 @@ ArqQry abreLeituraQry(char *fn)
     return fqry;
 }
 
-void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log)
+void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *OutputGeoQry)
 {
     char comando[4];
     char *linha = NULL;
-    char nome[40]; // Remover depois
-    int num = 0;   // Remover depois
+    #if FRAME_GENERATION == 1
+    int num = 0;
+    #endif
     Lista Entidades = createLst(-1);
     Lista Colheita = createLst(-1);
     Lista Afetados = createLst(-1);
@@ -203,9 +204,9 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log)
         {
             printf("Comando desconhecido: %s\n", comando);
         }
-        sprintf(nome, "%d-caso-de-teste.qry", num); // Remover depois
-        num++;                                      // Remover depois
-        OperaSVG(nome, *All);                       // Remover depois
+        #if FRAME_GENERATION == 1
+        CriaFrame(*All,OutputGeoQry,&num);
+        #endif
     }
     fprintf(log, "\n[*] Terminada Execução do QRY\n");
     fprintf(log, "\nElementos Colhidos:\n");
