@@ -51,9 +51,12 @@ int main(int argc, char **argv)
     InterpretaGeo(Geo, All);
     OperaSVG(OutputGeo, All);
     TerminaDot(ARQDOT);
-    #if SKIP_IMAGE_GENERATION != 1
-    CriaPngDot(OutputGeo);
-    #endif
+    if (Qry == NULL)
+    {
+        #if SKIP_IMAGE_GENERATION != 1
+        CriaPngDot(OutputGeo);
+        #endif
+    }
 
     if (Qry != NULL)
     {
