@@ -355,11 +355,11 @@ Node getNodeRadialT(RadialTree t, double x, double y, double epsilon)
 void removeNoRadialT(RadialTree t, Node n)
 {
     /** @warning É necessário passar o endereço do ponteiro da árvore para esta função para a mudança da árvore*/
-    if(n == NULL)
+    if (n == NULL)
     {
         return;
     }
-    
+
     Raiz *Tree = *((Raiz **)t);
     NodeTree *Rmv = n;
     Rmv->removido = true;
@@ -663,4 +663,55 @@ Node procuraNoRadialT(RadialTree t, FsearchNo f, void *aux)
 
     killLst(Stack);
     return NULL;
+}
+
+bool printDotRadialTree(RadialTree t, char *fn)
+{
+    FILE *file = CriaLog(fn,"dot");
+    if (file == NULL)
+    {
+        printf("Erro ao abrir o arquivo.\n");
+        return false;
+    }
+
+    fprintf(file, "digraph RadialTree {\n");
+    fprintf(file, "    node [shape=record];\n");
+
+    Raiz *Tree = t;
+    NodeTree *No = Tree->node;
+    Lista Stack = createLst(-1);
+    insertLst(Stack, No);
+
+    while (!isEmptyLst(Stack))
+    {
+        No = popLst(Stack);
+        if (No->removido)
+        {
+            LigaNo(file,t,No->pai,No);
+            MarcaNoRemovido(file,t,No);
+        }
+        else
+        {
+            LigaNo(file,t,No->pai,No);
+        }
+        
+        for (int i = 0; i < Tree->numSetores; i++)
+        {
+            if (No->filhos[i] != NULL)
+            {
+                insertLst(Stack, No->filhos[i]);
+            }
+        }
+    }
+    killLst(Stack);
+
+    fprintf(file, "}\n");
+    fclose(file);
+
+    return true;
+}
+
+void killRadialTree(RadialTree t)
+{
+    freeRadialTree(t, true);
 }

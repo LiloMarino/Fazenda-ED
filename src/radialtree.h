@@ -147,11 +147,14 @@ void visitaLarguraRadialT(RadialTree t, FvisitaNo f, void *aux);
  */
 Node procuraNoRadialT(RadialTree t, FsearchNo f, void *aux);
 
-/**
- * @brief Realiza o free() na árvore radial
- * @param t Endereço para a árvore radial
- * @param ClearTotal Determina se faz o free() completo limpando até os conteúdos dos nós ou se é apenas para remover os nós
+/* Gera representacao da arvore no arquivo fn, usando a Dot Language
+   (ver https://graphviz.org/). Retorna falso, caso o arquivo nao possa
+   ser criado (para escrita); true, caso contrario)
+*/
+bool printDotRadialTree(RadialTree t, char *fn);
+
+/* Libera a memoria usada pela arvore t.
  */
-void freeRadialTree(RadialTree t, bool ClearTotal); 
+void killRadialTree(RadialTree t);
 
 #endif

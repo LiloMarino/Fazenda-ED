@@ -83,7 +83,7 @@ int main(int argc, char **argv)
     }
 
     /*Realiza todos os frees*/
-    freeRadialTree(&All, true);
+    killRadialTree(&All);
     fechaGeo(Geo);
     fechaQry(Qry);
     fclose(log);
