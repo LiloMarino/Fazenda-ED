@@ -670,7 +670,11 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
     Area->y = Yinicio;
     Area->larg = Xfim - Xinicio;
     Area->alt = Yfim - Yinicio;
-    visitaLarguraRadialT(*All, ObjetoTotalAtingido, Area);
+
+    getNodesDentroRegiaoRadialT(All, Xinicio, Yinicio, Xfim, Yfim, Atingido);
+    Atingido = TransformaLista(All, Atingido);
+    Atingido = FiltraForaDaArea(Atingido, Area);
+    free(Area);
 
     /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
     Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
@@ -739,7 +743,6 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
     killLst(NotEntity);
     killLst(NotAtingidoBefore);
     killLst(AtingidoBefore);
-    free(Area);
 
     /* Remove os itens que foram colhidos da árvore */
     if (parcial)
@@ -866,7 +869,7 @@ void Copy(void *Fig, int j, double dx, double dy, double proporcao, Lista TempEn
     double UPproporcao = ceil(proporcao);
     for (int i = 0; i < UPproporcao; i++)
     {
-        if (i < UPproporcao - 1 || i == UPproporcao - 1 && Chance(proporcao - (int)proporcao))
+        if (i < UPproporcao - 1 || (i == UPproporcao - 1 && Chance(proporcao - (int)proporcao)))
         {
             Entidade *Ent = malloc(sizeof(Entidade));
             Figura *F2 = malloc(sizeof(Figura));
@@ -1207,52 +1210,6 @@ bool TextoContidoNaGoticula(void *Txto, void *Goticula)
     return (distanciaPonto <= g->raio);
 }
 
-void ObjetoTotalAtingido(Info i, double x, double y, void *aux)
-{
-    ProcColhido *A = aux;
-    Lista Atingido = A->Atingido;
-    if (VerificaTotalAtingido(i, aux))
-    {
-        insertLst(Atingido, i);
-    }
-}
-
-bool VerificaTotalAtingido(Info i, void *aux)
-{
-    ProcColhido *Atinge = aux;
-    Figura *F = i;
-    if (F->Tipo == 'T')
-    {
-        Texto *t = F->Figura;
-        return VerificaPonto(Atinge->x, t->x, Atinge->x + Atinge->larg, Atinge->y + Atinge->alt, t->y, Atinge->y);
-    }
-    else if (F->Tipo == 'C')
-    {
-        Circulo *c = F->Figura;
-        return (c->x - c->raio >= Atinge->x && c->x + c->raio <= Atinge->x + Atinge->larg &&
-                c->y - c->raio >= Atinge->y && c->y + c->raio <= Atinge->y + Atinge->alt);
-    }
-    else if (F->Tipo == 'R')
-    {
-        Retangulo *r = F->Figura;
-        return (r->x >= Atinge->x && r->x + r->larg <= Atinge->x + Atinge->larg &&
-                r->y >= Atinge->y && r->y + r->alt <= Atinge->y + Atinge->alt);
-    }
-    else if (F->Tipo == 'L')
-    {
-        Linha *l = F->Figura;
-        return (l->x1 >= Atinge->x && l->x1 <= Atinge->x + Atinge->larg &&
-                l->x2 >= Atinge->x && l->x2 <= Atinge->x + Atinge->larg &&
-                l->y1 >= Atinge->y && l->y1 <= Atinge->y + Atinge->alt &&
-                l->y2 >= Atinge->y && l->y2 <= Atinge->y + Atinge->alt);
-    }
-    else
-    {
-        printf("Erro ao verificar forma do objeto!\n");
-        return false;
-    }
-}
-
 void ReplaceWithRedX(RadialTree *All, Lista Entidades, Lista Afetados, void *Hor)
 {
     Hortalica *H = Hor;
@@ -1441,6 +1398,53 @@ Lista TransformaLista(RadialTree All, Lista Atingido)
     killLst(Atingido);
 
     return Aux;
+}
+
+Lista FiltraForaDaArea(Lista Atingido, void *aux)
+{
+    Lista Aux = createLst(-1);
+
+    Aux = filter(Atingido, VerificaTotalAtingido, aux);
+
+    killLst(Atingido);
+
+    return Aux;
+}
+
+bool VerificaTotalAtingido(Info i, void *aux)
+{
+    ProcColhido *Atinge = aux;
+    Figura *F = i;
+    if (F->Tipo == 'T')
+    {
+        Texto *t = F->Figura;
+        return VerificaPonto(Atinge->x, t->x, Atinge->x + Atinge->larg, Atinge->y + Atinge->alt, t->y, Atinge->y);
+    }
+    else if (F->Tipo == 'C')
+    {
+        Circulo *c = F->Figura;
+        return (c->x - c->raio >= Atinge->x && c->x + c->raio <= Atinge->x + Atinge->larg &&
+                c->y - c->raio >= Atinge->y && c->y + c->raio <= Atinge->y + Atinge->alt);
+    }
+    else if (F->Tipo == 'R')
+    {
+        Retangulo *r = F->Figura;
+        return (r->x >= Atinge->x && r->x + r->larg <= Atinge->x + Atinge->larg &&
+                r->y >= Atinge->y && r->y + r->alt <= Atinge->y + Atinge->alt);
+    }
+    else if (F->Tipo == 'L')
+    {
+        Linha *l = F->Figura;
+        return (l->x1 >= Atinge->x && l->x1 <= Atinge->x + Atinge->larg &&
+                l->x2 >= Atinge->x && l->x2 <= Atinge->x + Atinge->larg &&
+                l->y1 >= Atinge->y && l->y1 <= Atinge->y + Atinge->alt &&
+                l->y2 >= Atinge->y && l->y2 <= Atinge->y + Atinge->alt);
+    }
+    else
+    {
+        printf("Erro ao verificar forma do objeto!\n");
+        return false;
+    }
 }
 
 void FreeEntidade(void *Ent)

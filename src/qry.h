@@ -309,23 +309,6 @@ bool LinhaContidaNaGoticula(void *Lin, void *Goticula);
 bool TextoContidoNaGoticula(void *Txto, void *Goticula);
 
 /**
- * @brief Função do tipo FvisitaNo que é utilizada para procurar na árvore os objetos 100% atingidos e inserí-los numa lista
- * @param i Conteúdo do nó atual
- * @param x Coordenada x do nó atual
- * @param y Coordenada y do nó atual
- * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
- */
-void ObjetoTotalAtingido(Info i, double x, double y, void *aux);
-
-/**
- * @brief Verifica se determinado objeto foi 100% atingido pela área
- * @param i Conteúdo do nó atual
- * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
- * @return Retorna verdadeiro caso tenha sido atingido e falso caso não tenha
- */
-bool VerificaTotalAtingido(Info i, void *aux);
-
-/**
  * @brief Faz o "replace" de uma figura por um X vermelho
  * @param All Endereço para a árvore radial
  * @param Entidades Lista contendo todas as entidades
@@ -411,6 +394,22 @@ Item TransformaAtingidos(Item item, void *aux);
  * @return Retorna a lista contendo as figuras
  */
 Lista TransformaLista(RadialTree All, Lista Atingido);
+
+/**
+ * @brief Filtra todos os elementos que estão fora da área removendo-os
+ * @param Atingido Lista dos objetos atingidos
+ * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
+ * @return Retorna a lista contendo os elementos inteiramente atingidos
+ */
+Lista FiltraForaDaArea(Lista Atingido, void *aux);
+
+/**
+ * @brief Verifica se determinado objeto foi 100% atingido pela área
+ * @param i Conteúdo do nó atual
+ * @param aux Estrutura que guarda as informações da área atingida e o ponteiro para a lista
+ * @return Retorna verdadeiro caso tenha sido atingido e falso caso não tenha
+ */
+bool VerificaTotalAtingido(Info i, void *aux);
 
 /**
  * @brief Faz o free() para a estrutura de entidades
