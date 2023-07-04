@@ -85,7 +85,7 @@ struct StContabiliza
     double mato_texto;
 };
 
-struct StProcColhido
+struct StProcArea
 {
     Lista Atingido;         // Lista que conterá as informações dos nós colhidos
     double x, y, larg, alt; // Especificações da área de colheita
@@ -100,7 +100,7 @@ typedef struct StProcID ProcID;
 typedef struct StEntidade Entidade;
 typedef struct StHortalica Hortalica;
 typedef struct StContabiliza Contabiliza;
-typedef struct StProcColhido ProcColhido;
+typedef struct StProcArea ProcArea;
 
 /*========================================================================================================== *
  * Funções Principais                                                                                        *
@@ -391,7 +391,7 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
 {
     Lista Atingido = createLst(-1);
 
-    ProcColhido *Area = malloc(sizeof(ProcColhido));
+    ProcArea *Area = malloc(sizeof(ProcArea));
     Area->Atingido = Atingido;
     Area->x = x;
     Area->y = y;
@@ -471,7 +471,7 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
 {
     Lista Atingido = createLst(-1);
 
-    ProcColhido *Area = malloc(sizeof(ProcColhido));
+    ProcArea *Area = malloc(sizeof(ProcArea));
     Area->Atingido = Atingido;
     Area->x = x;
     Area->y = y;
@@ -526,7 +526,7 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
 {
     Lista Atingido = createLst(-1);
 
-    ProcColhido *Area = malloc(sizeof(ProcColhido));
+    ProcArea *Area = malloc(sizeof(ProcArea));
     Area->Atingido = Atingido;
     Area->x = x;
     Area->y = y;
@@ -691,7 +691,7 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
     Lista Atingido = createLst(-1);
     Lista Conta = createLst(-1);
 
-    ProcColhido *Area = malloc(sizeof(ProcColhido));
+    ProcArea *Area = malloc(sizeof(ProcArea));
     Area->Atingido = Atingido;
     Area->x = Xinicio;
     Area->y = Yinicio;
@@ -1440,7 +1440,7 @@ Lista FiltraForaDaArea(Lista Atingido, void *aux)
 
 bool VerificaTotalAtingido(Info i, void *aux)
 {
-    ProcColhido *Atinge = aux;
+    ProcArea *Atinge = aux;
     Figura *F = i;
     if (F->Tipo == 'T')
     {
