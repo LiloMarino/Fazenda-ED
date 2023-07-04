@@ -698,8 +698,8 @@ void ColheElementos(RadialTree *All, Lista Entidades, Lista Afetados, Lista Colh
     Area->larg = Xfim - Xinicio;
     Area->alt = Yfim - Yinicio;
 
-    getNodesDentroRegiaoRadialT(All, Xinicio, Yinicio, Xfim, Yfim, Atingido);
-    Atingido = TransformaLista(All, Atingido);
+    getNodesDentroRegiaoRadialT(*All, Xinicio, Yinicio, Xfim, Yfim, Atingido);
+    Atingido = TransformaLista(*All, Atingido);
     Atingido = FiltraForaDaArea(Atingido, Area);
     free(Area);
 
@@ -1429,12 +1429,8 @@ Lista TransformaLista(RadialTree All, Lista Atingido)
 
 Lista FiltraForaDaArea(Lista Atingido, void *aux)
 {
-    Lista Aux = createLst(-1);
-
-    Aux = filter(Atingido, VerificaTotalAtingido, aux);
-
+    Lista Aux = filter(Atingido, VerificaTotalAtingido, aux);
     killLst(Atingido);
-
     return Aux;
 }
 
