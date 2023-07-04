@@ -82,6 +82,15 @@ int main(int argc, char **argv)
         #endif
     }
 
+    if (Qry != NULL)
+    {
+        printDotRadialTree(All, OutputGeoQry);
+    }
+    else
+    {
+        printDotRadialTree(All, OutputGeo);
+    }
+
     /*Realiza todos os frees*/
     killRadialTree(&All);
     fechaGeo(Geo);
