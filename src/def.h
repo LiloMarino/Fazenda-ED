@@ -2,8 +2,8 @@
 #define DEF_H
 
 /*Definem a Área da árvore e o viewBox do SVG, e são usados tanto na procura de elementos quanto na elaboração do SVG*/
-#define SIZE_X1 -100 /* (x1,y1) */
-#define SIZE_Y1 -100 /* (x1,y1) */
+#define SIZE_X1 -1000 /* (x1,y1) */
+#define SIZE_Y1 -1000 /* (x1,y1) */
 #define SIZE_X2 5000 /* (x2,y2) */
 #define SIZE_Y2 2000 /* (x2,y2) */
 
