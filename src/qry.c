@@ -391,8 +391,17 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
 {
     Lista Atingido = createLst(-1);
 
+    ProcColhido *Area = malloc(sizeof(ProcColhido));
+    Area->Atingido = Atingido;
+    Area->x = x;
+    Area->y = y;
+    Area->larg = largura;
+    Area->alt = altura;
+
     getNodesDentroRegiaoRadialT(*All, x, y, x + largura, y + altura, Atingido);
     Atingido = TransformaLista(*All, Atingido);
+    Atingido = FiltraForaDaArea(Atingido, Area);
+    free(Area);
 
     /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
     Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
@@ -462,8 +471,17 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
 {
     Lista Atingido = createLst(-1);
 
+    ProcColhido *Area = malloc(sizeof(ProcColhido));
+    Area->Atingido = Atingido;
+    Area->x = x;
+    Area->y = y;
+    Area->larg = largura;
+    Area->alt = altura;
+
     getNodesDentroRegiaoRadialT(All, x, y, x + largura, y + altura, Atingido);
     Atingido = TransformaLista(All, Atingido);
+    Atingido = FiltraForaDaArea(Atingido, Area);
+    free(Area);
 
     /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
     Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
@@ -508,8 +526,17 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
 {
     Lista Atingido = createLst(-1);
 
+    ProcColhido *Area = malloc(sizeof(ProcColhido));
+    Area->Atingido = Atingido;
+    Area->x = x;
+    Area->y = y;
+    Area->larg = largura;
+    Area->alt = altura;
+
     getNodesDentroRegiaoRadialT(All, x, y, x + largura, y + altura, Atingido);
     Atingido = TransformaLista(All, Atingido);
+    Atingido = FiltraForaDaArea(Atingido, Area);
+    free(Area);
 
     /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
     Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);

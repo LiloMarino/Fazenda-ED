@@ -112,6 +112,7 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
  * @param log Ponteiro para o arquivo de registro
  */
 void Semeia(double x, double y, double largura, double altura, double fator, double dx, double dy, int j, Lista Entidades, RadialTree All, FILE *log);
+
 /**
  * @brief Reporta os dados da figura identificado por ID no arquivo de registro
  * @param ID ID da figura a ser reportada
