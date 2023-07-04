@@ -117,9 +117,9 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *OutputGeoQry)
 {
     char comando[4];
     char *linha = NULL;
-    #if FRAME_GENERATION == 1
+#if FRAME_GENERATION == 1
     int num = 0;
-    #endif
+#endif
     Lista Entidades = createLst(-1);
     Lista Colheita = createLst(-1);
     Lista Afetados = createLst(-1);
@@ -182,10 +182,10 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *OutputGeoQry)
         }
         else if (strcmp(comando, "st") == 0)
         {
-            int fator, j;
-            double x, y, larg, alt, dx, dy;
-            sscanf(linha, "%s %lf %lf %lf %lf %d %lf %lf %d", comando, &x, &y, &larg, &alt, &fator, &dx, &dy, &j);
-            fprintf(log, "\n[*] %s %lf %lf %lf %lf %d %lf %lf %d\n", comando, x, y, larg, alt, fator, dx, dy, j);
+            int j;
+            double x, y, larg, alt, dx, fator, dy;
+            sscanf(linha, "%s %lf %lf %lf %lf %lf %lf %lf %d", comando, &x, &y, &larg, &alt, &fator, &dx, &dy, &j);
+            fprintf(log, "\n[*] %s %lf %lf %lf %lf %lf %lf %lf %d\n", comando, x, y, larg, alt, fator, dx, dy, j);
             Semeia(x, y, larg, alt, fator, dx, dy, j, Entidades, *All, log);
         }
         else if (strcmp(comando, "d?") == 0)
@@ -204,9 +204,9 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *OutputGeoQry)
         {
             printf("Comando desconhecido: %s\n", comando);
         }
-        #if FRAME_GENERATION == 1
-        CriaFrame(*All,OutputGeoQry,&num);
-        #endif
+#if FRAME_GENERATION == 1
+        CriaFrame(*All, OutputGeoQry, &num);
+#endif
     }
     fprintf(log, "\n[*] Terminada Execução do QRY\n");
     fprintf(log, "\nElementos Colhidos:\n");

@@ -42,9 +42,9 @@ clean:
 run:
 	cd $(OUTPUT) && valgrind --leak-check=full --show-leak-kinds=all ./$(PROJETO) \
 		-e "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src" \
-		-f "00-simples-morango.geo" \
+		-f "goticula.geo" \
 		-o "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src/logs" \
-		-q "arqcons.qry" \
+		-q "goticula.qry" \
 		-ns "8" \
 		-fd "10"
 
