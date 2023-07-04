@@ -111,8 +111,7 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
  * @param Entidades Lista que contém todas as entidades
  * @param log Ponteiro para o arquivo de registro
  */
-void Semeia(double x, double y, double largura, double altura, int fator, double dx, double dy, int j, Lista Entidades, RadialTree All, FILE *log);
-
+void Semeia(double x, double y, double largura, double altura, double fator, double dx, double dy, int j, Lista Entidades, RadialTree All, FILE *log);
 /**
  * @brief Reporta os dados da figura identificado por ID no arquivo de registro
  * @param ID ID da figura a ser reportada
@@ -171,7 +170,7 @@ void ContabilizaColheita(Lista Colheita, FILE *log);
  * @param Entidades Lista contendo as entidades
  * @param log Ponteiro para o arquvio de registro
  */
-void Paste(int j, double dx, double dy, int proporcao, RadialTree All, Lista Nos, Lista Entidades, FILE *log);
+void Paste(int j, double dx, double dy, double proporcao, RadialTree All, Lista Nos, Lista Entidades, FILE *log);
 
 /**
  * @brief Copia as figuras da árvore e as insere na lista TempEnt proporcao vezes
@@ -182,7 +181,7 @@ void Paste(int j, double dx, double dy, int proporcao, RadialTree All, Lista Nos
  * @param proporcao Fator de proporção das figuras
  * @param TempEnt Lista de entidades temporária para a "cola" das figuras
  */
-void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt);
+void Copy(void *Fig, int j, double dx, double dy, double proporcao, Lista TempEnt);
 
 /**
  * @brief Cria o retângulo de colheita/praga/adubo e o insere tanto na árvore quanto na lista de entidades

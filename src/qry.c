@@ -560,7 +560,7 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
     CriaMarcacaoCircular(All, Entidades, x, y, raio, "green", "#ffffff00");
 }
 
-void Semeia(double x, double y, double largura, double altura, int fator, double dx, double dy, int j, Lista Entidades, RadialTree All, FILE *log)
+void Semeia(double x, double y, double largura, double altura, double fator, double dx, double dy, int j, Lista Entidades, RadialTree All, FILE *log)
 {
     /* "Copia" os nós dentro da área */
     Lista Nos = createLst(-1);
@@ -818,7 +818,7 @@ void ContabilizaColheita(Lista Colheita, FILE *log)
     fflush(log);
 }
 
-void Paste(int j, double dx, double dy, int proporcao, RadialTree All, Lista Nos, Lista Entidades, FILE *log)
+void Paste(int j, double dx, double dy, double proporcao, RadialTree All, Lista Nos, Lista Entidades, FILE *log)
 {
     Lista TempEnt = createLst(-1);
     /* Filtra a Lista dos Nós copiando apenas os nós que não são entidades*/
@@ -860,9 +860,10 @@ void Paste(int j, double dx, double dy, int proporcao, RadialTree All, Lista Nos
     killLst(TempEnt);
 }
 
-void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt)
+void Copy(void *Fig, int j, double dx, double dy, double proporcao, Lista TempEnt)
 {
     Figura *F = (Figura *)Fig;
+    proporcao = ceil(proporcao);
     for (int i = 0; i < proporcao; i++)
     {
         Entidade *Ent = malloc(sizeof(Entidade));
@@ -890,10 +891,21 @@ void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt)
             Ent->Noy = t2->y;
             if (i > 0)
             {
-                Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
-                Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
-                t2->x = Ent->Nox;
-                t2->y = Ent->Noy;
+                /*Quando é a última repetição tem uma % de chance de gerar o objeto*/
+                if (i == proporcao - 1 && Chance(proporcao - (int)proporcao))
+                {
+                    Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                    Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                    t2->x = Ent->Nox;
+                    t2->y = Ent->Noy;
+                }
+                else
+                {
+                    Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                    Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                    t2->x = Ent->Nox;
+                    t2->y = Ent->Noy;
+                }
             }
         }
         else if (F->Tipo == 'C')
@@ -911,10 +923,21 @@ void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt)
             Ent->Noy = c2->y;
             if (i > 0)
             {
-                Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
-                Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
-                c2->x = Ent->Nox;
-                c2->y = Ent->Noy;
+                /*Quando é a última repetição tem uma % de chance de gerar o objeto*/
+                if (i == proporcao - 1 && Chance(proporcao - (int)proporcao))
+                {
+                    Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                    Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                    c2->x = Ent->Nox;
+                    c2->y = Ent->Noy;
+                }
+                else
+                {
+                    Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                    Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                    c2->x = Ent->Nox;
+                    c2->y = Ent->Noy;
+                }
             }
         }
         else if (F->Tipo == 'R')
@@ -934,10 +957,21 @@ void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt)
             Ent->Noy = r2->y;
             if (i > 0)
             {
-                Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
-                Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
-                r2->x = Ent->Nox;
-                r2->y = Ent->Noy;
+                /*Quando é a última repetição tem uma % de chance de gerar o objeto*/
+                if (i == proporcao - 1 && Chance(proporcao - (int)proporcao))
+                {
+                    Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                    Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                    r2->x = Ent->Nox;
+                    r2->y = Ent->Noy;
+                }
+                else
+                {
+                    Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                    Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                    r2->x = Ent->Nox;
+                    r2->y = Ent->Noy;
+                }
             }
         }
         else if (F->Tipo == 'L')
@@ -955,10 +989,21 @@ void Copy(void *Fig, int j, double dx, double dy, int proporcao, Lista TempEnt)
             Ent->Noy = l2->y1;
             if (i > 0)
             {
-                Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
-                Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
-                l2->x1 = Ent->Nox;
-                l2->y1 = Ent->Noy;
+                /*Quando é a última repetição tem uma % de chance de gerar o objeto*/
+                if (i == proporcao - 1 && Chance(proporcao - (int)proporcao))
+                {
+                    Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                    Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                    l2->x1 = Ent->Nox;
+                    l2->y1 = Ent->Noy;
+                }
+                else
+                {
+                    Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                    Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
+                    l2->x1 = Ent->Nox;
+                    l2->y1 = Ent->Noy;
+                }
             }
         }
         else
