@@ -863,161 +863,124 @@ void Paste(int j, double dx, double dy, double proporcao, RadialTree All, Lista 
 void Copy(void *Fig, int j, double dx, double dy, double proporcao, Lista TempEnt)
 {
     Figura *F = (Figura *)Fig;
-    proporcao = ceil(proporcao);
-    for (int i = 0; i < proporcao; i++)
+    double UPproporcao = ceil(proporcao);
+    for (int i = 0; i < UPproporcao; i++)
     {
-        Entidade *Ent = malloc(sizeof(Entidade));
-        Figura *F2 = malloc(sizeof(Figura));
-        F2->ID = GetIDUnico(TempEnt, j);
-        F2->RefCount = 0; // Pois não foi inserido em nada ainda
-        F2->Tipo = F->Tipo;
-        if (F->Tipo == 'T')
+        if (i < UPproporcao - 1 || i == UPproporcao - 1 && Chance(proporcao - (int)proporcao))
         {
-            Texto *t = F->Figura;
-            Texto *t2 = malloc(sizeof(Texto));
-            strcpy(t2->a, t->a);
-            strcpy(t2->corb, t->corb);
-            strcpy(t2->corp, t->corp);
-            strcpy(t2->fFamily, t->fFamily);
-            strcpy(t2->fWeight, t->fWeight);
-            strcpy(t2->fSize, t->fSize);
-            strcpy(t2->rotacao, t->rotacao);
-            strcpy(t2->txto, t->txto);
-            t2->x = t->x + dx;
-            t2->y = t->y + dy;
-            t2->ID = F2->ID;
-            F2->Figura = t2;
-            Ent->Nox = t2->x;
-            Ent->Noy = t2->y;
-            if (i > 0)
+            Entidade *Ent = malloc(sizeof(Entidade));
+            Figura *F2 = malloc(sizeof(Figura));
+            F2->ID = GetIDUnico(TempEnt, j);
+            F2->RefCount = 0; // Pois não foi inserido em nada ainda
+            F2->Tipo = F->Tipo;
+            if (F->Tipo == 'T')
             {
-                /*Quando é a última repetição tem uma % de chance de gerar o objeto*/
-                if (i == proporcao - 1 && Chance(proporcao - (int)proporcao))
+                Texto *t = F->Figura;
+                Texto *t2 = malloc(sizeof(Texto));
+                strcpy(t2->a, t->a);
+                strcpy(t2->corb, t->corb);
+                strcpy(t2->corp, t->corp);
+                strcpy(t2->fFamily, t->fFamily);
+                strcpy(t2->fWeight, t->fWeight);
+                strcpy(t2->fSize, t->fSize);
+                strcpy(t2->rotacao, t->rotacao);
+                strcpy(t2->txto, t->txto);
+                t2->x = t->x + dx;
+                t2->y = t->y + dy;
+                t2->ID = F2->ID;
+                F2->Figura = t2;
+                Ent->Nox = t2->x;
+                Ent->Noy = t2->y;
+                if (i > 0)
                 {
-                    Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
-                    Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
-                    t2->x = Ent->Nox;
-                    t2->y = Ent->Noy;
-                }
-                else
-                {
+                    /*Quando é a última repetição tem uma % de chance de gerar o objeto*/
                     Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
                     Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
                     t2->x = Ent->Nox;
                     t2->y = Ent->Noy;
                 }
             }
-        }
-        else if (F->Tipo == 'C')
-        {
-            Circulo *c = F->Figura;
-            Circulo *c2 = malloc(sizeof(Circulo));
-            strcpy(c2->corb, c->corb);
-            strcpy(c2->corp, c->corp);
-            c2->raio = c->raio;
-            c2->ID = F2->ID;
-            c2->x = c->x + dx;
-            c2->y = c->y + dy;
-            F2->Figura = c2;
-            Ent->Nox = c2->x;
-            Ent->Noy = c2->y;
-            if (i > 0)
+            else if (F->Tipo == 'C')
             {
-                /*Quando é a última repetição tem uma % de chance de gerar o objeto*/
-                if (i == proporcao - 1 && Chance(proporcao - (int)proporcao))
+                Circulo *c = F->Figura;
+                Circulo *c2 = malloc(sizeof(Circulo));
+                strcpy(c2->corb, c->corb);
+                strcpy(c2->corp, c->corp);
+                c2->raio = c->raio;
+                c2->ID = F2->ID;
+                c2->x = c->x + dx;
+                c2->y = c->y + dy;
+                F2->Figura = c2;
+                Ent->Nox = c2->x;
+                Ent->Noy = c2->y;
+                if (i > 0)
                 {
-                    Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
-                    Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
-                    c2->x = Ent->Nox;
-                    c2->y = Ent->Noy;
-                }
-                else
-                {
+                    /*Quando é a última repetição tem uma % de chance de gerar o objeto*/
                     Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
                     Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
                     c2->x = Ent->Nox;
                     c2->y = Ent->Noy;
                 }
             }
-        }
-        else if (F->Tipo == 'R')
-        {
-            Retangulo *r = F->Figura;
-            Retangulo *r2 = malloc(sizeof(Retangulo));
-            strcpy(r2->corb, r->corb);
-            strcpy(r2->corp, r->corp);
-            r2->pont = r->pont;
-            r2->alt = r->alt;
-            r2->larg = r->larg;
-            r2->ID = F2->ID;
-            r2->x = r->x + dx;
-            r2->y = r->y + dy;
-            F2->Figura = r2;
-            Ent->Nox = r2->x;
-            Ent->Noy = r2->y;
-            if (i > 0)
+            else if (F->Tipo == 'R')
             {
-                /*Quando é a última repetição tem uma % de chance de gerar o objeto*/
-                if (i == proporcao - 1 && Chance(proporcao - (int)proporcao))
+                Retangulo *r = F->Figura;
+                Retangulo *r2 = malloc(sizeof(Retangulo));
+                strcpy(r2->corb, r->corb);
+                strcpy(r2->corp, r->corp);
+                r2->pont = r->pont;
+                r2->alt = r->alt;
+                r2->larg = r->larg;
+                r2->ID = F2->ID;
+                r2->x = r->x + dx;
+                r2->y = r->y + dy;
+                F2->Figura = r2;
+                Ent->Nox = r2->x;
+                Ent->Noy = r2->y;
+                if (i > 0)
                 {
-                    Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
-                    Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
-                    r2->x = Ent->Nox;
-                    r2->y = Ent->Noy;
-                }
-                else
-                {
+                    /*Quando é a última repetição tem uma % de chance de gerar o objeto*/
                     Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
                     Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
                     r2->x = Ent->Nox;
                     r2->y = Ent->Noy;
                 }
             }
-        }
-        else if (F->Tipo == 'L')
-        {
-            Linha *l = F->Figura;
-            Linha *l2 = malloc(sizeof(Linha));
-            strcpy(l2->cor, l->cor);
-            l->ID = F2->ID;
-            l2->x1 = l->x1 + dx;
-            l2->y1 = l->y1 + dy;
-            l2->x2 = l->x2 + dx;
-            l2->y2 = l->y2 + dy;
-            F2->Figura = l2;
-            Ent->Nox = l2->x1;
-            Ent->Noy = l2->y1;
-            if (i > 0)
+            else if (F->Tipo == 'L')
             {
-                /*Quando é a última repetição tem uma % de chance de gerar o objeto*/
-                if (i == proporcao - 1 && Chance(proporcao - (int)proporcao))
+                Linha *l = F->Figura;
+                Linha *l2 = malloc(sizeof(Linha));
+                strcpy(l2->cor, l->cor);
+                l->ID = F2->ID;
+                l2->x1 = l->x1 + dx;
+                l2->y1 = l->y1 + dy;
+                l2->x2 = l->x2 + dx;
+                l2->y2 = l->y2 + dy;
+                F2->Figura = l2;
+                Ent->Nox = l2->x1;
+                Ent->Noy = l2->y1;
+                if (i > 0)
                 {
-                    Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
-                    Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
-                    l2->x1 = Ent->Nox;
-                    l2->y1 = Ent->Noy;
-                }
-                else
-                {
+                    /*Quando é a última repetição tem uma % de chance de gerar o objeto*/
                     Ent->Nox += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
                     Ent->Noy += GerarNumeroDouble(DISPERCAO_MIN, DISPERCAO_MAX);
                     l2->x1 = Ent->Nox;
                     l2->y1 = Ent->Noy;
                 }
             }
-        }
-        else
-        {
-            printf("Erro ao verificar forma da figura ao copiar!\n");
-            free(F2);
-            return;
-        }
+            else
+            {
+                printf("Erro ao verificar forma da figura ao copiar!\n");
+                free(F2);
+                return;
+            }
 
-        /* Cria uma entidade temporária para a organização dos IDs */
-        Ent->Fig = F2;
-        Ent->ID = F2->ID;
-        Ent->IsColheita = false;
-        insertLst(TempEnt, Ent);
+            /* Cria uma entidade temporária para a organização dos IDs */
+            Ent->Fig = F2;
+            Ent->ID = F2->ID;
+            Ent->IsColheita = false;
+            insertLst(TempEnt, Ent);
+        }
     }
 }
 

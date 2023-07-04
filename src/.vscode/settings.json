@@ -43,7 +43,7 @@
                 "-o",
                 "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src/logs",
                 "-q",
-                "00-simples-morango/colhe-interv-horz.qry",
+                "00-simples-morango/semeia-r3-colhe.qry",
                 "-ns",
                 "8",
                 "-fd",
