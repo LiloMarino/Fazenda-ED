@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "svg.h"
-#include "def.h"
+#include "config.h"
 #include "geo.h"
 #include "Bibliotecas/geradores.h"
 #include "Bibliotecas/arqsvg.h"

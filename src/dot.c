@@ -4,6 +4,7 @@
 #include "dot.h"
 #include "radialtree.h"
 #include "Bibliotecas/learquivo.h"
+#include "Bibliotecas/efficiency.h"
 
 struct StFigura
 {
@@ -100,7 +101,9 @@ void CriaPngDot(const char nome[])
         char command[2*strlen(nomearq) + 30];
         sprintf(command, "dot -Tpng %s -o %s", nomearq, nomepng);
         printf("\nTempo para gerar o %s\n",nomepng);
+        iniciarTempo();
         system(command);
+        finalizarTempo();
         n++;
         sprintf(nomearq, "%s-%d.dot", nome, n);
         sprintf(nomepng, "%s-%d.png", nome, n);

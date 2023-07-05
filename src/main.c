@@ -6,13 +6,14 @@
 #include "qry.h"
 #include "svg.h"
 #include "dot.h"
-#include "def.h"
+#include "config.h"
 #include "Bibliotecas/geradores.h"
 #include "Bibliotecas/path.h"
-#include "Bibliotecas/efficiency.h"
 
+#if FINAL_DOT_ONLY != 1
 FILE *ARQDOT;
 char *FNARQDOT;
+#endif 
 
 int main(int argc, char **argv)
 {
@@ -47,48 +48,58 @@ int main(int argc, char **argv)
     }
 
     /* Executa o .geo */
+    #if FINAL_DOT_ONLY != 1
     FNARQDOT = OutputGeo;
     ARQDOT = CriaLog(FNARQDOT, "dot");
     InicializaDot(ARQDOT);
+    #endif
     InterpretaGeo(Geo, All);
     OperaSVG(OutputGeo, All);
+    #if FINAL_DOT_ONLY != 1
     TerminaDot(ARQDOT);
     if (Qry == NULL)
     {
         #if SKIP_IMAGE_GENERATION != 1
-        iniciarTempo();
         CriaPngDot(OutputGeo);
-        finalizarTempo();
         #endif
     }
     else
     {
         DeleteDuplicates(FNARQDOT,"dot");
     }
+    #endif
 
     /* Executa o .qry */
     if (Qry != NULL)
     {
+        #if FINAL_DOT_ONLY != 1
         FNARQDOT = OutputGeoQry;
         ARQDOT = CriaLog(FNARQDOT, "dot");
         CopiaDot(ARQDOT, OutputGeo);
+        #endif
         InterpretaQry(Qry, &All, log, OutputGeoQry);
         OperaSVG(OutputGeoQry, All);
+        #if FINAL_DOT_ONLY != 1
         TerminaDot(ARQDOT);
+        #endif
         #if SKIP_IMAGE_GENERATION != 1
-        iniciarTempo();
         CriaPngDot(OutputGeoQry);
-        finalizarTempo();
         #endif
     }
 
     if (Qry != NULL)
     {
-        printDotRadialTree(All, OutputGeoQry);
+        if (printDotRadialTree(All, OutputGeoQry))
+        {
+            printf("Arquivo dot criado com sucesso!");
+        }
     }
     else
     {
-        printDotRadialTree(All, OutputGeo);
+        if (printDotRadialTree(All, OutputGeo))
+        {
+            printf("Arquivo dot criado com sucesso!");
+        }
     }
 
     /*Realiza todos os frees*/

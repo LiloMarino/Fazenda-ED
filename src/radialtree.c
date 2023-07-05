@@ -2,6 +2,7 @@
 #include "geo.h"
 #include "svg.h"
 #include "dot.h"
+#include "config.h"
 #include "Bibliotecas/utilities.h"
 #include "Bibliotecas/geradores.h"
 #include <stdio.h>
@@ -301,7 +302,9 @@ Node insertRadialT(RadialTree t, double x, double y, Info i)
                         /*Nó não tem um filho pertencente ao setor*/
                         P->filhos[i] = No;
                         No->pai = P;
+                        #if FINAL_DOT_ONLY != 1
                         LigaNo(ARQDOT, t, No->pai, No);
+                        #endif
                         return No;
                     }
                     else
@@ -314,7 +317,9 @@ Node insertRadialT(RadialTree t, double x, double y, Info i)
             }
         } while (P != NULL);
     }
+    #if FINAL_DOT_ONLY != 1
     LigaNo(ARQDOT, t, No->pai, No);
+    #endif
     return No;
 }
 
@@ -365,13 +370,17 @@ void removeNoRadialT(RadialTree t, Node n)
     Rmv->removido = true;
     Tree->numNosRemovidos++;
     double fd = ((double)Tree->numNosRemovidos) / Tree->numTotalNos;
+    #if FINAL_DOT_ONLY != 1
     MarcaNoRemovido(ARQDOT, t, Rmv);
+    #endif 
     /*Verifica se é necessário recriar a árvore*/
     if (fd > Tree->limiar)
     {
+        #if FINAL_DOT_ONLY != 1
         TerminaDot(ARQDOT);
         ARQDOT = CriaLog(FNARQDOT, "dot");
         InicializaDot(ARQDOT);
+        #endif 
         RadialTree NovaArvore = newRadialTree(Tree->numSetores, Tree->limiar);
         Lista Aux = VerificaArvore(Tree);
         while (!isEmptyLst(Aux))
@@ -713,5 +722,6 @@ bool printDotRadialTree(RadialTree t, char *fn)
 
 void killRadialTree(RadialTree t)
 {
+    /** @warning É necessário passar o endereço do ponteiro da árvore para esta função*/
     freeRadialTree(t, true);
 }

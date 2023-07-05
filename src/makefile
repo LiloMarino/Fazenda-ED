@@ -17,7 +17,7 @@ OBJETOS = $(addprefix $(OUTPUT), $(FONTES:.c=.o))
 
 # Compilador e opções de compilação
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic-errors -fstack-protector-all -Werror=implicit-function-declaration -g
+CFLAGS = -Wall -Wextra -pedantic-errors -fstack-protector-all -Werror=implicit-function-declaration -g -O3
 
 # Regra padrão
 all: $(OUTPUT)$(PROJETO)
@@ -42,10 +42,10 @@ clean:
 run:
 	cd $(OUTPUT) && valgrind --leak-check=full --show-leak-kinds=all ./$(PROJETO) \
 		-e "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src" \
-		-f "00-simples-morango.geo" \
+		-f "04-grande.geo" \
 		-o "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src/logs" \
-		-q "00-simples-morango/colhe-interv-horz.qry" \
-		-ns "8" \
+		-q "04-grande/colhe-interv-horz1.qry" \
+		-ns "100" \
 		-fd "10"
 
 

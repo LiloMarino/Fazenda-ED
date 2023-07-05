@@ -7,7 +7,7 @@
 #include "Bibliotecas/utilities.h"
 #include "qry.h"
 #include "geo.h"
-#include "def.h"
+#include "config.h"
 #include "svg.h"
 
 struct StFigura

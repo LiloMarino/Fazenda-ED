@@ -20,11 +20,12 @@
         "functional": "c",
         "tuple": "c",
         "utility": "c",
-        "def.h": "c",
+        "config.h": "c",
         "path.h": "c",
         "random": "c",
         "unistd.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "efficiency.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
