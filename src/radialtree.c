@@ -59,6 +59,12 @@ void freeNode(Node n, bool ClearTotal)
     free(No);
 }
 
+/**
+ * @brief Realiza o free na árvore
+ * @param t Endereço para a árvore radial
+ * @param ClearTotal Diz se é para dar free() até nos conteúdos dos nós desalocando tudo para o término do programa
+ * ou se é apenas para dar free() para a reconstrução da árvore
+ */
 void freeRadialTree(RadialTree t, bool ClearTotal)
 {
     /** @warning É necessário passar o endereço do ponteiro da árvore para esta função*/
