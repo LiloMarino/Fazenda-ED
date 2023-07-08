@@ -269,7 +269,7 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     double dx = 0, dy = 0;
     if (Direcao == 's')
     {
-        dy = -(R->alt) * Passos;
+        dy = -(R->alt) * (Passos-1);
         Xinicio = R->x;
         Yinicio = R->y + dy;
         Xfim = R->x + R->larg;
@@ -277,7 +277,7 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     }
     else if (Direcao == 'n')
     {
-        dy = (R->alt) * Passos;
+        dy = (R->alt) * (Passos-1);
         Xinicio = R->x;
         Yinicio = R->y;
         Xfim = R->x + R->larg;
@@ -285,7 +285,7 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     }
     else if (Direcao == 'o')
     {
-        dx = (R->larg) * Passos;
+        dx = (R->larg) * (Passos-1);
         Xinicio = R->x;
         Yinicio = R->y;
         Xfim = R->x + dx + R->larg;
@@ -293,7 +293,7 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     }
     else if (Direcao == 'l')
     {
-        dx = -(R->larg) * Passos;
+        dx = -(R->larg) * (Passos-1);
         Xinicio = R->x + dx;
         Yinicio = R->y;
         Xfim = R->x + R->larg;
