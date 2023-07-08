@@ -132,16 +132,7 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *OutputGeoQry)
             int ID;
             sscanf(linha, "%s %d", comando, &ID);
             fprintf(log, "\n[*] %s %d\n", comando, ID);
-            ProcID *I = ProcuraID(ID, *All);
-            Entidade *C = malloc(sizeof(Entidade));
-            C->ID = I->ID;
-            C->Nox = I->Nox;
-            C->Noy = I->Noy;
-            C->Fig = I->NoInfo;
-            C->IsColheita = true;
-            insertLst(Entidades, C);
-            ((Figura *)I->NoInfo)->RefCount++; // Pois foi inserido na lista Entidades
-            free(I);
+            DeclaraColheitadeira(ID, *All, Entidades);
         }
         else if (strcmp(comando, "hvt") == 0)
         {
@@ -232,6 +223,20 @@ void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *OutputGeoQry)
     killLst(Entidades);
     killLst(Colheita);
     killLst(Afetados);
+}
+
+void DeclaraColheitadeira(int ID, RadialTree All, Lista Entidades)
+{
+    ProcID *I = ProcuraID(ID, All);
+    Entidade *C = malloc(sizeof(Entidade));
+    C->ID = I->ID;
+    C->Nox = I->Nox;
+    C->Noy = I->Noy;
+    C->Fig = I->NoInfo;
+    C->IsColheita = true;
+    insertLst(Entidades, C);
+    ((Figura *)I->NoInfo)->RefCount++; // Pois foi inserido na lista Entidades
+    free(I);
 }
 
 void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, RadialTree *All, Lista Colheita, Lista Afetados)

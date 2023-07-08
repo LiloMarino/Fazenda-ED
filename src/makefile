@@ -17,7 +17,7 @@ OBJETOS = $(addprefix $(OUTPUT), $(FONTES:.c=.o))
 
 # Compilador e opções de compilação
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic-errors -fstack-protector-all -Werror=implicit-function-declaration -g -O3
+CFLAGS = -Wall -Wextra -pedantic-errors -fstack-protector-all -Werror=implicit-function-declaration -g
 
 # Regra padrão
 all: $(OUTPUT)$(PROJETO)
@@ -45,7 +45,7 @@ run:
 		-f "00-simples-morango" \
 		-o "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src/logs" \
 		-q "00-simples-morango/colhe-interv-horz.qry" \
-		-ns "100" \
+		-ns "8" \
 		-fd "10"
 
 

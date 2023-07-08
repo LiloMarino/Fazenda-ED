@@ -33,6 +33,14 @@ ArqQry abreLeituraQry(char *fn);
 void InterpretaQry(ArqQry fqry, RadialTree *All, FILE *log, char *OutputGeoQry);
 
 /**
+ * @brief Declara o objeto com o ID especificado como uma colheitadeira
+ * @param ID ID do objeto
+ * @param All Ponteiro para árvore radial com todos os elementos
+ * @param Entidades Lista que contém todas as entidades
+ */
+void DeclaraColheitadeira(int ID, RadialTree All, Lista Entidades);
+
+/**
  * @brief Move a colheitadeira ID e colhe todos os objetos em sua trajetória
  * @param ID ID da colheitadeira
  * @param Passos Número de passos a ser dado pela colheitadeira
