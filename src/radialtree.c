@@ -241,6 +241,61 @@ Lista VerificaArvore(RadialTree t)
     return Ordenado;
 }
 
+void GetTheta(NodeTree *No, double *Theta1, double *Theta2, bool *Leste, double x1, double y1, double x2, double y2)
+{
+    /*O Leste é um caso específico pois o ângulo é medido a partir do 0° que fica no Leste,
+    e portanto não é possível obter o intervalo de ângulo a partir de Theta2 - Theta1, mas sim por 360° - Theta2 + Theta1*/
+    if (No->x < x1 && No->x < x2)
+    {
+        /*Leste*/
+        *Leste = true;
+        *Theta1 = atan2(y1 - No->y, x1 - No->x);             // Ângulo do nó em relação ao ponto de referência (x1,y1)
+        *Theta2 = atan2(y2 - No->y, x2 - (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x2-largura,y2)
+    }
+    else if (No->x < y1 && No->x < y2)
+    {
+        /*Norte*/
+        *Theta1 = atan2(y2 - No->y, x2 - (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x2-largura,y2)
+        *Theta2 = atan2(y2 - No->y, x2 - No->x);             // Ângulo do nó em relação ao ponto de referência (x2,y2)
+    }
+    else if (No->x > x1 && No->x > x2)
+    {
+        /*Oeste*/
+        *Theta1 = atan2(y1 - No->y, x1 + (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x1+largura,y1)
+        *Theta2 = atan2(y2 - No->y, x2 - No->x);             // Ângulo do nó em relação ao ponto de referência (x2,y2)
+    }
+    else if (No->x > y1 && No->x > y2)
+    {
+        /*Sul*/
+        *Theta1 = atan2(y1 - No->y, x1 - No->x);             // Ângulo do nó em relação ao ponto de referência (x1,y1)
+        *Theta2 = atan2(y1 - No->y, x1 + (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x1+largura,y1)
+    }
+    else
+    {
+        /*Centro*/
+        *Theta1 = 0;
+        *Theta2 = 2 * PI;
+    }
+
+    *Theta1 = RadianosParaGraus(*Theta1);
+    *Theta2 = RadianosParaGraus(*Theta2);
+    if (*Theta1 < 0)
+    {
+        *Theta1 += 360;
+    }
+    if (*Theta2 < 0)
+    {
+        *Theta2 += 360;
+    }
+    /*Theta 2 deve ser maior que Theta 1*/
+    if (*Theta1 > *Theta2)
+    {
+        double aux = *Theta1;
+        *Theta1 = *Theta2;
+        *Theta2 = aux;
+    }
+}
+
 /*========================================================================================================== *
  * Funções Principais                                                                                        *
  *========================================================================================================== */
@@ -423,58 +478,8 @@ bool getNodesDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, 
     /*Calcula o angulo das coordenadas em relação ao centro*/
     double Theta1;
     double Theta2;
-    /*O Leste é um caso específico pois o ângulo é medido a partir do 0° que fica no Leste,
-    e portanto não é possível obter o intervalo de ângulo a partir de Theta2 - Theta1, mas sim por 360° - Theta2 + Theta1*/
     bool Leste = false;
-    if (No->x < x1 && No->x < x2)
-    {
-        /*Leste*/
-        Leste = true;
-        Theta1 = atan2(y1 - No->y, x1 - No->x);             // Ângulo do nó em relação ao ponto de referência (x1,y1)
-        Theta2 = atan2(y2 - No->y, x2 - (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x2-largura,y2)
-    }
-    else if (No->x < y1 && No->x < y2)
-    {
-        /*Norte*/
-        Theta1 = atan2(y2 - No->y, x2 - (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x2-largura,y2)
-        Theta2 = atan2(y2 - No->y, x2 - No->x);             // Ângulo do nó em relação ao ponto de referência (x2,y2)
-    }
-    else if (No->x > x1 && No->x > x2)
-    {
-        /*Oeste*/
-        Theta1 = atan2(y1 - No->y, x1 + (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x1+largura,y1)
-        Theta2 = atan2(y2 - No->y, x2 - No->x);             // Ângulo do nó em relação ao ponto de referência (x2,y2)
-    }
-    else if (No->x > y1 && No->x > y2)
-    {
-        /*Sul*/
-        Theta1 = atan2(y1 - No->y, x1 - No->x);             // Ângulo do nó em relação ao ponto de referência (x1,y1)
-        Theta2 = atan2(y1 - No->y, x1 + (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x1+largura,y1)
-    }
-    else
-    {
-        /*Centro*/
-        Theta1 = 0;
-        Theta2 = 2 * PI;
-    }
-
-    Theta1 = RadianosParaGraus(Theta1);
-    Theta2 = RadianosParaGraus(Theta2);
-    if (Theta1 < 0)
-    {
-        Theta1 += 360;
-    }
-    if (Theta2 < 0)
-    {
-        Theta2 += 360;
-    }
-    /*Theta 2 deve ser maior que Theta 1*/
-    if (Theta1 > Theta2)
-    {
-        double aux = Theta1;
-        Theta1 = Theta2;
-        Theta2 = aux;
-    }
+    GetTheta(No, &Theta1, &Theta2, &Leste, x1, y1, x2, y2);
 
     /*Cria o Stack de verificação baseado na direção da área*/
     Lista Stack = createLst(-1);
