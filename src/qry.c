@@ -595,11 +595,25 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
 void Semeia(double x, double y, double largura, double altura, double fator, double dx, double dy, int j, Lista Entidades, RadialTree All, FILE *log)
 {
     /* "Copia" os nós dentro da área */
-    Lista Nos = createLst(-1);
-    getNodesDentroRegiaoRadialT(All, x, y, x + largura, y + altura, Nos);
+    Lista Atingido = createLst(-1);
+
+    ProcArea *Area = malloc(sizeof(ProcArea));
+    Area->Atingido = Atingido;
+    Area->x = x;
+    Area->y = y;
+    Area->larg = largura;
+    Area->alt = altura;
+
+    getNodesDentroRegiaoRadialT(All, x, y, x + largura, y + altura, Atingido);
+    Atingido = TransformaLista(All, Atingido);
+    Atingido = FiltraForaDaArea(Atingido, Area);
+    free(Area);
+
+    /*Insere na lista NotEntity apenas as Hortaliças, ou seja remove as entidades*/
+    Lista NotEntity = filter(Atingido, FiltraEntidades, Entidades);
 
     /* "Cola" os nós na área movida por dx e dy */
-    Paste(j, dx, dy, fator, All, Nos, Entidades, log);
+    Paste(j, dx, dy, fator, All, NotEntity, log);
 
     /*Marca a área copiada para o svg e marca o círculo vermelho em (x,y)*/
     CriaArea(All, Entidades, x, y, x + largura, y + altura);
@@ -608,6 +622,8 @@ void Semeia(double x, double y, double largura, double altura, double fator, dou
     /*Marca a área colada para o svg e marca o círculo vermelho em (x,y)*/
     CriaArea(All, Entidades, dx + x, dy + y, dx + x + largura, dy + y + altura);
     CriaMarcacaoCircular(All, Entidades, dx + x, dy + y, RAIO_BASE, "#ffffff00", "red");
+
+    killLst(Atingido);
 }
 
 void DadosI(int ID, RadialTree All, FILE *log)
@@ -853,36 +869,21 @@ void ContabilizaColheita(Lista Colheita, FILE *log)
     fflush(log);
 }
 
-void Paste(int j, double dx, double dy, double proporcao, RadialTree All, Lista Nos, Lista Entidades, FILE *log)
+void Paste(int j, double dx, double dy, double proporcao, RadialTree All, Lista NotEntity, FILE *log)
 {
     Lista TempEnt = createLst(-1);
     /* Filtra a Lista dos Nós copiando apenas os nós que não são entidades*/
-    fprintf(log, "Figuras:\n\n");
-    while (!isEmptyLst(Nos))
+    fprintf(log, "\nFiguras Afetadas:\n\n");
+    while (!isEmptyLst(NotEntity))
     {
-        bool IsEntity = false;
-        Node N = popLst(Nos);
-        Figura *F = getInfoRadialT(All, N);
-        Iterador E = createIterador(Entidades, false);
-        while (!isIteratorEmpty(Entidades, E))
-        {
-            Entidade *Ent = getIteratorNext(Entidades, E);
-            if (F->ID == Ent->ID)
-            {
-                IsEntity = true;
-            }
-        }
-        killIterator(E);
-        if (!IsEntity)
-        {
-            DadosI(F->ID, All, log);
-            Copy(F, j, dx, dy, proporcao, TempEnt);
-        }
+        Figura *F = popLst(NotEntity);
+        DadosI(F->ID, All, log);
+        Copy(F, j, dx, dy, proporcao, TempEnt);
     }
-    killLst(Nos);
+    killLst(NotEntity);
 
     /*Coloca na árvore as figuras copiadas*/
-    fprintf(log, "Figuras Clonadas:\n\n");
+    fprintf(log, "\nFiguras Clonadas:\n\n");
     while (!isEmptyLst(TempEnt))
     {
         Entidade *Ent = popLst(TempEnt);
@@ -897,11 +898,11 @@ void Paste(int j, double dx, double dy, double proporcao, RadialTree All, Lista 
 
 void Copy(void *Fig, int j, double dx, double dy, double proporcao, Lista TempEnt)
 {
-    Figura *F = (Figura *)Fig;
+    Figura *F = Fig;
     double UPproporcao = ceil(proporcao);
     for (int i = 0; i < UPproporcao; i++)
     {
-        if (i < UPproporcao - 1 || (i == UPproporcao - 1 && Chance(proporcao - (int)proporcao)))
+        if ((i < UPproporcao - 1 || proporcao == UPproporcao) || (i == UPproporcao - 1 && Chance(proporcao - (int)proporcao)))
         {
             Entidade *Ent = malloc(sizeof(Entidade));
             Figura *F2 = malloc(sizeof(Figura));

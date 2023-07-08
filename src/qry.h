@@ -175,11 +175,10 @@ void ContabilizaColheita(Lista Colheita, FILE *log);
  * @param dy Variação vertical da área
  * @param proporcao Fator de proporção
  * @param All Ponteiro para a árvore radial
- * @param Nos Lista contendo os nós copiados
- * @param Entidades Lista contendo as entidades
+ * @param NotEntity Lista contendo as hortaliças afetadas que não são entidades
  * @param log Ponteiro para o arquvio de registro
  */
-void Paste(int j, double dx, double dy, double proporcao, RadialTree All, Lista Nos, Lista Entidades, FILE *log);
+void Paste(int j, double dx, double dy, double proporcao, RadialTree All, Lista NotEntity, FILE *log);
 
 /**
  * @brief Copia as figuras da árvore e as insere na lista TempEnt proporcao vezes
