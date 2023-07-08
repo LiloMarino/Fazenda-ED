@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-/*Definem a Área da árvore e o viewBox do SVG, e são usados tanto na procura de elementos quanto na elaboração do SVG*/
+/*Definem a Área da árvore e o viewBox do SVG, e são usados na procura de elementos no final do qry */
 #define SIZE_X1 -1000 /* (x1,y1) */
 #define SIZE_Y1 -1000 /* (x1,y1) */
 #define SIZE_X2 5000 /* (x2,y2) */

@@ -70,36 +70,36 @@ void CriaLinhaSvg(ArqSvg fsvg, Item info);
 void CriaTextoSvg(ArqSvg fsvg, Item info);
 
 /**
- * @brief Verifica se a figura é um retângulo
+ * @brief Função do tipo FvisitaNo que verifica se a figura é um retângulo e se for a insere na lista
  * @param Figura Ponteiro para a estrutura Figura que contém o tipo
- * @note Os parâmetros x1,y1,x2,y2 não são usados, visto que a função é somente para verificar o tipo do item
- * @return Retorna verdadeiro se a figura é equivalente a figura associada a função
+ * @param aux Lista que contém todas as figuras do mesmo do tipo
+ * @note Os parâmetros x,y não são usados, visto que a função é somente para verificar o tipo do item
  */
-bool GetRetangulo(Info figura, double x1, double y1, double x2, double y2);
+void GetRetangulo(Info figura, double x, double y, void *aux);
 
 /**
- * @brief Verifica se a figura é um círculo
+ * @brief Função do tipo FvisitaNo que verifica se a figura é um círculo e se for a insere na lista
  * @param Figura Ponteiro para a estrutura Figura que contém o tipo
- * @note Os parâmetros x1,y1,x2,y2 não são usados, visto que a função é somente para verificar o tipo do item
- * @return Retorna verdadeiro se a figura é equivalente a figura associada a função
+ * @param aux Lista que contém todas as figuras do mesmo do tipo
+ * @note Os parâmetros x,y não são usados, visto que a função é somente para verificar o tipo do item
  */
-bool GetCirculo(Info figura, double x1, double y1, double x2, double y2);
+void GetCirculo(Info figura, double x, double y, void *aux);
 
 /**
- * @brief Verifica se a figura é uma linha
+ * @brief Função do tipo FvisitaNo que verifica se a figura é uma linha e se for a insere na lista
  * @param Figura Ponteiro para a estrutura Figura que contém o tipo
- * @note Os parâmetros x1,y1,x2,y2 não são usados, visto que a função é somente para verificar o tipo do item
- * @return Retorna verdadeiro se a figura é equivalente a figura associada a função
+ * @param aux Lista que contém todas as figuras do mesmo do tipo
+ * @note Os parâmetros x,y não são usados, visto que a função é somente para verificar o tipo do item
  */
-bool GetLinha(Info figura, double x1, double y1, double x2, double y2);
+void GetLinha(Info figura, double x, double y, void *aux);
 
 /**
- * @brief Verifica se a figura é um texto
+ * @brief Função do tipo FvisitaNo que verifica se a figura é um texto e se for a insere na lista
  * @param Figura Ponteiro para a estrutura Figura que contém o tipo
- * @note Os parâmetros x1,y1,x2,y2 não são usados, visto que a função é somente para verificar o tipo do item
- * @return Retorna verdadeiro se a figura é equivalente a figura associada a função
+ * @param aux Lista que contém todas as figuras do mesmo do tipo
+ * @note Os parâmetros x,y não são usados, visto que a função é somente para verificar o tipo do item
  */
-bool GetTexto(Info figura, double x1, double y1, double x2, double y2);
+void GetTexto(Info figura, double x, double y, void *aux);
 
 /**
  * @brief Analisa o tipo de figura e faz o free()

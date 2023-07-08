@@ -372,7 +372,7 @@ void removeNoRadialT(RadialTree t, Node n)
     double fd = ((double)Tree->numNosRemovidos) / Tree->numTotalNos;
     #if FINAL_DOT_ONLY != 1
     MarcaNoRemovido(ARQDOT, t, Rmv);
-    #endif 
+    #endif
     /*Verifica se é necessário recriar a árvore*/
     if (fd > Tree->limiar)
     {
@@ -380,7 +380,7 @@ void removeNoRadialT(RadialTree t, Node n)
         TerminaDot(ARQDOT);
         ARQDOT = CriaLog(FNARQDOT, "dot");
         InicializaDot(ARQDOT);
-        #endif 
+        #endif
         RadialTree NovaArvore = newRadialTree(Tree->numSetores, Tree->limiar);
         Lista Aux = VerificaArvore(Tree);
         while (!isEmptyLst(Aux))
@@ -590,19 +590,22 @@ void visitaProfundidadeRadialT(RadialTree t, FvisitaNo f, void *aux)
     insertLst(Stack, raiz);
     while (!isEmptyLst(Stack))
     {
-        NodeTree *Atual = popLst(Stack);
+        NodeTree *No = popLst(Stack);
 
-        if (!visitado[Atual - raiz])
+        if (!visitado[No - raiz])
         {
-            visitado[Atual - raiz] = true;
-            f(Atual->info, Atual->x, Atual->y, aux);
+            visitado[No - raiz] = true;
+            if (!No->removido)
+            {
+                f(No->info, No->x, No->y, aux);
+            }
 
             for (int i = Tree->numSetores - 1; i >= 0; i--)
             {
-                NodeTree *filho = Atual->filhos[i];
-                if (filho != NULL && !visitado[filho - raiz])
+                NodeTree *Filho = No->filhos[i];
+                if (Filho != NULL && !visitado[Filho - raiz])
                 {
-                    insertLst(Stack, filho);
+                    insertLst(Stack, Filho);
                 }
             }
         }
@@ -676,7 +679,7 @@ Node procuraNoRadialT(RadialTree t, FsearchNo f, void *aux)
 
 bool printDotRadialTree(RadialTree t, char *fn)
 {
-    FILE *file = CriaLog(fn,"dot");
+    FILE *file = CriaLog(fn, "dot");
     if (file == NULL)
     {
         printf("Erro ao abrir o arquivo.\n");
@@ -696,14 +699,14 @@ bool printDotRadialTree(RadialTree t, char *fn)
         No = popLst(Stack);
         if (No->removido)
         {
-            LigaNo(file,t,No->pai,No);
-            MarcaNoRemovido(file,t,No);
+            LigaNo(file, t, No->pai, No);
+            MarcaNoRemovido(file, t, No);
         }
         else
         {
-            LigaNo(file,t,No->pai,No);
+            LigaNo(file, t, No->pai, No);
         }
-        
+
         for (int i = 0; i < Tree->numSetores; i++)
         {
             if (No->filhos[i] != NULL)

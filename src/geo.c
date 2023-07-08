@@ -285,28 +285,44 @@ void CriaTextoSvg(ArqSvg fsvg, Item info)
     free(textAnchor);
 }
 
-bool GetRetangulo(Info figura, double x1, double y1, double x2, double y2)
+void GetRetangulo(Info figura, double x, double y, void *aux)
 {
+    Lista L = aux;
     Figura *f = figura;
-    return (f->Tipo == 'R');
+    if (f->Tipo == 'R')
+    {
+        insertLst(L, figura);
+    }
 }
 
-bool GetCirculo(Info figura, double x1, double y1, double x2, double y2)
+void GetCirculo(Info figura, double x, double y, void *aux)
 {
+    Lista L = aux;
     Figura *f = figura;
-    return (f->Tipo == 'C');
+    if (f->Tipo == 'C')
+    {
+        insertLst(L, figura);
+    }
 }
 
-bool GetLinha(Info figura, double x1, double y1, double x2, double y2)
+void GetLinha(Info figura, double x, double y, void *aux)
 {
+    Lista L = aux;
     Figura *f = figura;
-    return (f->Tipo == 'L');
+    if (f->Tipo == 'L')
+    {
+        insertLst(L, figura);
+    }
 }
 
-bool GetTexto(Info figura, double x1, double y1, double x2, double y2)
+void GetTexto(Info figura, double x, double y, void *aux)
 {
+    Lista L = aux;
     Figura *f = figura;
-    return (f->Tipo == 'T');
+    if (f->Tipo == 'T')
+    {
+        insertLst(L, figura);
+    }
 }
 
 void FreeFigura(Info figura)
