@@ -53,8 +53,10 @@ int main(int argc, char **argv)
     ARQDOT = CriaLog(FNARQDOT, "dot");
     InicializaDot(ARQDOT);
     #endif
+    
     InterpretaGeo(Geo, All);
     OperaSVG(OutputGeo, All);
+
     #if FINAL_DOT_ONLY != 1
     TerminaDot(ARQDOT);
     if (Qry == NULL)
@@ -77,8 +79,10 @@ int main(int argc, char **argv)
         ARQDOT = CriaLog(FNARQDOT, "dot");
         CopiaDot(ARQDOT, OutputGeo);
         #endif
+
         InterpretaQry(Qry, &All, log, OutputGeoQry);
         OperaSVG(OutputGeoQry, All);
+
         #if FINAL_DOT_ONLY != 1
         TerminaDot(ARQDOT);
         #endif
@@ -87,6 +91,8 @@ int main(int argc, char **argv)
         #endif
     }
 
+    /* Printa um único dot, caso a opção esteja ativada */
+    #if FINAL_DOT_ONLY != 0
     if (Qry != NULL)
     {
         if (printDotRadialTree(All, OutputGeoQry))
@@ -101,6 +107,7 @@ int main(int argc, char **argv)
             printf("Arquivo dot criado com sucesso!");
         }
     }
+    #endif
 
     /*Realiza todos os frees*/
     killRadialTree(&All);
