@@ -249,8 +249,6 @@ Lista VerificaArvore(RadialTree t)
 
 void GetTheta(NodeTree *No, double *Theta1, double *Theta2, bool *Leste, double x1, double y1, double x2, double y2)
 {
-    /*O Leste é um caso específico pois o ângulo é medido a partir do 0° que fica no Leste,
-    e portanto não é possível obter o intervalo de ângulo a partir de Theta2 - Theta1, mas sim por 360° - Theta2 + Theta1*/
     if (No->x < x1 && No->x < x2)
     {
         /*Leste*/
@@ -275,6 +273,30 @@ void GetTheta(NodeTree *No, double *Theta1, double *Theta2, bool *Leste, double 
         /*Sul*/
         *Theta1 = atan2(y1 - No->y, x1 - No->x);             // Ângulo do nó em relação ao ponto de referência (x1,y1)
         *Theta2 = atan2(y1 - No->y, x1 + (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x1+largura,y1)
+    }
+    else if (No->x < x1 && No->x > y2)
+    {
+        /*Nordeste*/
+        *Theta1 = atan2(y2 - No->y, x2 - No->x); // Ângulo do nó em relação ao ponto de referência (x2,y2)
+        *Theta2 = atan2(y1 - No->y, x1 - No->x); // Ângulo do nó em relação ao ponto de referência (x1,y1)
+    }
+    else if (No->x < x1 && No->x < y1)
+    {
+        /*Noroeste*/
+        *Theta1 = atan2(y2 - No->y, x2 - No->x);             // Ângulo do nó em relação ao ponto de referência (x2,y2)
+        *Theta2 = atan2(y2 - No->y, x2 - (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x2-largura,y2)
+    }
+    else if (No->x > x2 && No->x > y1)
+    {
+        /*Sudeste*/
+        *Theta1 = atan2(y1 - No->y, x1 + (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x1+largura,y1)
+        *Theta2 = atan2(y1 - No->y, x1 - No->x);             // Ângulo do nó em relação ao ponto de referência (x1,y1)
+    }
+    else if (No->x > x2 && No->x < y2)
+    {
+        /*Sudoeste*/
+        *Theta1 = atan2(y1 - No->y, x1 + (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x1+largura,y1)
+        *Theta2 = atan2(y2 - No->y, x2 - (x2 - x1) - No->x); // Ângulo do nó em relação ao ponto de referência (x2-largura,y2)
     }
     else
     {

@@ -97,14 +97,14 @@ int main(int argc, char **argv)
     {
         if (printDotRadialTree(All, OutputGeoQry))
         {
-            printf("Arquivo dot criado com sucesso!");
+            printf("Arquivo dot criado com sucesso!\n");
         }
     }
     else
     {
         if (printDotRadialTree(All, OutputGeo))
         {
-            printf("Arquivo dot criado com sucesso!");
+            printf("Arquivo dot criado com sucesso!\n");
         }
     }
     #endif
