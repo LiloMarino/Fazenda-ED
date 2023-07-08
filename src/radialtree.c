@@ -252,7 +252,7 @@ void GetTheta(NodeTree *No, double *Theta1, double *Theta2, bool *Leste, double 
     double largura = x2 - x1;
     /*O Leste é um caso específico pois o ângulo é medido a partir do 0° que fica no Leste,
     e portanto não é possível obter o intervalo de ângulo a partir de Theta2 - Theta1, mas sim por 360° - Theta2 + Theta1*/
-    if (No->x <= x1 && No->x < x2 && VerificaIntervalo(y2,No->y,y1))
+    if (No->x <= x1 && No->x < x2 && No->y < y1 && No->y > y2)
     {
         /*Leste*/
         *Leste = true;
@@ -265,7 +265,7 @@ void GetTheta(NodeTree *No, double *Theta1, double *Theta2, bool *Leste, double 
         *Theta1 = atan2(y2 - No->y, x2 - No->x); // Ângulo do nó em relação ao ponto de referência (x2,y2)
         *Theta2 = atan2(y1 - No->y, x1 - No->x); // Ângulo do nó em relação ao ponto de referência (x1,y1)
     }
-    else if (No->y < y1 && No->y <= y2 && VerificaIntervalo(x1,No->x,x2))
+    else if (No->y < y1 && No->y <= y2 && No->x > x1 && No->x < x2)
     {
         /*Norte*/
         *Theta1 = atan2(y2 - No->y, x2 - largura - No->x); // Ângulo do nó em relação ao ponto de referência (x2-largura,y2)
@@ -277,7 +277,7 @@ void GetTheta(NodeTree *No, double *Theta1, double *Theta2, bool *Leste, double 
         *Theta1 = atan2(y1 - No->y, x1 + largura - No->x); // Ângulo do nó em relação ao ponto de referência (x1+largura,y1)
         *Theta2 = atan2(y2 - No->y, x2 - largura - No->x); // Ângulo do nó em relação ao ponto de referência (x2-largura,y2)
     }
-    else if (No->x > x1 && No->x >= x2 && VerificaIntervalo(y2,No->y,y1))
+    else if (No->x > x1 && No->x >= x2 && No->y < y1 && No->y > y2)
     {
         /*Oeste*/
         *Theta1 = atan2(y1 - No->y, x1 + largura - No->x); // Ângulo do nó em relação ao ponto de referência (x1+largura,y1)
@@ -289,7 +289,7 @@ void GetTheta(NodeTree *No, double *Theta1, double *Theta2, bool *Leste, double 
         *Theta1 = atan2(y2 - No->y, x2 - No->x); // Ângulo do nó em relação ao ponto de referência (x2,y2)
         *Theta2 = atan2(y1 - No->y, x1 - No->x); // Ângulo do nó em relação ao ponto de referência (x1,y1)
     }
-    else if (No->y >= y1 && No->y > y2 && VerificaIntervalo(x1,No->x,x2))
+    else if (No->y >= y1 && No->y > y2 && No->x > x1 && No->x < x2)
     {
         /*Sul*/
         *Theta1 = atan2(y1 - No->y, x1 - No->x);           // Ângulo do nó em relação ao ponto de referência (x1,y1)
