@@ -388,9 +388,9 @@ Node insertRadialT(RadialTree t, double x, double y, Info i)
                         /*Nó não tem um filho pertencente ao setor*/
                         P->filhos[i] = No;
                         No->pai = P;
-                        #if FINAL_DOT_ONLY != 1
+#if FINAL_DOT_ONLY != 1
                         LigaNo(ARQDOT, t, No->pai, No);
-                        #endif
+#endif
                         return No;
                     }
                     else
@@ -403,9 +403,9 @@ Node insertRadialT(RadialTree t, double x, double y, Info i)
             }
         } while (P != NULL);
     }
-    #if FINAL_DOT_ONLY != 1
+#if FINAL_DOT_ONLY != 1
     LigaNo(ARQDOT, t, No->pai, No);
-    #endif
+#endif
     return No;
 }
 
@@ -456,17 +456,17 @@ void removeNoRadialT(RadialTree t, Node n)
     Rmv->removido = true;
     Tree->numNosRemovidos++;
     double fd = ((double)Tree->numNosRemovidos) / Tree->numTotalNos;
-    #if FINAL_DOT_ONLY != 1
+#if FINAL_DOT_ONLY != 1
     MarcaNoRemovido(ARQDOT, t, Rmv);
-    #endif
+#endif
     /*Verifica se é necessário recriar a árvore*/
     if (fd > Tree->limiar)
     {
-        #if FINAL_DOT_ONLY != 1
+#if FINAL_DOT_ONLY != 1
         TerminaDot(ARQDOT);
         ARQDOT = CriaLog(FNARQDOT, "dot");
         InicializaDot(ARQDOT);
-        #endif
+#endif
         RadialTree NovaArvore = newRadialTree(Tree->numSetores, Tree->limiar);
         Lista Aux = VerificaArvore(Tree);
         while (!isEmptyLst(Aux))
@@ -506,7 +506,7 @@ bool getNodesDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, 
         y2 = aux;
     }
 
-    /*Calcula o angulo das coordenadas em relação ao centro*/
+    /*Calcula o angulo das coordenadas em relação ao centro (primeiro nó)*/
     double Theta1;
     double Theta2;
     bool Leste = false;
@@ -518,11 +518,34 @@ bool getNodesDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, 
     {
         insertLst(L, No);
     }
-    for (int i = 0; i < Tree->numSetores; i++)
+    if (Leste)
     {
-        double InclinacaoRetaInf = i * 360 / Tree->numSetores;
-        double InclinacaoRetaSup = (i + 1) * 360 / Tree->numSetores;
-        if (((InclinacaoRetaSup >= Theta2 || Theta1 >= InclinacaoRetaInf) && Leste) || ((VerificaIntervalo(Theta1, InclinacaoRetaInf, Theta2) || VerificaIntervalo(Theta1, InclinacaoRetaSup, Theta2)) && !Leste))
+        /*Como o Leste é descontínuo não é possível verificar com os setores delimitadores, 
+        pois o Leste numa árvore de 8 setores pode englobar o Setor 0 e o Setor 7 por exemplo*/
+        for (int i = 0; i < Tree->numSetores; i++)
+        {
+            double InclinacaoRetaInf = i * 360 / Tree->numSetores;
+            double InclinacaoRetaSup = (i + 1) * 360 / Tree->numSetores;
+            if (InclinacaoRetaSup >= Theta2 || Theta1 >= InclinacaoRetaInf)
+            {
+                if (No->filhos[i] != NULL)
+                {
+                    insertLst(Stack, No->filhos[i]);
+                }
+            }
+        }
+    }
+    else
+    {
+        /*Obtém os setores delimitadores*/
+        int setorInicial = Theta1 / (360.0 / Tree->numSetores);
+        int setorFinal = Theta2 / (360.0 / Tree->numSetores);
+        if (setorFinal == Tree->numSetores)
+        {
+            setorFinal -= 1;
+        }
+
+        for (int i = setorInicial; i <= setorFinal; i++)
         {
             if (No->filhos[i] != NULL)
             {

@@ -25,7 +25,8 @@
         "random": "c",
         "unistd.h": "c",
         "stdlib.h": "c",
-        "efficiency.h": "c"
+        "efficiency.h": "c",
+        "numbers": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
@@ -40,11 +41,11 @@
                 "-e",
                 "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src",
                 "-f",
-                "00-simples-morango.geo",
+                "01-simples-horta.geo",
                 "-o",
                 "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src/logs",
                 "-q",
-                "00-simples-morango/semeia-r1.qry",
+                "01-simples-horta/colhe-interv-horz2.qry",
                 "-ns",
                 "8",
                 "-fd",
