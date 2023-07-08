@@ -514,10 +514,9 @@ bool getNodesDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, 
 
     /*Cria o Stack de verificação baseado na direção da área*/
     Lista Stack = createLst(-1);
-    Lista Aux = createLst(-1);
-    if (!(No->removido))
+    if (!(No->removido) && VerificaPonto(x1, No->x, x2, y1, No->y, y2))
     {
-        insertLst(Aux, No);
+        insertLst(L, No);
     }
     for (int i = 0; i < Tree->numSetores; i++)
     {
@@ -544,24 +543,13 @@ bool getNodesDentroRegiaoRadialT(RadialTree t, double x1, double y1, double x2, 
             }
         }
 
-        if (!(No->removido))
+        if (!(No->removido) && VerificaPonto(x1, No->x, x2, y1, No->y, y2))
         {
-            insertLst(Aux, No);
-        }
-    }
-
-    /*Insere na lista L quem retornar verdadeiro de Aux*/
-    while (!isEmptyLst(Aux))
-    {
-        NodeTree *P = popLst(Aux);
-        if (VerificaPonto(x1, P->x, x2, y1, P->y, y2))
-        {
-            insertLst(L, P);
+            insertLst(L, No);
             Existe = true;
         }
     }
     killLst(Stack);
-    killLst(Aux);
 
     return Existe;
 }
