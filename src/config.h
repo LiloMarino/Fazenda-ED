@@ -12,7 +12,7 @@
 #define DISPERCAO_MIN 1 /* Dispersão mínima da função de semear */
 #define DISPERCAO_MAX 10 /* Dispersão máxima da função de semear */
 #define SHOW_ID_FIGURA 0 /* 1 = True, 0 = False, Diz se mostra os IDs da figura no SVG*/
-#define SKIP_IMAGE_GENERATION 1 /* 1 = True, 0 = False, Pula a etapa de criação do png usando o .dot */
+#define SKIP_IMAGE_GENERATION 0 /* 1 = True, 0 = False, Pula a etapa de criação do png usando o .dot */
 #define FRAME_GENERATION 0 /* 1 = True, 0 = False, Diz se gera os frames de cada ação do qry em uma pasta */
 #define FINAL_DOT_ONLY 1 /* 1 = True, 0 = False, Se verdadeiro gera apenas o .dot contendo a imagem final da árvore, se falso gera os .dot cada vez que a árvore é recriada */
 

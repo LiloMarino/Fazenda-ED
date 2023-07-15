@@ -734,7 +734,7 @@ bool printDotRadialTree(RadialTree t, char *fn)
     }
 
     fprintf(file, "digraph RadialTree {\n");
-    fprintf(file, "    node [shape=record];\n");
+    fprintf(file, "    node [shape=box];\n");
 
     Raiz *Tree = t;
     NodeTree *No = Tree->node;

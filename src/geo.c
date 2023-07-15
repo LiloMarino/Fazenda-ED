@@ -412,3 +412,29 @@ void MostraID(ArqSvg fsvg, Item info)
         free(deco);
     }
 }
+
+void GetCoordenadas(double *X, double *Y, void *Fig)
+{
+    Figura *F = Fig;
+    switch (F->Tipo)
+    {
+    case 'T':
+        (*X) = ((Texto *)F->Figura)->x;
+        (*Y) = ((Texto *)F->Figura)->y;
+        break;
+    case 'C':
+        (*X) = ((Circulo *)F->Figura)->x;
+        (*Y) = ((Circulo *)F->Figura)->y;
+        break;
+    case 'R':
+        (*X) = ((Retangulo *)F->Figura)->x;
+        (*Y) = ((Retangulo *)F->Figura)->y;
+        break;
+    case 'L':
+        (*X) = ((Linha *)F->Figura)->x1;
+        (*Y) = ((Linha *)F->Figura)->y1;
+        break;
+    default:
+        printf("Erro ao obter coordenada para o dot\n");
+    };
+}

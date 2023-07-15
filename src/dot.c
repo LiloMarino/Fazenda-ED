@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "geo.h"
 #include "dot.h"
 #include "radialtree.h"
 #include "Bibliotecas/learquivo.h"
@@ -36,26 +37,37 @@ void LigaNo(ArqDot fdot, RadialTree All, Node pai, Node filho)
 {
     if (pai == NULL)
     {
-        char Forma = ((Figura *)getInfoRadialT(All, filho))->Tipo;
-        int ID = ((Figura *)getInfoRadialT(All, filho))->ID;
-        fprintf(fdot, "    Raiz -> \"%c%d\"\n", Forma, ID);
+        Figura* Child = getInfoRadialT(All, filho);
+        char Forma = Child->Tipo;
+        int ID = Child->ID;
+        double X,Y;
+        GetCoordenadas(&X,&Y,Child);
+        fprintf(fdot, "    Raiz -> \"%c%d X:%0.2lf Y:%0.2lf\"\n", Forma, ID, X, Y);
     }
     else
     {
-        char Forma1 = ((Figura *)getInfoRadialT(All, pai))->Tipo;
-        int ID1 = ((Figura *)getInfoRadialT(All, pai))->ID;
-        char Forma2 = ((Figura *)getInfoRadialT(All, filho))->Tipo;
-        int ID2 = ((Figura *)getInfoRadialT(All, filho))->ID;
-        fprintf(fdot, "    \"%c%d\" -> \"%c%d\"\n", Forma1, ID1, Forma2, ID2);
+        Figura* Father = getInfoRadialT(All, pai);
+        Figura* Child = getInfoRadialT(All, filho);
+        char Forma1 = Father->Tipo;
+        int ID1 = Father->ID;
+        char Forma2 = Child->Tipo;
+        int ID2 = Child->ID;
+        double X1,Y1,X2,Y2;
+        GetCoordenadas(&X1,&Y1,Father);
+        GetCoordenadas(&X2,&Y2,Child);
+        fprintf(fdot, "    \"%c%d X:%0.2lf Y:%0.2lf\" -> \"%c%d X:%0.2lf Y:%0.2lf\"\n", Forma1, ID1, X1, Y1, Forma2, ID2, X2, Y2);
     }
     fflush(fdot);
 }
 
 void MarcaNoRemovido(ArqDot fdot, RadialTree All, Node removido)
 {
-    char Forma = ((Figura *)getInfoRadialT(All, removido))->Tipo;
-    int ID = ((Figura *)getInfoRadialT(All, removido))->ID;
-    fprintf(fdot, "    %c%d [shape=none, label=\"X\", color=red, fontcolor=red, fontsize=20, width=0.3, height=0.3];\n", Forma, ID);
+    Figura* Rmv = getInfoRadialT(All, removido);
+    char Forma = Rmv->Tipo;
+    int ID = Rmv->ID;
+    double X,Y;
+    GetCoordenadas(&X,&Y,Rmv);
+    fprintf(fdot, "    \"%c%d X:%0.2lf Y:%0.2lf\" [shape=box, color=red, fontcolor=red];\n", Forma, ID, X, Y);
     fflush(fdot);
 }
 

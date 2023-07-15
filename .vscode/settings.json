@@ -23,7 +23,8 @@
         "def.h": "c",
         "path.h": "c",
         "random": "c",
-        "unistd.h": "c"
+        "unistd.h": "c",
+        "cmath": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
@@ -42,7 +43,7 @@
                 "-o",
                 "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/logs",
                 "-q",
-                "00-simples-morango/colhe-interv-horz.qry",
+                "arqcons.qry",
                 "-ns",
                 "8",
                 "-fd",

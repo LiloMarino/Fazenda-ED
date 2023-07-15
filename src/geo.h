@@ -115,4 +115,12 @@ void FreeFigura(Info figura);
  */
 void MostraID(ArqSvg fsvg, Item info);
 
+/**
+ * @brief Obtém as coordenadas para colocar no arquivo .dot
+ * @param X Endereço da varíavel onde será armazenado a coordenada X
+ * @param Y Endereço da varíavel onde será armazenado a coordenada Y
+ * @param Fig Ponteiro para a struct do tipo figura 
+ */
+void GetCoordenadas(double *X, double *Y, void *Fig);
+
 #endif

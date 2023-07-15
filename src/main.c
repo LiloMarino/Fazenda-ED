@@ -86,9 +86,6 @@ int main(int argc, char **argv)
         #if FINAL_DOT_ONLY != 1
         TerminaDot(ARQDOT);
         #endif
-        #if SKIP_IMAGE_GENERATION != 1
-        CriaPngDot(OutputGeoQry);
-        #endif
     }
 
     /* Printa um único dot, caso a opção esteja ativada */
@@ -107,6 +104,9 @@ int main(int argc, char **argv)
             printf("Arquivo dot criado com sucesso!\n");
         }
     }
+    #endif
+    #if SKIP_IMAGE_GENERATION != 1
+    CriaPngDot(OutputGeoQry);
     #endif
 
     /*Realiza todos os frees*/
