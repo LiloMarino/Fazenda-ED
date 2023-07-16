@@ -42,9 +42,9 @@ clean:
 run:
 	cd $(OUTPUT) && valgrind --leak-check=full --show-leak-kinds=all ./$(PROJETO) \
 		-e "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src" \
-		-f "01-simples-horta.geo" \
+		-f "03-simples-composto.geo" \
 		-o "/home/lilo/Faculdade/EstruturadeDados/Fazenda-ED/src/logs" \
-		-q "01-simples-horta/colhe-interv-horz2.qry" \
+		-q "03-simples-composto/contamina-defensivo-colhe.qry" \
 		-ns "8" \
 		-fd "10"
 

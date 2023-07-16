@@ -436,7 +436,8 @@ void GetCoordenadas(double *X, double *Y, void *Fig)
         break;
     default:
         printf("Erro ao obter coordenada para o dot\n");
-    };
+        break;
+    }
 }
 
 void GetType(char Tipo[], void *Fig)
@@ -445,18 +446,19 @@ void GetType(char Tipo[], void *Fig)
     switch (F->Tipo)
     {
     case 'T':
-        strcpy(Tipo,"Texto");
+        strcpy(Tipo, "Texto");
         break;
     case 'C':
-        strcpy(Tipo,"Circulo");
+        strcpy(Tipo, "Circulo");
         break;
     case 'R':
-        strcpy(Tipo,"Retangulo");
+        strcpy(Tipo, "Retangulo");
         break;
     case 'L':
-        strcpy(Tipo,"Linha");
+        strcpy(Tipo, "Linha");
         break;
     default:
         printf("Erro ao obter string para o dot\n");
-    };
+        break;
+    }
 }
