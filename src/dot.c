@@ -38,24 +38,27 @@ void LigaNo(ArqDot fdot, RadialTree All, Node pai, Node filho)
     if (pai == NULL)
     {
         Figura* Child = getInfoRadialT(All, filho);
-        char Forma = Child->Tipo;
+        char Forma[15];
         int ID = Child->ID;
         double X,Y;
         GetCoordenadas(&X,&Y,Child);
-        fprintf(fdot, "    Raiz -> \"%c%d X:%0.2lf Y:%0.2lf\"\n", Forma, ID, X, Y);
+        GetType(Forma,Child);
+        fprintf(fdot, "    Raiz -> \"%s\\n ID:%d\\n X:%0.2lf\\n Y:%0.2lf\"\n", Forma, ID, X, Y);
     }
     else
     {
         Figura* Father = getInfoRadialT(All, pai);
         Figura* Child = getInfoRadialT(All, filho);
-        char Forma1 = Father->Tipo;
+        char Forma1[15];
         int ID1 = Father->ID;
-        char Forma2 = Child->Tipo;
+        char Forma2[15];
         int ID2 = Child->ID;
         double X1,Y1,X2,Y2;
         GetCoordenadas(&X1,&Y1,Father);
         GetCoordenadas(&X2,&Y2,Child);
-        fprintf(fdot, "    \"%c%d X:%0.2lf Y:%0.2lf\" -> \"%c%d X:%0.2lf Y:%0.2lf\"\n", Forma1, ID1, X1, Y1, Forma2, ID2, X2, Y2);
+        GetType(Forma1,Father);
+        GetType(Forma2,Child);
+        fprintf(fdot, "    \"%s\\n ID:%d\\n X:%0.2lf\\n Y:%0.2lf\" -> \"%s\\n ID:%d\\n X:%0.2lf\\n Y:%0.2lf\"\n", Forma1, ID1, X1, Y1, Forma2, ID2, X2, Y2);
     }
     fflush(fdot);
 }
@@ -63,11 +66,12 @@ void LigaNo(ArqDot fdot, RadialTree All, Node pai, Node filho)
 void MarcaNoRemovido(ArqDot fdot, RadialTree All, Node removido)
 {
     Figura* Rmv = getInfoRadialT(All, removido);
-    char Forma = Rmv->Tipo;
+    char Forma[15];
     int ID = Rmv->ID;
     double X,Y;
     GetCoordenadas(&X,&Y,Rmv);
-    fprintf(fdot, "    \"%c%d X:%0.2lf Y:%0.2lf\" [shape=box, color=red, fontcolor=red];\n", Forma, ID, X, Y);
+    GetType(Forma,Rmv);
+    fprintf(fdot, "    \"%s\\n ID:%d\\n X:%0.2lf\\n Y:%0.2lf\" [shape=box, color=red, fontcolor=red];\n", Forma, ID, X, Y);
     fflush(fdot);
 }
 

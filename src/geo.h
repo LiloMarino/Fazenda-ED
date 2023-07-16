@@ -123,4 +123,11 @@ void MostraID(ArqSvg fsvg, Item info);
  */
 void GetCoordenadas(double *X, double *Y, void *Fig);
 
+/**
+ * @brief Obtém a string especificando o tipo da figura
+ * @param Tipo String que contém o tipo da figura Texto/Círculo/Retângulo/Linha T/C/R/L
+ * @param Fig Ponteiro para a struct do tipo figura
+ */
+void GetType(char Tipo[], void *Fig);
+
 #endif
