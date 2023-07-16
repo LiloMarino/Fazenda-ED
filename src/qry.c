@@ -269,7 +269,7 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     double dx = 0, dy = 0;
     if (Direcao == 's')
     {
-        dy = -(R->alt) * (Passos-1);
+        dy = -(R->alt) * (Passos - 1);
         Xinicio = R->x;
         Yinicio = R->y + dy;
         Xfim = R->x + R->larg;
@@ -277,7 +277,7 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     }
     else if (Direcao == 'n')
     {
-        dy = (R->alt) * (Passos-1);
+        dy = (R->alt) * (Passos - 1);
         Xinicio = R->x;
         Yinicio = R->y;
         Xfim = R->x + R->larg;
@@ -285,7 +285,7 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     }
     else if (Direcao == 'o')
     {
-        dx = (R->larg) * (Passos-1);
+        dx = (R->larg) * (Passos - 1);
         Xinicio = R->x;
         Yinicio = R->y;
         Xfim = R->x + dx + R->larg;
@@ -293,7 +293,7 @@ void Harvest(int ID, int Passos, char Direcao, FILE *log, Lista Entidades, Radia
     }
     else if (Direcao == 'l')
     {
-        dx = -(R->larg) * (Passos-1);
+        dx = -(R->larg) * (Passos - 1);
         Xinicio = R->x + dx;
         Yinicio = R->y;
         Xfim = R->x + R->larg;
@@ -417,8 +417,8 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
     /*Insere na lista AtingidoBefore as Hortaliças que já foram atingidas alguma vez, caso não tenha sido atingida é atribuído NULL*/
     Lista AtingidoBefore = map(NotEntity, TransformaAtingidos, Afetados);
 
-    int numLinhas, numColunas;
-    void *MatrizGoticulas = CriaMatrizDeGoticulas(x, y, largura, altura, raio, &numLinhas, &numColunas);
+    int numGoticulas;
+    void *VetorGoticulas = CriaVetorDeGoticulas(raio, &numGoticulas, *All, Entidades, NotEntity);
 
     while (!isEmptyLst(NotAtingidoBefore))
     {
@@ -427,7 +427,7 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
         Hortalica *H = calloc(1, sizeof(Hortalica));
         H->ID = F->ID;
         H->Fig = F;
-        double AreaAfetada = CalculaAreaAfetada(H->Fig, MatrizGoticulas, numLinhas, numColunas);
+        double AreaAfetada = CalculaAreaAfetada(H->Fig, VetorGoticulas, numGoticulas);
         H->Dano += AreaAfetada;
         ReportaHortalica(*All, log, H);
         if (H->Dano > 0.75)
@@ -449,7 +449,7 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
         if (Hor != NULL)
         {
             /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
-            double AreaAfetada = CalculaAreaAfetada(Hor->Fig, MatrizGoticulas, numLinhas, numColunas);
+            double AreaAfetada = CalculaAreaAfetada(Hor->Fig, VetorGoticulas, numGoticulas);
             Hor->Dano += AreaAfetada;
             ReportaHortalica(*All, log, Hor);
             if (Hor->Dano > 0.75)
@@ -461,7 +461,7 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
         }
     }
 
-    FreeMatrizDeGoticulas(MatrizGoticulas, numLinhas);
+    FreeVetorDeGoticulas(VetorGoticulas);
     killLst(Atingido);
     killLst(NotEntity);
     killLst(NotAtingidoBefore);
@@ -494,8 +494,8 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
     /*Insere na lista AtingidoBefore as Hortaliças que já foram atingidas alguma vez, caso não tenha sido atingida é atribuído NULL*/
     Lista AtingidoBefore = map(NotEntity, TransformaAtingidos, Afetados);
 
-    int numLinhas, numColunas;
-    void *MatrizGoticulas = CriaMatrizDeGoticulas(x, y, largura, altura, raio, &numLinhas, &numColunas);
+    int numGoticulas;
+    void *VetorGoticulas = CriaVetorDeGoticulas(raio, &numGoticulas, All, Entidades, NotEntity);
 
     while (!isEmptyLst(AtingidoBefore))
     {
@@ -506,7 +506,7 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
             ReportaHortalica(All, log, Hor);
             if (Hor->Dano > 0)
             {
-                double AreaAfetada = CalculaAreaAfetada(Hor->Fig, MatrizGoticulas, numLinhas, numColunas);
+                double AreaAfetada = CalculaAreaAfetada(Hor->Fig, VetorGoticulas, numGoticulas);
                 Hor->Dano -= AreaAfetada;
                 if (Hor->Dano < 0)
                 {
@@ -517,7 +517,7 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
         }
     }
 
-    FreeMatrizDeGoticulas(MatrizGoticulas, numLinhas);
+    FreeVetorDeGoticulas(VetorGoticulas);
     killLst(Atingido);
     killLst(NotEntity);
     killLst(AtingidoBefore);
@@ -552,8 +552,8 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
     /*Insere na lista AtingidoBefore as Hortaliças que já foram atingidas alguma vez, caso não tenha sido atingida é atribuído NULL*/
     Lista AtingidoBefore = map(NotEntity, TransformaAtingidos, Afetados);
 
-    int numLinhas, numColunas;
-    void *MatrizGoticulas = CriaMatrizDeGoticulas(x, y, largura, altura, raio, &numLinhas, &numColunas);
+    int numGoticulas;
+    void *VetorGoticulas = CriaVetorDeGoticulas(raio, &numGoticulas, All, Entidades, NotEntity);
 
     while (!isEmptyLst(NotAtingidoBefore))
     {
@@ -562,7 +562,7 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
         Hortalica *H = calloc(1, sizeof(Hortalica));
         H->ID = F->ID;
         H->Fig = F;
-        H->Prod = CalculaAreaAfetada(H->Fig, MatrizGoticulas, numLinhas, numColunas);
+        H->Prod = CalculaAreaAfetada(H->Fig, VetorGoticulas, numGoticulas);
         ReportaHortalica(All, log, H);
         insertLst(Afetados, H);
         F->RefCount++; // Pois foi inserido na lista Afetados
@@ -575,13 +575,13 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
         if (Hor != NULL)
         {
             /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
-            Hor->Prod += CalculaAreaAfetada(Hor->Fig, MatrizGoticulas, numLinhas, numColunas);
+            Hor->Prod += CalculaAreaAfetada(Hor->Fig, VetorGoticulas, numGoticulas);
             ReportaHortalica(All, log, Hor);
             fprintf(log, "\n");
         }
     }
 
-    FreeMatrizDeGoticulas(MatrizGoticulas, numLinhas);
+    FreeVetorDeGoticulas(VetorGoticulas);
     killLst(Atingido);
     killLst(NotEntity);
     killLst(NotAtingidoBefore);
@@ -1070,24 +1070,24 @@ void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, d
     f->RefCount = 2; // 2 pois foi inserido tanto na lista de entidades quanto na árvore
 }
 
-double CalculaAreaAfetada(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas)
+double CalculaAreaAfetada(void *Fig, void *VetorGoticulas, int numGoticulas)
 {
     Figura *F = Fig;
     if (F->Tipo == 'T')
     {
-        return VerificaGoticulaTexto(Fig, MatrizGoticulas, numLinhas, numColunas);
+        return VerificaGoticulaTexto(Fig, VetorGoticulas, numGoticulas);
     }
     else if (F->Tipo == 'C')
     {
-        return VerificaGoticulaCirculo(Fig, MatrizGoticulas, numLinhas, numColunas);
+        return VerificaGoticulaCirculo(Fig, VetorGoticulas, numGoticulas);
     }
     else if (F->Tipo == 'R')
     {
-        return VerificaGoticulaRetangulo(Fig, MatrizGoticulas, numLinhas, numColunas);
+        return VerificaGoticulaRetangulo(Fig, VetorGoticulas, numGoticulas);
     }
     else if (F->Tipo == 'L')
     {
-        return VerificaGoticulaLinha(Fig, MatrizGoticulas, numLinhas, numColunas);
+        return VerificaGoticulaLinha(Fig, VetorGoticulas, numGoticulas);
     }
     else
     {
@@ -1096,117 +1096,139 @@ double CalculaAreaAfetada(void *Fig, void *MatrizGoticulas, int numLinhas, int n
     }
 }
 
-double VerificaGoticulaTexto(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas)
+double VerificaGoticulaTexto(void *Fig, void *VetorGoticulas, int numGoticulas)
 {
-    Circulo **G = MatrizGoticulas;
+    Circulo *G = VetorGoticulas;
     Figura *F = Fig;
 
-    for (int i = 0; i < numLinhas; i++)
+    for (int i = 0; i < numGoticulas; i++)
     {
-        for (int j = 0; j < numColunas; j++)
+        if (TextoContidoNaGoticula(F->Figura, &G[i]))
         {
-            if (TextoContidoNaGoticula(F->Figura, &G[i][j]))
-            {
-                return 0.1; // Proporção fixa em 10%
-            }
+            return 0.1; // Proporção fixa em 10%
         }
     }
 
     return 0.0; // Nenhum círculo contém o texto
 }
 
-double VerificaGoticulaCirculo(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas)
+double VerificaGoticulaCirculo(void *Fig, void *VetorGoticulas, int numGoticulas)
 {
-    Circulo **G = MatrizGoticulas;
+    Circulo *G = VetorGoticulas;
     Figura *F = Fig;
     Circulo *c = F->Figura;
 
     double AreaAfetada = 0;
     double AreaCirculo = PI * c->raio * c->raio;
-    for (int i = 0; i < numLinhas; i++)
+
+    for (int i = 0; i < numGoticulas; i++)
     {
-        for (int j = 0; j < numColunas; j++)
+        if (GoticulaContidaNoCirculo(&G[i], F->Figura))
         {
-            if (GoticulaContidaNoCirculo(&G[i][j], F->Figura))
-            {
-                double AreaGoticula = PI * G[i][j].raio * G[i][j].raio;
-                AreaAfetada += AreaGoticula / AreaCirculo;
-            }
+            double AreaGoticula = PI * G[i].raio * G[i].raio;
+            AreaAfetada += AreaGoticula / AreaCirculo;
         }
     }
     return AreaAfetada;
 }
 
-double VerificaGoticulaRetangulo(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas)
+double VerificaGoticulaRetangulo(void *Fig, void *VetorGoticulas, int numGoticulas)
 {
-    Circulo **G = MatrizGoticulas;
+    Circulo *G = VetorGoticulas;
     Figura *F = Fig;
     Retangulo *r = F->Figura;
 
     double AreaAfetada = 0;
     double AreaRetangulo = r->larg * r->alt;
-    for (int i = 0; i < numLinhas; i++)
+
+    for (int i = 0; i < numGoticulas; i++)
     {
-        for (int j = 0; j < numColunas; j++)
+        if (GoticulaContidaNoRetangulo(&G[i], F->Figura))
         {
-            if (GoticulaContidaNoRetangulo(&G[i][j], F->Figura))
-            {
-                double AreaGoticula = PI * G[i][j].raio * G[i][j].raio;
-                AreaAfetada += AreaGoticula / AreaRetangulo;
-            }
+            double AreaGoticula = PI * G[i].raio * G[i].raio;
+            AreaAfetada += AreaGoticula / AreaRetangulo;
         }
     }
     return AreaAfetada;
 }
 
-double VerificaGoticulaLinha(void *Fig, void *MatrizGoticulas, int numLinhas, int numColunas)
+double VerificaGoticulaLinha(void *Fig, void *VetorGoticulas, int numGoticulas)
 {
-    Circulo **G = MatrizGoticulas;
+    Circulo *G = VetorGoticulas;
     Figura *F = Fig;
 
-    for (int i = 0; i < numLinhas; i++)
+    for (int i = 0; i < numGoticulas; i++)
     {
-        for (int j = 0; j < numColunas; j++)
+        if (LinhaContidaNaGoticula(F->Figura, &G[i]))
         {
-            if (LinhaContidaNaGoticula(F->Figura, &G[i][j]))
-            {
-                return 0.1; // Proporção fixa em 10%
-            }
+            return 0.1; // Proporção fixa em 10%
         }
     }
 
     return 0.0; // Nenhum círculo contém a linha
 }
 
-void *CriaMatrizDeGoticulas(double x, double y, double larg, double alt, double r, int *numLinhas, int *numColunas)
+void *CriaVetorDeGoticulas(double r, int *numGoticulas, RadialTree All, Lista Entidades, Lista NotEntity)
 {
-    *numLinhas = round(alt / (2 * r));
-    *numColunas = round(larg / (2 * r));
-
-    Circulo **goticulas = calloc(*numLinhas, sizeof(Circulo *)); // Vetor de ponteiros "Linhas"
-    for (int i = 0; i < *numLinhas; i++)
+    *numGoticulas = lengthLst(NotEntity);
+    Circulo *goticulas = malloc((*numGoticulas)*sizeof(Circulo)); // Vetor de goticulas
+    Iterador N = createIterador(NotEntity, false);
+    for (int i = 0; !isIteratorEmpty(Entidades, N); i++)
     {
-        goticulas[i] = calloc(*numColunas, sizeof(Circulo)); // Colunas ou Vetor da linha
-
-        for (int j = 0; j < *numColunas; j++)
-        {
-            goticulas[i][j].x = x + (2 * r * i) + r; // Atribui o valor de x para o círculo atual
-            goticulas[i][j].y = y + (2 * r * j) + r; // Atribui o valor de y para o círculo atual
-            goticulas[i][j].raio = r;                // Atribui o valor de raio para o círculo atual
-        }
+        Figura *F = getIteratorNext(NotEntity, N);
+        GetCoordGoticula(&goticulas[i].x,&goticulas[i].y,F);
+        goticulas[i].raio = r;
+        CriaMarcacaoCircular(All, Entidades, goticulas[i].x, goticulas[i].y, goticulas[i].raio, "black", "none");
     }
-
+    killIterator(N);
     return goticulas;
 }
 
-void FreeMatrizDeGoticulas(void *MatrizGoticulas, int numLinhas)
+void GetCoordGoticula(double *x, double *y, void *Fig)
 {
-    Circulo **goticulas = MatrizGoticulas;
-    for (int i = 0; i < numLinhas; i++)
+    Figura *F = Fig;
+    switch (F->Tipo)
     {
-        free(goticulas[i]); // Libera o vetor de círculos da linha
+    case 'R':
+    {
+        Retangulo *r = (Retangulo *)F->Figura;
+        *x = r->x + r->larg / 2.0;
+        *y = r->y + r->alt / 2.0;
+        break;
     }
-    free(goticulas); // Libera o vetor de ponteiros para linhas
+    case 'C':
+    {
+        Circulo *c = (Circulo *)F->Figura;
+        *x = c->x;
+        *y = c->y;
+        break;
+    }
+    case 'L':
+    {
+        Linha *l = (Linha *)F->Figura;
+        *x = (l->x1 + l->x2) / 2.0;
+        *y = (l->y1 + l->y2) / 2.0;
+        break;
+    }
+    case 'T':
+    {
+        Texto *t = (Texto *)F->Figura;
+        *x = t->x;
+        *y = t->y;
+        break;
+    }
+    default:
+    {
+        printf("Erro ao obter tipo da figura na gotícula!\n");
+        break;
+    }
+    }
+}
+
+void FreeVetorDeGoticulas(void *VetorDeGoticulas)
+{
+    Circulo *goticulas = VetorDeGoticulas;
+    free(goticulas); // Libera o vetor de gotículas
 }
 
 bool GoticulaContidaNoRetangulo(void *Goticula, void *Ret)
