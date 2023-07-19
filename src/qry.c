@@ -424,7 +424,7 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
         Hortalica *H = calloc(1, sizeof(Hortalica));
         H->ID = F->ID;
         H->Fig = F;
-        double AreaAfetada = CalculaAreaAfetada(H->Fig, raio, *All, Entidades);
+        double AreaAfetada = CalculaAreaAfetada(H->Fig, raio);
         H->Dano += AreaAfetada;
         ReportaHortalica(*All, log, H);
         if (H->Dano > 0.75)
@@ -446,7 +446,7 @@ void Praga(double x, double y, double largura, double altura, double raio, Lista
         if (Hor != NULL)
         {
             /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
-            double AreaAfetada = CalculaAreaAfetada(Hor->Fig, raio, *All, Entidades);
+            double AreaAfetada = CalculaAreaAfetada(Hor->Fig, raio);
             Hor->Dano += AreaAfetada;
             ReportaHortalica(*All, log, Hor);
             if (Hor->Dano > 0.75)
@@ -499,7 +499,7 @@ void Cura(double x, double y, double largura, double altura, double raio, Lista 
             ReportaHortalica(All, log, Hor);
             if (Hor->Dano > 0)
             {
-                double AreaAfetada = CalculaAreaAfetada(Hor->Fig, raio, All, Entidades);
+                double AreaAfetada = CalculaAreaAfetada(Hor->Fig, raio);
                 Hor->Dano -= AreaAfetada;
                 if (Hor->Dano < 0)
                 {
@@ -551,7 +551,7 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
         Hortalica *H = calloc(1, sizeof(Hortalica));
         H->ID = F->ID;
         H->Fig = F;
-        H->Prod = CalculaAreaAfetada(H->Fig, raio, All, Entidades);
+        H->Prod = CalculaAreaAfetada(H->Fig, raio);
         ReportaHortalica(All, log, H);
         insertLst(Afetados, H);
         F->RefCount++; // Pois foi inserido na lista Afetados
@@ -564,7 +564,7 @@ void Aduba(double x, double y, double largura, double altura, double raio, Lista
         if (Hor != NULL)
         {
             /*A hortaliça já foi afetada outra vez e está presente na lista Afetados*/
-            Hor->Prod += CalculaAreaAfetada(Hor->Fig, raio, All, Entidades);
+            Hor->Prod += CalculaAreaAfetada(Hor->Fig, raio);
             ReportaHortalica(All, log, Hor);
             fprintf(log, "\n");
         }
@@ -1058,13 +1058,12 @@ void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, d
     f->RefCount = 2; // 2 pois foi inserido tanto na lista de entidades quanto na árvore
 }
 
-double CalculaAreaAfetada(void *Fig, double r, RadialTree All, Lista Entidades)
+double CalculaAreaAfetada(void *Fig, double r)
 {
     Figura *F = Fig;
     Circulo goticula = {0};
     GetCoordGoticula(&goticula.x, &goticula.y, F);
     goticula.raio = r;
-    CriaMarcacaoCircular(All, Entidades, goticula.x, goticula.y, goticula.raio, "black", "none");
     if (F->Tipo == 'T')
     {
         return VerificaGoticulaTexto(Fig, &goticula);

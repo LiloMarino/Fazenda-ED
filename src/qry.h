@@ -220,7 +220,7 @@ void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, d
  * @param r Raio da gotícula
  * @return Retorna a área afetada
  */
-double CalculaAreaAfetada(void *Fig, double r, RadialTree All, Lista Entidades);
+double CalculaAreaAfetada(void *Fig, double r);
 
 /**
  * @brief Calcula a área afetada da figura pelas gotículas
