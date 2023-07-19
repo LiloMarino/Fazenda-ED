@@ -217,56 +217,42 @@ void CriaMarcacaoCircular(RadialTree All, Lista Entidades, double x, double y, d
 /**
  * @brief Calcula a área afetada da figura pelas gotículas
  * @param Fig Ponteiro para a figura
- * @param VetorGoticulas Ponteiro para o vetor de gotículas
- * @param numGoticulas Número de gotículas do vetor
+ * @param r Raio da gotícula
  * @return Retorna a área afetada
  */
-double CalculaAreaAfetada(void *Fig, void *VetorGoticulas, int numGoticulas);
+double CalculaAreaAfetada(void *Fig, double r, RadialTree All, Lista Entidades);
 
 /**
  * @brief Calcula a área afetada da figura pelas gotículas
  * @param Fig Ponteiro para a figura de texto
- * @param VetorGoticulas Ponteiro para o vetor de gotículas
- * @param numGoticulas Número de gotículas do vetor
+ * @param Goticula Ponteiro para a gotícula da respectiva figura
  * @return Retorna a área afetada
  */
-double VerificaGoticulaTexto(void *Fig, void *VetorGoticulas, int numGoticulas);
+double VerificaGoticulaTexto(void *Fig, void *Goticula);
 
 /**
  * @brief Calcula a área afetada da figura pelas gotículas
  * @param Fig Ponteiro para a figura de círculo
- * @param VetorGoticulas Ponteiro para o vetor de gotículas
- * @param numGoticulas Número de gotículas do vetor
+ * @param Goticula Ponteiro para a gotícula da respectiva figura
  * @return Retorna a área afetada
  */
-double VerificaGoticulaCirculo(void *Fig, void *VetorGoticulas, int numGoticulas);
+double VerificaGoticulaCirculo(void *Fig, void *Goticula);
 
 /**
  * @brief Calcula a área afetada da figura pelas gotículas
  * @param Fig Ponteiro para a figura de retângulo
- * @param VetorGoticulas Ponteiro para o vetor de gotículas
- * @param numGoticulas Número de gotículas do vetor
+ * @param Goticula Ponteiro para a gotícula da respectiva figura
  * @return Retorna a área afetada
  */
-double VerificaGoticulaRetangulo(void *Fig, void *VetorGoticulas, int numGoticulas);
+double VerificaGoticulaRetangulo(void *Fig, void *Goticula);
 
 /**
  * @brief Calcula a área afetada da figura pelas gotículas
  * @param Fig Ponteiro para a figura de linha
- * @param VetorGoticulas Ponteiro para o vetor de gotículas
- * @param numGoticulas Número de gotículas do vetor
+ * @param Goticula Ponteiro para a gotícula da respectiva figura
  * @return Retorna a área afetada
  */
-double VerificaGoticulaLinha(void *Fig, void *VetorGoticulas, int numGoticulas);
-
-/**
- * @brief Cria um vetor de gotículas circulares distribuidas nas figuras conforme o especificado
- * @param r Raio da gotícula
- * @param numGoticulas Endereço para o número de gotículas
- * @param NotEntity Lista contendo todos os elementos afetados que não são entidades
- * @return Retorna o ponteiro para o vetor de gotículas
- */
-void *CriaVetorDeGoticulas(double r, int *numGoticulas, RadialTree All, Lista Entidades, Lista NotEntity);
+double VerificaGoticulaLinha(void *Fig, void *Goticula);
 
 /**
  * @brief Obtém as coordenadas da gotícula
@@ -275,12 +261,6 @@ void *CriaVetorDeGoticulas(double r, int *numGoticulas, RadialTree All, Lista En
  * @param Fig Ponteiro para a struct do tipo Figura
  */
 void GetCoordGoticula(double *x, double *y, void *Fig);
-
-/**
- * @brief Realiza o free() do vetor de gotículas
- * @param VetorDeGoticulas Ponteiro para o vetor de gotículas
- */
-void FreeVetorDeGoticulas(void *VetorDeGoticulas);
 
 /**
  * @brief Verifica se a gotícula está totalmente contida no retângulo
