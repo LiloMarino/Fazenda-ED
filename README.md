@@ -1,4 +1,4 @@
-# Fazenda-ED
+# FarmKraft
 Este trabalho simula uma fazenda por meio da leitura de arquivos .geo e .qry seguindo os seguintes comandos dentro de seus arquivos e gera a fazenda em seu estado incial (após a execução do .geo) 
 e seu estado final (após a execução do .qry) e também gera um txt de relatório acerca dos comandos .qry e também gera um .dot retratando o estado final da árvore radial
 ### Arquivos Geo
