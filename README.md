@@ -1,6 +1,6 @@
 # Fazenda-ED
 Este trabalho simula uma fazenda por meio da leitura de arquivos .geo e .qry seguindo os seguintes comandos dentro de seus arquivos e gera a fazenda em seu estado incial (após a execução do .geo) 
-e seu estado final (após a execução do .qry) e também gera um txt de relatório encima do .qry e também gera um .dot retratando o estado final da árvore radial
+e seu estado final (após a execução do .qry) e também gera um txt de relatório acerca dos comandos .qry e também gera um .dot retratando o estado final da árvore radial
 ### Arquivos Geo
 ![image](https://github.com/LiloMarino/Fazenda-ED/assets/124915887/649d82c5-664d-4a6e-bb34-a3eb85676894)
 ![image](https://github.com/LiloMarino/Fazenda-ED/assets/124915887/72d161db-8f88-4347-87dc-6b9bfe328443)
