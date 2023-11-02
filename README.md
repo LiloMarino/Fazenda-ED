@@ -1,8 +1,16 @@
 # FarmKraft
 Este trabalho simula uma fazenda por meio da leitura de arquivos .geo e .qry seguindo os seguintes comandos dentro de seus arquivos e gera a fazenda em seu estado incial (após a execução do .geo) 
 e seu estado final (após a execução do .qry) e também gera um txt de relatório acerca dos comandos .qry e também gera um .dot retratando o estado final da árvore radial
+### Parâmetros para a execução do .exe
+| Parâmetro / argumento | Opcional | Descrição| 
+|--------|--------|--------|
+|-e path|S|Diretório-base de entrada|
+|-f arq.geo|N|Arquivo com a descrição da fazenda. Este arquivo deve estar sob o diretório.|
+|-o path|N|Diretório-base de saída|
+|-q arqcons.qry|S|Arquivo com consultas. Este arquivo deve estar sob o diretório.|
+|-ns i|N|Número de setores em cada nó da árvore|
+|-fd p|N|Fator de degradação (em porcentagem. exemplo: 75 => 0.75)|
 ### Arquivos Geo
-
 | Comando | Parâmetros | Descrição |
 |--------|--------|--------|
 | c | i x y r corb corp | Desenhar círculo corb é a cor da borda e corp é a cor do preenchimento|
@@ -34,3 +42,4 @@ A contabilidade da colheita é baseada na seguinte tabela
 |Cenoura|70g|
 |Mato(linha) |10g por unidade de comprimento|
 |Mato(texto) |15g|
+
